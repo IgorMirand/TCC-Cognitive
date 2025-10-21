@@ -1,0 +1,24 @@
+#:kivy 2.1.0
+
+<RoundButton@Button>:
+    background_normal: ''
+    background_color: 0.87, 0.94, 0.90, 1
+    color: 0, 0, 0, 1
+    font_size: 18
+    size_hint_y: None
+    height: dp(48)
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [16,]
+
+<LabelTitle@Label>:
+    color: 0,0,0,1
+    font_size: dp(28)
+    size_hint_y: None
+    height: self.texture_size[1] + dp(10)
+    halign: "left"
+    valign: "middle"

@@ -1,0 +1,73 @@
+<HomeScreen>:
+    name: "home"
+    MDFloatLayout:
+        md_bg_color: (146/255, 199/255, 163/255, 1)
+
+        # --- Logo (Flor) ---
+        Image:
+            # *** Substitua pelo caminho da sua imagem ***
+            source: "app/assets/img.png"
+            size_hint: None, None
+            size: "80dp", "80dp"
+            allow_stretch: True
+            pos_hint: {'center_x': .5, 'top': .96}
+
+        # --- Ícone de Notificação (Sino) ---
+        MDIconButton:
+            icon: "bell-outline"
+            pos_hint: {'right': .95, 'top': .96}
+            theme_text_color: "Custom"
+            text_color: (0.2, 0.2, 0.2, 1)
+            # --- AÇÃO DE NAVEGAÇÃO ---
+            # Ao ser pressionado, muda a tela atual para 'notifications'
+            on_release: app.root.current = 'notifications'
+
+        # --- Container para os Botões Centrais ---
+        MDBoxLayout:
+            orientation: 'vertical'
+            size_hint: .8, None
+            height: self.minimum_height
+            pos_hint: {'center_x': .5, 'center_y': .6}
+            spacing: "20dp"
+
+            MDFillRoundFlatButton:
+                text: "Registre como foi seu dia"
+                size_hint: 1, None
+                height: "60dp"
+                md_bg_color: (240/255, 240/255, 240/255, 1)
+                text_color: (0.2, 0.2, 0.2, 1)
+                font_size: "16sp"
+                on_release: app.root.current = 'register_activity'
+
+            MDFillRoundFlatButton:
+                text: "Diario"
+                size_hint: 1, None
+                height: "60dp"
+                md_bg_color: (240/255, 240/255, 240/255, 1)
+                text_color: (0.2, 0.2, 0.2, 1)
+                font_size: "16sp"
+
+        # --- Navegação Inferior (Textos) ---
+
+        MDFillRoundFlatButton:
+            text: "Home"
+            pos_hint: {'center_x': .3, 'y': .2} # Posição: 10% da base, centro X
+            size_hint: .3, None # 70% da largura da tela
+            height: "48dp"
+            # Cor de fundo cinza-claro, como na imagem
+            md_bg_color: (223/255, 236/255, 230/255, 1)
+            # Cor do texto preta
+            text_color: (0, 0, 0, 1)
+            font_size: "16sp"
+
+        MDFillRoundFlatButton:
+            text: "Voltar"
+            pos_hint: {'center_x': .7, 'y': .2} # Posição: 10% da base, centro X
+            size_hint: .3, None # 70% da largura da tela
+            height: "20dp"
+            # Cor de fundo cinza-claro, como na imagem
+            md_bg_color: (223/255, 236/255, 230/255, 1)
+            # Cor do texto preta
+            text_color: (0, 0, 0, 1)
+            font_size: "16sp"
+            elevation: 3

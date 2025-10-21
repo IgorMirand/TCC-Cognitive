@@ -1,0 +1,123 @@
+<RegisterActivityScreen>:
+    name: "register_activity"
+    MDFloatLayout:
+        md_bg_color: (146/255, 199/255, 163/255, 1)
+
+        # --- Área do Título ---
+        MDBoxLayout:
+            orientation: 'horizontal'
+            adaptive_size: True
+            pos_hint: {'x': .05, 'top': .97} # Posição: 5% da esquerda, 97% do topo
+            spacing: "10dp"
+
+            Image:
+                # *** Substitua pelo caminho da sua imagem ***
+                source: "app/assets/img.png"
+                size_hint: None, None
+                size: "40dp", "40dp"
+                allow_stretch: True
+
+            MDLabel:
+                text: "Oque você fez hoje?"
+                font_style: "H6"
+                valign: "center"
+                adaptive_size: True
+                theme_text_color: "Custom"
+                text_color: (0.2, 0.2, 0.2, 1) # Cor de texto escura
+
+        # --- Lista de Atividades com Scroll ---
+        ScrollView:
+            # Posicionado para preencher o meio da tela
+            size_hint: .9, .6 # 90% da largura, 60% da altura
+            pos_hint: {'center_x': .5, 'center_y': .55}
+            bar_width: 0 # Esconde a barra de rolagem
+
+            MDBoxLayout:
+                orientation: 'vertical'
+                adaptive_height: True
+                spacing: "10dp"
+
+                # --- Lista de Botões de Atividade ---
+                MDFillRoundFlatButton:
+                    text: "Pratiquei atividades físicas"
+                    size_hint: 1, None
+                    height: "50dp"
+                    md_bg_color: (240/255, 240/255, 240/255, 1) # Fundo branco/cinza
+                    text_color: (0.2, 0.2, 0.2, 1) # Texto escuro
+
+                MDFillRoundFlatButton:
+                    text: "Fui ao Mercado"
+                    size_hint: 1, None
+                    height: "50dp"
+                    md_bg_color: (240/255, 240/255, 240/255, 1)
+                    text_color: (0.2, 0.2, 0.2, 1)
+
+                MDFillRoundFlatButton:
+                    text: "Consumi bebidas alcoólicas"
+                    size_hint: 1, None
+                    height: "50dp"
+                    md_bg_color: (240/255, 240/255, 240/255, 1)
+                    text_color: (0.2, 0.2, 0.2, 1)
+
+                MDFillRoundFlatButton:
+                    text: "Estudei"
+                    size_hint: 1, None
+                    height: "50dp"
+                    md_bg_color: (240/255, 240/255, 240/255, 1)
+                    text_color: (0.2, 0.2, 0.2, 1)
+
+                MDFillRoundFlatButton:
+                    text: "Meditei"
+                    size_hint: 1, None
+                    height: "50dp"
+                    md_bg_color: (240/255, 240/255, 240/255, 1)
+                    text_color: (0.2, 0.2, 0.2, 1)
+
+                MDFillRoundFlatButton:
+                    text: "Ouvi Músicas"
+                    size_hint: 1, None
+                    height: "50dp"
+                    md_bg_color: (240/255, 240/255, 240/255, 1)
+                    text_color: (0.2, 0.2, 0.2, 1)
+
+                MDFillRoundFlatButton:
+                    text: "Desenhei, pintei ou colori"
+                    size_hint: 1, None
+                    height: "50dp"
+                    md_bg_color: (240/255, 240/255, 240/255, 1)
+                    text_color: (0.2, 0.2, 0.2, 1)
+
+                MDFillRoundFlatButton:
+                    text: "Aprendi algo novo (ex: idioma)"
+                    size_hint: 1, None
+                    height: "50dp"
+                    md_bg_color: (240/255, 240/255, 240/255, 1)
+                    text_color: (0.2, 0.2, 0.2, 1)
+
+                MDFillRoundFlatButton:
+                    text: "Encontrei um amigo ou familiar"
+                    size_hint: 1, None
+                    height: "50dp"
+                    md_bg_color: (240/255, 240/255, 240/255, 1)
+                    text_color: (0.2, 0.2, 0.2, 1)
+
+
+        # --- Botão de Cadastro (Principal) ---
+        MDFillRoundFlatButton:
+            text: "Cadastrar"
+            pos_hint: {'center_x': .5, 'y': .1} # Posição: 10% da base
+            size_hint: .7, None # 70% da largura da tela
+            height: "55dp"
+            # Cor de fundo cinza-claro, como na imagem
+            md_bg_color: (230/255, 230/255, 230/255, 1)
+            # Cor do texto preta
+            text_color: (0, 0, 0, 1)
+            font_size: "18sp"
+
+        # --- Botão VOLTAR ---
+        MDTextButton:
+            text: "Voltar"
+            pos_hint: {'center_x': .5, 'y': .05} # Posição abaixo do botão Cadastrar
+            theme_text_color: "Custom"
+            text_color: (0.2, 0.2, 0.2, 1)
+            # on_release: app.root.current = 'home' # Ação para voltar

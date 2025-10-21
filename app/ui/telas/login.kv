@@ -1,0 +1,142 @@
+<LoginScreen>:
+    name: "login"
+    MDFloatLayout:
+        md_bg_color: (146/255, 199/255, 163/255, 1)
+
+        # --- Área do Logo ---
+        # Usamos um MDBoxLayout para agrupar o ícone e o texto
+        MDBoxLayout:
+            orientation: 'horizontal'
+            adaptive_size: True
+            pos_hint: {'center_x': .5, 'top': .92} # Posição: 92% do topo, centro X
+            spacing: "10dp"
+
+            # ATENÇÃO: Substitua este MDIcon pelo seu widget de Imagem
+            Image:
+                source: "app/assets/img.png"
+                size_hint: None, None
+                size: "64dp", "64dp"
+
+            MDLabel:
+                text: "Cognitive"
+                font_style: "H6"
+                valign: "center"
+                theme_text_color: "Custom"
+                text_color: (0.2, 0.2, 0.2, 1) # Cor de texto escura
+
+        # --- Área do Formulário ---
+        MDBoxLayout:
+            orientation: 'vertical'
+            size_hint: .8, None  # 80% da largura da tela
+            height: self.minimum_height # Altura se ajusta ao conteúdo
+            pos_hint: {'center_x': .5, 'center_y': .60}
+            spacing: "10dp"
+
+            MDLabel:
+                text: "Login :"
+                font_style: "H5"
+                halign: 'left'
+                size_hint_y: None
+                height: self.texture_size[1]
+                theme_text_color: "Custom"
+                text_color: (0.2, 0.2, 0.2, 1)
+
+            # --- Campo Email ---
+            MDLabel:
+                text: "Username:"
+                halign: 'left'
+                size_hint_y: None
+                height: self.texture_size[1]
+                theme_text_color: "Custom"
+                text_color: (0.2, 0.2, 0.2, 1)
+                padding_y: "10dp" # Espaçamento antes do campo
+
+            MDTextField:
+                id: username
+                mode: "fill" # Modo preenchido
+                hint_text: "Seu Username"
+                radius: [15, 15, 15, 15] # Arredonda as bordas
+                # Cor de fundo cinza-claro
+                fill_color_normal: (230/255, 230/255, 230/255, 1)
+                fill_color_focus: (220/255, 220/255, 220/255, 1)
+                # Remove a linha inferior
+                line_color_normal: (0,0,0,0)
+                line_color_focus: (0,0,0,0)
+                text_color_normal: (0, 0, 0, 1)
+                text_color_focus: (0, 0, 0, 1)
+                size_hint_y: None
+                height: "48dp"
+
+            # --- Campo Senha ---
+            MDLabel:
+                text: "Senha:"
+                halign: 'left'
+                size_hint_y: None
+                height: self.texture_size[1]
+                theme_text_color: "Custom"
+                text_color: (0.2, 0.2, 0.2, 1)
+                padding_y: "10dp" # Espaçamento antes do campo
+
+            MDTextField:
+                id: password
+                mode: "fill"
+                hint_text: "Sua senha"
+                password: True
+                radius: [15, 15, 15, 15] # Arredonda as bordas
+                fill_color_normal: (230/255, 230/255, 230/255, 1)
+                fill_color_focus: (220/255, 220/255, 220/255, 1)
+                line_color_normal: (0,0,0,0)
+                line_color_focus: (0,0,0,0)
+                text_color_normal: (0, 0, 0, 1)
+                text_color_focus: (0, 0, 0, 1)
+                size_hint_y: None
+                height: "48dp"
+
+            MDLabel:
+                text: "Código de Acesso (Opcional):"
+                halign: 'left'
+                size_hint_y: None
+                height: self.texture_size[1]
+                theme_text_color: "Custom"
+                text_color: (0.2, 0.2, 0.2, 1)
+                padding_y: "10dp"
+
+            MDTextField:
+                id: codigo_acesso
+                hint_text: "Seu código (se for Psicólogo)"
+                mode: "fill"
+                radius: [15, 15, 15, 15]
+                fill_color_normal: (230/255, 230/255, 230/255, 1)
+                fill_color_focus: (220/255, 220/255, 220/255, 1)
+                line_color_normal: (0,0,0,0)
+                line_color_focus: (0,0,0,0)
+                text_color_normal: (0, 0, 0, 1)
+                text_color_focus: (0, 0, 0, 1)
+                size_hint_y: None
+                height: "48dp"
+
+        # --- Botão de Cadastro ---
+        MDFillRoundFlatButton:
+            text: "Login"
+            pos_hint: {'center_x': .5, 'y': .3} # Posição: 10% da base, centro X
+            size_hint: .7, None # 70% da largura da tela
+            height: "48dp"
+            # Cor de fundo cinza-claro, como na imagem
+            md_bg_color: (230/255, 230/255, 230/255, 1)
+            # Cor do texto preta
+            text_color: (0, 0, 0, 1)
+            font_size: "16sp"
+            on_release: root.do_login()
+
+        MDFillRoundFlatButton:
+            text: "Voltar"
+            pos_hint: {'center_x': .5, 'y': .25} # Posição: 10% da base, centro X
+            size_hint: .7, None # 70% da largura da tela
+            height: "48dp"
+            # Cor de fundo cinza-claro, como na imagem
+            md_bg_color: (230/255, 230/255, 230/255, 1)
+            # Cor do texto preta
+            text_color: (0, 0, 0, 1)
+            font_size: "16sp"
+            on_release: app.root.current = "main"
+

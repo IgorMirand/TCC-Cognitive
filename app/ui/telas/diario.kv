@@ -1,0 +1,66 @@
+<DiarioScreen>:
+    name: "diario"
+    # Cor de fundo da tela (azul muito claro/branco sujo da imagem)
+    md_bg_color: 230/255, 240/255, 245/255, 1
+
+    # Layout principal vertical
+    MDBoxLayout:
+        orientation: 'vertical'
+        spacing: dp(16)
+        padding: [dp(24), dp(16), dp(24), dp(16)] # Padding lateral e superior
+
+        # 1. Cabeçalho (Flor Alinhada à ESQUERDA)
+        MDBoxLayout:
+            size_hint_y: None
+            height: dp(64) # Altura suficiente para a imagem
+
+            Image:
+                # Substitua 'flor.png' pelo caminho correto da sua imagem
+                source: "app/assets/img.png"
+                size_hint: None, None
+                size: dp(48), dp(48) # Tamanho da imagem
+                # A ausência de pos_hint: {'center_x': 0.5} mantém a imagem à esquerda,
+                # e o MDBoxLayout a alinha ao topo-esquerda por padrão.
+
+        # 2. Container Central (MDCard Grande e Branco)
+        MDCard:
+            id: main_content_card
+            md_bg_color: 1, 1, 1, 1 # Branco para o cartão
+            elevation: 4
+            padding: dp(8)
+            spacing: dp(8)
+            # Ocupa o máximo de espaço vertical possível
+            size_hint_y: 1
+            # Define o container onde a tabela será adicionada
+            MDBoxLayout:
+                id: table_container
+                orientation: 'vertical'
+                # IMPORTANTE: A tabela será adicionada aqui pelo Python (main.py)
+
+        # 3. Rodapé (Botões mais proeminentes com cor de fundo)
+        MDBoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: dp(48)
+            spacing: dp(20)
+            padding: [dp(0), dp(10), dp(0), dp(0)] # Espaço acima dos botões
+
+            # Botão Home
+            MDRaisedButton:
+                text: 'Home'
+                # Cor de fundo similar ao verde/cinza claro da imagem
+                md_bg_color: 220/255, 235/255, 220/255, 1
+                text_color: 50/255, 50/255, 50/255, 1 # Texto escuro
+                font_style: 'Button'
+                size_hint_x: 1
+                on_release: app.root.current = "home"
+
+            # Botão Conta
+            MDRaisedButton:
+                text: 'Conta'
+                # Cor de fundo similar ao verde/cinza claro da imagem
+                md_bg_color: 220/255, 235/255, 220/255, 1
+                text_color: 50/255, 50/255, 50/255, 1 # Texto escuro
+                font_style: 'Button'
+                size_hint_x: 1
+                on_release: app.root.current = "home"
