@@ -1,7 +1,5 @@
-# database.py (Modificado)
 import sqlite3
 import bcrypt
-
 
 class Database:
     def __init__(self, db_path="users.db"):
@@ -148,6 +146,38 @@ class Database:
                            )
                        ''')
 
+        # Armazena cada atividade feita por um utilizador num certo dia
+        cursor.execute('''
+                       CREATE TABLE IF NOT EXISTS atividades_diarias
+                       (
+                           id
+                           INTEGER
+                           PRIMARY
+                           KEY
+                           AUTOINCREMENT,
+                           user_id
+                           INTEGER
+                           NOT
+                           NULL,
+                           atividade_texto
+                           TEXT
+                           NOT
+                           NULL,
+                           data
+                           TEXT
+                           NOT
+                           NULL,
+                           FOREIGN
+                           KEY
+                       (
+                           user_id
+                       ) REFERENCES users
+                       (
+                           id
+                       )
+                           )
+                       ''')
+
         # Opcional: Adiciona um código-mestre de teste
         try:
             cursor.execute("INSERT INTO codigos_master (codigo) VALUES ('MESTRE123')")
@@ -251,3 +281,33 @@ class Database:
             return False, "Usuário ou senha inválidos.", None, None
 
     # (get_user_id pode ser removido, pois verify_user já retorna o ID)
+
+    def add_atividades_diarias(self, user_id, lista_atividades, data_iso):
+        """
+        Salva uma lista de atividades para um utilizador específico numa data.
+        Usa uma transação para garantir que todas sejam salvas juntas.
+        """
+        try:
+            conn = self.connect()
+            cursor = conn.cursor()
+
+            # Prepara os dados para inserção em massa
+            # (user_id, "Texto da Atividade 1", "2025-10-21")
+            # (user_id, "Texto da Atividade 2", "2025-10-21")
+            dados_para_salvar = [
+                (user_id, texto, data_iso) for texto in lista_atividades
+            ]
+
+            # Executa a inserção em massa
+            cursor.executemany(
+                "INSERT INTO atividades_diarias (user_id, atividade_texto, data) VALUES (?, ?, ?)",
+                dados_para_salvar
+            )
+            conn.commit()
+            conn.close()
+            return True, "Atividades salvas com sucesso."
+
+        except Exception as e:
+            conn.close()
+            print(f"[ERRO] add_atividades_diarias: {e}")
+            return False, "Erro ao salvar atividades."

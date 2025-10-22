@@ -8,7 +8,6 @@ from app.ui.manager import ScreenController
 Window.size = (440, 956)
 
 # 2. Carregue TODOS os arquivos KV ANTES de tudo
-# (Sua ordem aqui está correta)
 Builder.load_file("app/ui/telas/login.kv")
 Builder.load_file("app/ui/telas/register.kv")
 Builder.load_file("app/ui/telas/home.kv")
@@ -24,6 +23,7 @@ class CognitiveApp(MDApp):
     def build(self):
         self.db = Database()
         self.logged_user = None
+
 
         # 3. Crie a instância do ScreenController
         #    Ele agora é o seu widget 'root'

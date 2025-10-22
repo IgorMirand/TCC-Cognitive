@@ -1,5 +1,8 @@
+#:import MDChip kivymd.uix.chip.MDChip
+#:import dp kivy.metrics.dp
 <RegisterActivityScreen>:
     name: "register_activity"
+
     MDFloatLayout:
         md_bg_color: (146/255, 199/255, 163/255, 1)
 
@@ -27,79 +30,144 @@
 
         # --- Lista de Atividades com Scroll ---
         ScrollView:
-            # Posicionado para preencher o meio da tela
-            size_hint: .9, .6 # 90% da largura, 60% da altura
+            size_hint: .9, .6
             pos_hint: {'center_x': .5, 'center_y': .55}
-            bar_width: 0 # Esconde a barra de rolagem
-
+            bar_width: 0
             MDBoxLayout:
                 orientation: 'vertical'
                 adaptive_height: True
                 spacing: "10dp"
+                padding: "10dp"
 
-                # --- Lista de Botões de Atividade ---
-                MDFillRoundFlatButton:
-                    text: "Pratiquei atividades físicas"
-                    size_hint: 1, None
+                # --- IDs dos Chips (as Chaves do seu dicionário) ---
+                MDChip:
+                    id: chk_fisicas
+                    check: True
+                    type: 'filter'
+                    radius: [dp(25)]
                     height: "50dp"
-                    md_bg_color: (240/255, 240/255, 240/255, 1) # Fundo branco/cinza
-                    text_color: (0.2, 0.2, 0.2, 1) # Texto escuro
+                    # (Defina as cores aqui, como no exemplo anterior)
+                    md_bg_color_normal: (240/255, 240/255, 240/255, 1)
+                    text_color_normal: (0.2, 0.2, 0.2, 1)
+                    md_bg_color_checked: (140/255, 190/255, 140/255, 1)
+                    text_color_checked: (1, 1, 1, 1)
+                    MDChipText:
+                        text: "Pratiquei atividades físicas"
 
-                MDFillRoundFlatButton:
+                MDChip:
+                    id: chk_mercado
                     text: "Fui ao Mercado"
-                    size_hint: 1, None
+                    check: True
+                    type: 'filter'
+                    radius: [dp(25)]
                     height: "50dp"
-                    md_bg_color: (240/255, 240/255, 240/255, 1)
-                    text_color: (0.2, 0.2, 0.2, 1)
+                    # (cores...)
+                    md_bg_color_normal: (240/255, 240/255, 240/255, 1)
+                    text_color_normal: (0.2, 0.2, 0.2, 1)
+                    md_bg_color_checked: (140/255, 190/255, 140/255, 1)
+                    text_color_checked: (1, 1, 1, 1)
+                    MDChipText:
+                        text: "Fui ao Mercado"
 
-                MDFillRoundFlatButton:
-                    text: "Consumi bebidas alcoólicas"
-                    size_hint: 1, None
+                MDChip:
+                    id: chk_bebidas
+                    check: True
+                    type: 'filter'
+                    radius: [dp(25)]
                     height: "50dp"
-                    md_bg_color: (240/255, 240/255, 240/255, 1)
-                    text_color: (0.2, 0.2, 0.2, 1)
+                    # (cores...)
+                    md_bg_color_normal: (240/255, 240/255, 240/255, 1)
+                    text_color_normal: (0.2, 0.2, 0.2, 1)
+                    md_bg_color_checked: (140/255, 190/255, 140/255, 1)
+                    text_color_checked: (1, 1, 1, 1)
+                    MDChipText:
+                        text: "Consumi bebidas alcoólicas"
 
-                MDFillRoundFlatButton:
-                    text: "Estudei"
-                    size_hint: 1, None
+                MDChip:
+                    id: chk_estudei
+                    check: True
+                    type: 'filter'
+                    radius: [dp(25)]
                     height: "50dp"
-                    md_bg_color: (240/255, 240/255, 240/255, 1)
-                    text_color: (0.2, 0.2, 0.2, 1)
+                    # (cores...)
+                    md_bg_color_normal: (240/255, 240/255, 240/255, 1)
+                    text_color_normal: (0.2, 0.2, 0.2, 1)
+                    md_bg_color_checked: (140/255, 190/255, 140/255, 1)
+                    text_color_checked: (1, 1, 1, 1)
+                    MDChipText:
+                        text: "Estudei"
 
-                MDFillRoundFlatButton:
-                    text: "Meditei"
-                    size_hint: 1, None
+                MDChip:
+                    id: chk_meditei
+                    check: True
+                    type: 'filter'
+                    radius: [dp(25)]
                     height: "50dp"
-                    md_bg_color: (240/255, 240/255, 240/255, 1)
-                    text_color: (0.2, 0.2, 0.2, 1)
+                    # (cores...)
+                    md_bg_color_normal: (240/255, 240/255, 240/255, 1)
+                    text_color_normal: (0.2, 0.2, 0.2, 1)
+                    md_bg_color_checked: (140/255, 190/255, 140/255, 1)
+                    text_color_checked: (1, 1, 1, 1)
+                    MDChipText:
+                        text: "Meditei"
 
-                MDFillRoundFlatButton:
-                    text: "Ouvi Músicas"
-                    size_hint: 1, None
+                MDChip:
+                    id: chk_musicas
+                    check: True
+                    type: 'filter'
+                    radius: [dp(25)]
                     height: "50dp"
-                    md_bg_color: (240/255, 240/255, 240/255, 1)
-                    text_color: (0.2, 0.2, 0.2, 1)
+                    # (cores...)
+                    md_bg_color_normal: (240/255, 240/255, 240/255, 1)
+                    text_color_normal: (0.2, 0.2, 0.2, 1)
+                    md_bg_color_checked: (140/255, 190/255, 140/255, 1)
+                    text_color_checked: (1, 1, 1, 1)
+                    MDChipText:
+                        text: "Ouvi Músicas"
 
-                MDFillRoundFlatButton:
-                    text: "Desenhei, pintei ou colori"
-                    size_hint: 1, None
+                MDChip:
+                    id: chk_desenhei
+                    check: True
+                    type: 'filter'
+                    radius: [dp(25)]
                     height: "50dp"
-                    md_bg_color: (240/255, 240/255, 240/255, 1)
-                    text_color: (0.2, 0.2, 0.2, 1)
+                    # (cores...)
+                    md_bg_color_normal: (240/255, 240/255, 240/255, 1)
+                    text_color_normal: (0.2, 0.2, 0.2, 1)
+                    md_bg_color_checked: (140/255, 190/255, 140/255, 1)
+                    text_color_checked: (1, 1, 1, 1)
+                    MDChipText:
+                        text: "Desenhei, pintei ou colori"
 
-                MDFillRoundFlatButton:
-                    text: "Aprendi algo novo (ex: idioma)"
-                    size_hint: 1, None
+                MDChip:
+                    id: chk_aprendi
+                    check: True
+                    type: 'filter'
+                    radius: [dp(25)]
                     height: "50dp"
-                    md_bg_color: (240/255, 240/255, 240/255, 1)
-                    text_color: (0.2, 0.2, 0.2, 1)
+                    # (cores...)
+                    md_bg_color_normal: (240/255, 240/255, 240/255, 1)
+                    text_color_normal: (0.2, 0.2, 0.2, 1)
+                    md_bg_color_checked: (140/255, 190/255, 140/255, 1)
+                    text_color_checked: (1, 1, 1, 1)
+                    MDChipText:
+                        text: "Aprendi algo novo (ex: idioma)"
 
-                MDFillRoundFlatButton:
-                    text: "Encontrei um amigo ou familiar"
-                    size_hint: 1, None
+                MDChip:
+                    id: chk_amigo
+                    check: True
+                    type: 'filter'
+                    radius: [dp(25)]
                     height: "50dp"
-                    md_bg_color: (240/255, 240/255, 240/255, 1)
-                    text_color: (0.2, 0.2, 0.2, 1)
+                    # (cores...)
+                    md_bg_color_normal: (240/255, 240/255, 240/255, 1)
+                    text_color_normal: (0.2, 0.2, 0.2, 1)
+                    md_bg_color_checked: (140/255, 190/255, 140/255, 1)
+                    text_color_checked: (1, 1, 1, 1)
+                    MDChipText:
+                        text: "Encontrei um amigo ou familiar"
+
+                #  Repita MDChip e MDChipText para adicionar uma atividade
 
 
         # --- Botão de Cadastro (Principal) ---
@@ -113,6 +181,7 @@
             # Cor do texto preta
             text_color: (0, 0, 0, 1)
             font_size: "18sp"
+            on_release: root.do_register_activities()
 
         # --- Botão VOLTAR ---
         MDTextButton:
@@ -120,4 +189,4 @@
             pos_hint: {'center_x': .5, 'y': .05} # Posição abaixo do botão Cadastrar
             theme_text_color: "Custom"
             text_color: (0.2, 0.2, 0.2, 1)
-            # on_release: app.root.current = 'home' # Ação para voltar
+            on_release: app.root.current = 'home' # Ação para voltar
