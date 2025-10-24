@@ -62,7 +62,7 @@
             font_size: "16sp"
 
         MDFillRoundFlatButton:
-            text: "Voltar"
+            text: "Sair"
             pos_hint: {'center_x': .7, 'y': .2} # Posição: 10% da base, centro X
             size_hint: .3, None # 70% da largura da tela
             height: "20dp"
@@ -72,3 +72,4 @@
             text_color: (0, 0, 0, 1)
             font_size: "16sp"
             elevation: 3
+            on_release: app.root.current = "main"

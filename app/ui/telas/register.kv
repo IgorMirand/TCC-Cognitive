@@ -87,6 +87,28 @@
                 text_color_focus: (0, 0, 0, 1)
                 size_hint_y: None
                 height: "48dp"
+            MDLabel:
+                text: "Código de Acesso (Opcional):"
+                halign: 'left'
+                size_hint_y: None
+                height: self.texture_size[1]
+                theme_text_color: "Custom"
+                text_color: (0.2, 0.2, 0.2, 1)
+                padding_y: "10dp"
+
+            MDTextField:
+                id: codigo_acesso
+                hint_text: "Seu código (se for Psicólogo)"
+                mode: "fill"
+                radius: [15, 15, 15, 15]
+                fill_color_normal: (230/255, 230/255, 230/255, 1)
+                fill_color_focus: (220/255, 220/255, 220/255, 1)
+                line_color_normal: (0,0,0,0)
+                line_color_focus: (0,0,0,0)
+                text_color_normal: (0, 0, 0, 1)
+                text_color_focus: (0, 0, 0, 1)
+                size_hint_y: None
+                height: "48dp"
 
 
         # --- Botões ---

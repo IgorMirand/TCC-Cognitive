@@ -1,7 +1,7 @@
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivymd.app import MDApp
-from app.core.database import Database
+from app.core.neon import Database
 from app.ui.manager import ScreenController
 
 # Defina o tamanho da janela
@@ -23,7 +23,6 @@ class CognitiveApp(MDApp):
     def build(self):
         self.db = Database()
         self.logged_user = None
-
 
         # 3. Crie a instância do ScreenController
         #    Ele agora é o seu widget 'root'
