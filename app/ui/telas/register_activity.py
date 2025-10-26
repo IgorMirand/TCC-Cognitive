@@ -1,7 +1,36 @@
-from kivy.uix.screenmanager import Screen
+from kivy.uix.screenmanager import ScreenManager, Screen
 from datetime import date
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
+from kivy.uix.boxlayout import BoxLayout
+
+from kivy.properties import ObjectProperty,NumericProperty, ListProperty, StringProperty
+
+
+class StepManager(Screen):
+    # Propriedade para controlar qual é a etapa atual
+    etapa_atual = NumericProperty(1)
+    
+    # Lista dos nomes das telas na ordem das etapas
+    nomes_etapas = ListProperty(['sentimento', 'register_activity'])
+    
+    def ir_proxima_etapa(self):
+        # Avança a etapa atual
+        if self.etapa_atual < len(self.nomes_etapas):
+            self.etapa_atual += 1
+            self.current = self.nomes_etapas[self.etapa_atual - 1]
+            # Adiciona animação de transição (opcional)
+            self.transition.direction = 'left'
+
+    def ir_etapa_anterior(self):
+        # Volta a etapa anterior
+        if self.etapa_atual > 1:
+            self.etapa_atual -= 1
+            self.current = self.nomes_etapas[self.etapa_atual - 1]
+            self.transition.direction = 'right'
+
+class Barras(BoxLayout):
+    manager = ObjectProperty(None) # Referência ao ScreenManager
 
 class RegisterActivityScreen(Screen):
         dialog = None
@@ -74,3 +103,7 @@ class RegisterActivityScreen(Screen):
         def close_dialog(self, *args):
             if self.dialog:
                 self.dialog.dismiss()
+
+
+class SentimentoScreen(Screen):
+    pass

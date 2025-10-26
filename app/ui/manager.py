@@ -4,11 +4,9 @@ from app.ui.telas.home_psicologo import PsychoHomeScreen
 from app.ui.telas.login import LoginScreen
 from app.ui.telas.main import MainScreen
 from app.ui.telas.notifications import Notification
-from app.ui.telas.register import RegisterScreen
-from app.ui.telas.register import RegisterScreen1
+from app.ui.telas.register import RegisterScreen,RegisterScreen1
 from app.ui.telas.diario import DiarioScreen
-from app.ui.telas.register_activity import RegisterActivityScreen
-from app.ui.telas.sentimento import SentimentoScreen
+from app.ui.telas.register_activity import RegisterActivityScreen, SentimentoScreen
 from kivy.lang import Builder
 from pathlib import Path
 

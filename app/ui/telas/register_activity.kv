@@ -1,3 +1,44 @@
+
+<Barras>
+    orientation: 'vertical'
+    # Conecta a propriedade do KV com a classe Python
+    manager: step_manager 
+    
+    # 1. Indicador de Etapas (Topo)
+    BoxLayout:
+        id: step_indicator
+        size_hint_y: 0.1  # Reserva 10% do espaço vertical para o indicador
+        padding: 5
+        spacing: 10
+        canvas.before:
+            Color:
+                rgba: 0.1, 0.5, 0.8, 1 # Cor de fundo da barra
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        
+        # O número de Labels deve ser igual ao número de etapas
+        # Usamos uma classe customizada para o Label do passo
+        StepLabel:
+            text: '1.'
+            # Mapeia a cor com base na etapa atual do ScreenManager
+            ativo: step_manager.etapa_atual >= 1
+        StepLabel:
+            text: '2.'
+            ativo: step_manager.etapa_atual >= 2
+
+            
+    # 2. Corpo das Telas (ScreenManager)
+    StepManager:
+        id: step_manager
+        size_hint_y: 0.9  # Ocupa o restante do espaço (90%)
+        
+        # Referencia as classes Python das telas
+        SentimentoScreen:
+            name: 'sentimento'
+        RegisterActivityScreen:
+            name: 'register_activity'
+
 #:import MDChip kivymd.uix.chip.MDChip
 #:import dp kivy.metrics.dp
 <RegisterActivityScreen>:
@@ -172,7 +213,7 @@
 
         # --- Botão de Cadastro (Principal) ---
         MDFillRoundFlatButton:
-            text: "Cadastrar"
+            text: "Registrar"
             pos_hint: {'center_x': .5, 'y': .1} # Posição: 10% da base
             size_hint: .7, None # 70% da largura da tela
             height: "55dp"
@@ -181,12 +222,141 @@
             # Cor do texto preta
             text_color: (0, 0, 0, 1)
             font_size: "18sp"
-            on_release: root.do_register_activities()
-
+            on_release: root.do_register_activities
         # --- Botão VOLTAR ---
+
         MDTextButton:
             text: "Voltar"
             pos_hint: {'center_x': .5, 'y': .05} # Posição abaixo do botão Cadastrar
             theme_text_color: "Custom"
             text_color: (0.2, 0.2, 0.2, 1)
-            on_release: app.root.current = 'home' # Ação para voltar
+            on_release: app.root.current = "sentimento"
+
+<EmotionButton@ToggleButtonBehavior+MDBoxLayout>:
+    orientation: 'vertical'
+    # O 'group' garante que apenas um botão de emoção possa ser pressionado
+    group: 'emotions'
+    allow_no_selection: False
+    size_hint_y: None
+    height: self.minimum_height
+    padding: "10dp"
+    spacing: "5dp"
+
+    # Propriedades personalizadas para o ícone e o texto
+    icon: ""
+    text: ""
+
+    # O canvas desenha a borda azul quando o botão está pressionado ('down')
+    canvas.before:
+        Color:
+            # app.theme_cls.primary_color é a cor azul padrão do KivyMD
+            rgba: app.theme_cls.primary_color if self.state == 'down' else (0,0,0,0)
+        Line:
+            rectangle: self.x + dp(1), self.y + dp(1), self.width - dp(2), self.height - dp(2)
+            width: dp(1.5)
+
+    MDIcon:
+        icon: root.icon
+        font_size: "64sp"
+        pos_hint: {'center_x': 0.5}
+        # Cor cinza personalizada para os ícones
+        theme_text_color: "Custom"
+        text_color: (70/255, 70/255, 70/255, 1)
+
+    MDLabel:
+        text: root.text
+        halign: 'center'
+        font_style: 'Caption'
+        # Cor cinza mais escura para o texto
+        theme_text_color: "Custom"
+        text_color: (50/255, 50/255, 50/255, 1)
+
+
+<SentimentoScreen>:
+    name: 'sentimento'
+    MDBoxLayout:
+        orientation: 'vertical'
+        padding: "20dp"
+        spacing: "15dp"
+        md_bg_color: (146/255, 199/255, 163/255, 1)
+
+
+        # Ícone de flor no topo
+        MDIcon:
+            icon: "flower-outline"
+            font_size: "48sp"
+            pos_hint: {'center_x': 0.5}
+            padding_y: "10dp"
+            # Cor rosa/roxa pálida para o ícone
+            theme_text_color: "Custom"
+            text_color: (180/255, 120/255, 180/255, 1)
+
+        # Rótulo do título
+        MDLabel:
+            text: "Como esta se sentindo?"
+            halign: 'center'
+            font_style: 'H5'
+            theme_text_color: "Custom"
+            text_color: (50/255, 50/255, 50/255, 1)
+            adaptive_height: True
+
+        # Widget espaçador para empurrar o conteúdo para cima e para baixo
+        Widget:
+            size_hint_y: 0.5
+
+        # Grade 2x2 para os botões de emoção
+        MDGridLayout:
+            cols: 2
+            spacing: "20dp"
+            padding: "10dp"
+            # Faz a grade ter uma largura fixa e a centraliza
+            size_hint_x: None
+            width: dp(300)
+            pos_hint: {'center_x': 0.5}
+            adaptive_height: True
+
+            EmotionButton:
+                icon: "emoticon-happy-outline"
+                text: "Feliz"
+                # Define "Feliz" como pré-selecionado
+                state: 'down'
+
+            EmotionButton:
+                icon: "emoticon-sad-outline"
+                text: "Triste"
+
+            EmotionButton:
+                # 'emoticon-dead-outline' é o mais próximo do ícone 'o_o' da imagem
+                icon: "emoticon-dead-outline"
+                text: "Medo/Surpreso"
+
+            EmotionButton:
+                icon: "emoticon-angry-outline"
+                text: "Raiva"
+
+        # Widget espaçador para empurrar os botões para a parte inferior
+        Widget:
+            size_hint_y: 1.0
+
+        # Botão Registrar
+        MDFillRoundFlatButton:
+            text: "Proximo"
+            pos_hint: {'center_x': 0.5}
+            font_size: "18sp"
+            padding: "12dp"
+            # Cor de fundo cinza clara para o botão
+            md_bg_color: (230/255, 230/255, 230/255, 1)
+            # Cor de texto escura
+            text_color: (50/255, 50/255, 50/255, 1)
+            on_release: app.root.current = "register_activity"
+
+
+        # Botão/Link Voltar
+        MDTextButton:
+            text: "Voltar"
+            icon: "arrow-left"
+            pos_hint: {'center_x': 0.5}
+            theme_text_color: "Custom"
+            text_color: (50/255, 50/255, 50/255, 1)
+            on_release: app.root.current = "home"
+

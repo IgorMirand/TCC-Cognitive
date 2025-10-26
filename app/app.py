@@ -3,7 +3,7 @@ from kivy.app import App
 from app.ui.manager import ScreenController
 
 # Simula dimensão mobile durante dev no desktop (opcional)
-Window.size = (440, 956)
+Window.size = (440, 656)
 
 class CognitiveApp(App):
     def __init__(self, **kwargs):

@@ -53,19 +53,17 @@ class RegisterScreen(Screen):
 class RegisterScreen1(Screen):
     dialog = None
     def next(self):
-        nome = self.ids.nome.text.strip()
-        idade = self.ids.idade.text.strip()
-        email = self.ids.email.text.strip()
+        
 
         try:
+            nome = self.ids.nome.text.strip()
+            idade = int(self.ids.idade.text.strip())
+            email = self.ids.email.text.strip()
             # 1. Validação de tela (campos vazios)
             if not nome or not idade or not email:
                 self.show_popup("Erro", "Nome, Idade e Email são obrigatórios.")
-            elif not int(idade) or idade > 120 :
-                self.show_popup("Erro", "Idade")
             else:
                 self.manager.current = "register"
-
         except ValueError:
                 self.show_popup("Erro", "Idade")
 

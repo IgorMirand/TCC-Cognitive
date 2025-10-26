@@ -1,0 +1,25 @@
+# Arquivos gerados automaticamente pelo Python
+__pycache__/
+*.pyc
+*.pyd
+
+# Ambientes virtuais
+# O nome da pasta pode variar (ex: venv, .venv, etc.)
+venv/
+.venv/
+
+# Arquivos de configurações de IDEs
+# Ignora arquivos de IDEs como VS Code, PyCharm, etc.
+.vscode/
+.idea/
+
+# Pacotes de distribuição
+dist/
+build/
+*.egg-info/
+
+# Arquivos de log
+*.log
+
+# Arquivos de dados confidenciais ou de ambiente
+.env
