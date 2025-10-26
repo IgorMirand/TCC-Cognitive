@@ -6,7 +6,6 @@ from kivymd.uix.button import MDFlatButton
 class RegisterActivityScreen(Screen):
         dialog = None
 
-        # Este é o seu dicionário (a "ponte")
         chip_map = {
             "chk_fisicas": "Pratiquei atividades físicas",
             "chk_mercado": "Fui ao Mercado",

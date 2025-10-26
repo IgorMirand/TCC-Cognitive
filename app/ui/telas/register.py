@@ -1,10 +1,7 @@
-# app/ui/telas/register.py
-
 from kivy.uix.screenmanager import Screen
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
-from app.core.auth import Auth  # <-- Importa o "cérebro"
-
+from app.core.auth import Auth
 
 class RegisterScreen(Screen):
     dialog = None
@@ -35,6 +32,43 @@ class RegisterScreen(Screen):
             self.show_popup("Erro", message)
 
     # (Funções show_popup e close_dialog permanecem as mesmas)
+    def show_popup(self, title, message):
+        if self.dialog:
+            self.dialog.dismiss()
+        close_button = MDFlatButton(
+            text="OK",
+            on_release=self.close_dialog
+        )
+        self.dialog = MDDialog(
+            title=title,
+            text=message,
+            buttons=[close_button]
+        )
+        self.dialog.open()
+
+    def close_dialog(self, *args):
+        if self.dialog:
+            self.dialog.dismiss()
+
+class RegisterScreen1(Screen):
+    dialog = None
+    def next(self):
+        nome = self.ids.nome.text.strip()
+        idade = self.ids.idade.text.strip()
+        email = self.ids.email.text.strip()
+
+        try:
+            # 1. Validação de tela (campos vazios)
+            if not nome or not idade or not email:
+                self.show_popup("Erro", "Nome, Idade e Email são obrigatórios.")
+            elif not int(idade) or idade > 120 :
+                self.show_popup("Erro", "Idade")
+            else:
+                self.manager.current = "register"
+
+        except ValueError:
+                self.show_popup("Erro", "Idade")
+
     def show_popup(self, title, message):
         if self.dialog:
             self.dialog.dismiss()

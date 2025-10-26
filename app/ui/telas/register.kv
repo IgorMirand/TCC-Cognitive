@@ -6,9 +6,10 @@
         # --- Área do Logo ---
         MDBoxLayout:
             orientation: 'horizontal'
-            adaptive_size: True
-            pos_hint: {'center_x': .5, 'top': .92}
-            spacing: "10dp"
+            #adaptive_size: True
+            adaptive_height: True
+            pos_hint: {'center_x': .7, 'top': .92}
+            spacing: "5dp"
 
             Image:
                 source: "app/assets/img.png"
@@ -17,7 +18,7 @@
 
             MDLabel:
                 text: "Cognitive"
-                font_style: "H6"
+                font_style: "H3"
                 valign: "center"
                 theme_text_color: "Custom"
                 text_color: (0.2, 0.2, 0.2, 1)
@@ -114,7 +115,7 @@
         # --- Botões ---
         MDFillRoundFlatButton:
             text: "Cadastrar"
-            pos_hint: {'center_x': .5, 'y': .12} # Posição ajustada
+            pos_hint: {'center_x': .5, 'y': .20} # Posição ajustada
             size_hint: .7, None
             height: "48dp"
             md_bg_color: (230/255, 230/255, 230/255, 1)
@@ -124,7 +125,142 @@
 
         MDFillRoundFlatButton:
             text: "Voltar"
-            pos_hint: {'center_x': .5, 'y': .05} # Posição ajustada
+            pos_hint: {'center_x': .5, 'y': .15} # Posição ajustada
+            size_hint: .7, None
+            height: "48dp"
+            md_bg_color: (230/255, 230/255, 230/255, 1)
+            text_color: (0, 0, 0, 1)
+            font_size: "16sp"
+            on_release: app.root.current = "main"
+
+<RegisterScreen1>:
+    name: "register"
+    MDFloatLayout:
+        md_bg_color: (146/255, 199/255, 163/255, 1)
+
+        # --- Área do Logo ---
+        MDBoxLayout:
+            orientation: 'horizontal'
+            #adaptive_size: True
+            adaptive_height: True
+            pos_hint: {'center_x': .7, 'top': .92}
+            spacing: "5dp"
+
+            Image:
+                source: "app/assets/img.png"
+                size_hint: None, None
+                size: "64dp", "64dp"
+
+            MDLabel:
+                text: "Cognitive"
+                font_style: "H3"
+                valign: "center"
+                theme_text_color: "Custom"
+                text_color: (0.2, 0.2, 0.2, 1)
+
+        # --- Área do Formulário ---
+        MDBoxLayout:
+            orientation: 'vertical'
+            size_hint: .8, None
+            height: self.minimum_height
+            pos_hint: {'center_x': .5, 'center_y': .55} # Posição ajustada
+            spacing: "10dp"
+
+            MDLabel:
+                text: "Cadastro :"
+                font_style: "H5"
+                halign: 'left'
+                size_hint_y: None
+                height: self.texture_size[1]
+                theme_text_color: "Custom"
+                text_color: (0.2, 0.2, 0.2, 1)
+
+            # --- Campo Username (Corrigido de "Email") ---
+            MDLabel:
+                text: "Nome:"
+                halign: 'left'
+                size_hint_y: None
+                height: self.texture_size[1]
+                theme_text_color: "Custom"
+                text_color: (0.2, 0.2, 0.2, 1)
+                padding_y: "10dp"
+
+            MDTextField:
+                id: nome
+                mode: "fill"
+                hint_text: "Seu Nome"
+                radius: [15, 15, 15, 15]
+                fill_color_normal: (230/255, 230/255, 230/255, 1)
+                fill_color_focus: (220/255, 220/255, 220/255, 1)
+                line_color_normal: (0,0,0,0)
+                line_color_focus: (0,0,0,0)
+                text_color_normal: (0, 0, 0, 1)
+                text_color_focus: (0, 0, 0, 1)
+                size_hint_y: None
+                height: "48dp"
+
+            # --- Campo Senha ---
+            MDLabel:
+                text: "Email:"
+                halign: 'left'
+                size_hint_y: None
+                height: self.texture_size[1]
+                theme_text_color: "Custom"
+                text_color: (0.2, 0.2, 0.2, 1)
+                padding_y: "10dp"
+
+            MDTextField:
+                id: email
+                mode: "fill"
+                hint_text: "Seu Email"
+                radius: [15, 15, 15, 15]
+                fill_color_normal: (230/255, 230/255, 230/255, 1)
+                fill_color_focus: (220/255, 220/255, 220/255, 1)
+                line_color_normal: (0,0,0,0)
+                line_color_focus: (0,0,0,0)
+                text_color_normal: (0, 0, 0, 1)
+                text_color_focus: (0, 0, 0, 1)
+                size_hint_y: None
+                height: "48dp"
+
+            MDLabel:
+                text: "Idade:"
+                halign: 'left'
+                size_hint_y: None
+                height: self.texture_size[1]
+                theme_text_color: "Custom"
+                text_color: (0.2, 0.2, 0.2, 1)
+                padding_y: "10dp"
+
+            MDTextField:
+                id: idade
+                hint_text: "Sua Idade"
+                mode: "fill"
+                radius: [15, 15, 15, 15]
+                fill_color_normal: (230/255, 230/255, 230/255, 1)
+                fill_color_focus: (220/255, 220/255, 220/255, 1)
+                line_color_normal: (0,0,0,0)
+                line_color_focus: (0,0,0,0)
+                text_color_normal: (0, 0, 0, 1)
+                text_color_focus: (0, 0, 0, 1)
+                size_hint_y: None
+                height: "48dp"
+
+
+        # --- Botões ---
+        MDFillRoundFlatButton:
+            text: "Proximo"
+            pos_hint: {'center_x': .5, 'y': .20} # Posição ajustada
+            size_hint: .7, None
+            height: "48dp"
+            md_bg_color: (230/255, 230/255, 230/255, 1)
+            text_color: (0, 0, 0, 1)
+            font_size: "16sp"
+            on_release: root.next()
+
+        MDFillRoundFlatButton:
+            text: "Voltar"
+            pos_hint: {'center_x': .5, 'y': .15} # Posição ajustada
             size_hint: .7, None
             height: "48dp"
             md_bg_color: (230/255, 230/255, 230/255, 1)

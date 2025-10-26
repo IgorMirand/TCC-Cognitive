@@ -4,18 +4,19 @@
         md_bg_color: (146/255, 199/255, 163/255, 1)
         # --- Texto Superior ---
         MDLabel:
-            text: "Bem Vindo ao"
+            text: "Bem Vindo"
             halign: 'center'
             # Posição: 85% do topo, centralizado no eixo X
             pos_hint: {'center_x': .5, 'top': 1.3}
-            font_style: 'H5'
+            font_style: 'H2'
             theme_text_color: "Custom"
             text_color: (0.2, 0.2, 0.2, 1) # Cor escura
 
         # --- Bloco Central (Logo + Nome) ---
         MDBoxLayout:
             orientation: 'vertical'
-            adaptive_size: True # Ocupa o tamanho dos filhos
+            #adaptive_size: True # Ocupa o tamanho dos filhos
+            adaptive_height: True
             pos_hint: {'center_x': .5, 'center_y': .6} # Posição central
             spacing: '10dp'
 
@@ -31,7 +32,7 @@
             MDLabel:
                 text: "cognitive"
                 halign: 'center'
-                font_style: 'H4' # Fonte grande
+                font_style: 'H3' # Fonte grande
                 theme_text_color: "Custom"
                 # Cor escura, levemente marrom/cinza, como na imagem
                 text_color: (80/255, 70/255, 70/255, 1)
@@ -44,7 +45,7 @@
             orientation: 'vertical'
             size_hint: .7, None # 70% da largura da tela
             height: self.minimum_height # Altura se ajusta aos botões
-            pos_hint: {'center_x': .5, 'y': .15} # Posição: 15% da base
+            pos_hint: {'center_x': .5, 'y': .25} # Posição: 15% da base
             spacing: '15dp'
 
             # --- Botão "Entrar" ---
@@ -65,4 +66,4 @@
                 md_bg_color: (240/255, 240/255, 240/255, 1)
                 text_color: (0.2, 0.2, 0.2, 1)
                 font_size: "16sp"
-                on_release: app.root.current = "register"
+                on_release: app.root.current = "register1"

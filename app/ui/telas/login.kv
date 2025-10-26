@@ -7,8 +7,9 @@
         # Usamos um MDBoxLayout para agrupar o ícone e o texto
         MDBoxLayout:
             orientation: 'horizontal'
-            adaptive_size: True
-            pos_hint: {'center_x': .5, 'top': .92} # Posição: 92% do topo, centro X
+            #adaptive_size: True
+            adaptive_height: True
+            pos_hint: {'center_x': .7, 'top': .92} # Posição: 92% do topo, centro X
             spacing: "10dp"
 
             # ATENÇÃO: Substitua este MDIcon pelo seu widget de Imagem
@@ -19,7 +20,7 @@
 
             MDLabel:
                 text: "Cognitive"
-                font_style: "H6"
+                font_style: "H3"
                 valign: "center"
                 theme_text_color: "Custom"
                 text_color: (0.2, 0.2, 0.2, 1) # Cor de texto escura

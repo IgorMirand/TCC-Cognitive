@@ -5,6 +5,7 @@ from app.ui.telas.login import LoginScreen
 from app.ui.telas.main import MainScreen
 from app.ui.telas.notifications import Notification
 from app.ui.telas.register import RegisterScreen
+from app.ui.telas.register import RegisterScreen1
 from app.ui.telas.diario import DiarioScreen
 from app.ui.telas.register_activity import RegisterActivityScreen
 from app.ui.telas.sentimento import SentimentoScreen
@@ -27,6 +28,7 @@ class ScreenController(ScreenManager):
         self.add_widget(Notification(name="notifications"))
         self.add_widget(LoginScreen(name="login"))
         self.add_widget(RegisterScreen(name="register"))
+        self.add_widget(RegisterScreen1(name="register1"))
         self.add_widget(DiarioScreen(name="diario"))
         self.add_widget(SentimentoScreen(name="sentimento"))
         self.add_widget(MainScreen(name="main"))

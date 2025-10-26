@@ -30,8 +30,7 @@ class Database:
                                    SERIAL
                                    PRIMARY
                                    KEY,
-                                   username
-                                   TEXT
+                                   username varchar(20)
                                    UNIQUE
                                    NOT
                                    NULL,
