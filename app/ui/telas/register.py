@@ -1,7 +1,9 @@
 from kivy.uix.screenmanager import Screen
 from kivymd.uix.dialog import MDDialog
-from kivymd.uix.button import MDFlatButton
+from kivymd.uix.button import MDButton, MDButtonText
 from app.core.auth import Auth
+from kivy.uix.widget import Widget
+from kivymd.uix.dialog import MDDialog, MDDialogHeadlineText, MDDialogButtonContainer, MDDialogSupportingText
 
 class RegisterScreen(Screen):
     dialog = None
@@ -33,16 +35,28 @@ class RegisterScreen(Screen):
 
     # (Funções show_popup e close_dialog permanecem as mesmas)
     def show_popup(self, title, message):
+        """Função genérica para mostrar um pop-up (Sintaxe KivyMD 2.0.0)"""
         if self.dialog:
             self.dialog.dismiss()
-        close_button = MDFlatButton(
-            text="OK",
-            on_release=self.close_dialog
-        )
+        
+        # 4. Crie o diálogo
         self.dialog = MDDialog(
-            title=title,
-            text=message,
-            buttons=[close_button]
+            MDDialogHeadlineText(
+                text=title,
+            ),
+            MDDialogSupportingText(
+                text=message,
+            ),
+            MDDialogButtonContainer(
+                Widget(),
+                MDButton(
+                    MDButtonText(text="OK"),
+                    style="text",
+                    on_release=self.close_dialog,
+                ),
+                spacing="8dp",
+            ),
+            auto_dismiss=False,
         )
         self.dialog.open()
 
@@ -68,16 +82,28 @@ class RegisterScreen1(Screen):
                 self.show_popup("Erro", "Idade")
 
     def show_popup(self, title, message):
+        """Função genérica para mostrar um pop-up (Sintaxe KivyMD 2.0.0)"""
         if self.dialog:
             self.dialog.dismiss()
-        close_button = MDFlatButton(
-            text="OK",
-            on_release=self.close_dialog
-        )
+        
+        # 4. Crie o diálogo
         self.dialog = MDDialog(
-            title=title,
-            text=message,
-            buttons=[close_button]
+            MDDialogHeadlineText(
+                text=title,
+            ),
+            MDDialogSupportingText(
+                text=message,
+            ),
+            MDDialogButtonContainer(
+                Widget(),
+                MDButton(
+                    MDButtonText(text="OK"),
+                    style="text",
+                    on_release=self.close_dialog,
+                ),
+                spacing="8dp",
+            ),
+            auto_dismiss=False,
         )
         self.dialog.open()
 

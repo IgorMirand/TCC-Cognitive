@@ -15,7 +15,7 @@
             text: "ID : ****"
             pos_hint: {'center_x': .5, 'top': .85}
             halign: 'center'
-            font_style: 'H6'
+            font_style: 'Display'
             theme_text_color: "Custom"
             text_color: (0.2, 0.2, 0.2, 1)
 
@@ -26,62 +26,74 @@
             pos_hint: {'center_x': .5, 'center_y': .6} # Centraliza os botões
             spacing: "15dp"
 
-            MDFillRoundFlatButton:
+            MDButton:
                 text: "Pacientes"
-                size_hint: 1, None
-                height: "60dp"
-                md_bg_color: (240/255, 240/255, 240/255, 1) # Fundo claro
-                text_color: (0.2, 0.2, 0.2, 1) # Texto escuro
+                style: "filled"
+                pos_hint: {'center_x': .7, 'y': .2}
+                size_hint: .3, None
+                height: "20dp"
+                md_bg_color: (223/255, 236/255, 230/255, 1)
+                text_color: (0, 0, 0, 1)
                 font_size: "16sp"
-                on_release: root.navigate_to('pacientes_list') # Exemplo
+                elevation: 3
+                radius: [20, 20, 20, 20]  # deixa o botão arredondado
 
-            MDFillRoundFlatButton:
+            MDButton:
                 text: "Estatisticas"
-                size_hint: 1, None
-                height: "60dp"
-                md_bg_color: (240/255, 240/255, 240/255, 1)
-                text_color: (0.2, 0.2, 0.2, 1)
+                style: "filled"
+                pos_hint: {'center_x': .7, 'y': .2}
+                size_hint: .3, None
+                height: "20dp"
+                md_bg_color: (223/255, 236/255, 230/255, 1)
+                text_color: (0, 0, 0, 1)
                 font_size: "16sp"
-                on_release: root.navigate_to('estatisticas') # Exemplo
+                elevation: 3
+                radius: [20, 20, 20, 20]  # deixa o botão arredondado
 
-            MDFillRoundFlatButton:
+            MDButton:
                 text: "Consultas"
-                size_hint: 1, None
-                height: "60dp"
-                md_bg_color: (240/255, 240/255, 240/255, 1)
-                text_color: (0.2, 0.2, 0.2, 1)
+                style: "filled"
+                pos_hint: {'center_x': .7, 'y': .2}
+                size_hint: .3, None
+                height: "20dp"
+                md_bg_color: (223/255, 236/255, 230/255, 1)
+                text_color: (0, 0, 0, 1)
                 font_size: "16sp"
-                on_release: root.navigate_to('consultas') # Exemplo
+                elevation: 3
+                radius: [20, 20, 20, 20]  # deixa o botão arredondado
 
-            MDFillRoundFlatButton:
+            MDButton:
                 text: "Relatório"
-                size_hint: 1, None
-                height: "60dp"
-                md_bg_color: (240/255, 240/255, 240/255, 1)
-                text_color: (0.2, 0.2, 0.2, 1)
+                style: "filled"
+                pos_hint: {'center_x': .7, 'y': .2}
+                size_hint: .3, None
+                height: "20dp"
+                md_bg_color: (223/255, 236/255, 230/255, 1)
+                text_color: (0, 0, 0, 1)
                 font_size: "16sp"
-                on_release: root.navigate_to('relatorio') # Exemplo
-
-        MDFillRoundFlatButton:
+                elevation: 3
+                radius: [20, 20, 20, 20]  # deixa o botão arredondado
+        MDButton:
             text: "Home"
-            pos_hint: {'center_x': .3, 'y': .2} # Posição: 10% da base, centro X
-            size_hint: .3, None # 70% da largura da tela
-            height: "48dp"
-            # Cor de fundo cinza-claro, como na imagem
-            md_bg_color: (223/255, 236/255, 230/255, 1)
-            # Cor do texto preta
-            text_color: (0, 0, 0, 1)
-            font_size: "16sp"
-
-        MDFillRoundFlatButton:
-            text: "Sair"
-            pos_hint: {'center_x': .7, 'y': .2} # Posição: 10% da base, centro X
-            size_hint: .3, None # 70% da largura da tela
+            style: "filled"
+            pos_hint: {'center_x': .7, 'y': .2}
+            size_hint: .3, None
             height: "20dp"
-            # Cor de fundo cinza-claro, como na imagem
             md_bg_color: (223/255, 236/255, 230/255, 1)
-            # Cor do texto preta
             text_color: (0, 0, 0, 1)
             font_size: "16sp"
             elevation: 3
+            radius: [20, 20, 20, 20]  # deixa o botão arredondado
+
+        MDButton:
+            text: "Sair"
+            style: "filled"
+            pos_hint: {'center_x': .7, 'y': .2}
+            size_hint: .3, None
+            height: "20dp"
+            md_bg_color: (223/255, 236/255, 230/255, 1)
+            text_color: (0, 0, 0, 1)
+            font_size: "16sp"
+            elevation: 3
+            radius: [20, 20, 20, 20]  # deixa o botão arredondado
             on_release: app.root.current = "main"

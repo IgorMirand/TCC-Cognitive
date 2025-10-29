@@ -1,7 +1,7 @@
 from kivy.uix.screenmanager import ScreenManager, Screen
 from datetime import date
 from kivymd.uix.dialog import MDDialog
-from kivymd.uix.button import MDFlatButton
+from kivymd.uix.button import MDButton, MDButtonText
 from kivy.uix.boxlayout import BoxLayout
 
 from kivy.properties import ObjectProperty,NumericProperty, ListProperty, StringProperty
@@ -89,9 +89,9 @@ class RegisterActivityScreen(Screen):
         def show_popup(self, title, message):
             if self.dialog:
                 self.dialog.dismiss()
-            close_button = MDFlatButton(
-                text="OK",
-                on_release=self.close_dialog
+            close_button = MDButton(
+                MDButtonText(text="OK"),
+                on_release=lambda x: dialog.dismiss()
             )
             self.dialog = MDDialog(
                 title=title,

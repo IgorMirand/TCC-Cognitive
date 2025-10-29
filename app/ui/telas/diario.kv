@@ -1,66 +1,93 @@
 <DiarioScreen>:
     name: "diario"
-    # Cor de fundo da tela (azul muito claro/branco sujo da imagem)
-    md_bg_color: 230/255, 240/255, 245/255, 1
-
-    # Layout principal vertical
     MDBoxLayout:
-        orientation: 'vertical'
-        spacing: dp(16)
-        padding: [dp(24), dp(16), dp(24), dp(16)] # Padding lateral e superior
+        orientation: "vertical"
+        padding: dp(10)
+        spacing: dp(10)
+        md_bg_color: (146/255, 199/255, 163/255, 1)
 
-        # 1. Cabeçalho (Flor Alinhada à ESQUERDA)
-        MDBoxLayout:
-            size_hint_y: None
-            height: dp(64) # Altura suficiente para a imagem
+        Image:
+            source: "app/assets/img.png"  # seu ícone PNG
+            size_hint: None, None
+            size: dp(70), dp(70)
+            pos_hint: {"center_x": 0.5}
+            allow_stretch: True
+            keep_ratio: True
 
-            Image:
-                # Substitua 'flor.png' pelo caminho correto da sua imagem
-                source: "app/assets/img.png"
-                size_hint: None, None
-                size: dp(48), dp(48) # Tamanho da imagem
-                # A ausência de pos_hint: {'center_x': 0.5} mantém a imagem à esquerda,
-                # e o MDBoxLayout a alinha ao topo-esquerda por padrão.
-
-        # 2. Container Central (MDCard Grande e Branco)
+        # Card da tabela
         MDCard:
-            id: main_content_card
-            md_bg_color: 1, 1, 1, 1 # Branco para o cartão
-            elevation: 4
-            padding: dp(8)
-            spacing: dp(8)
-            # Ocupa o máximo de espaço vertical possível
-            size_hint_y: 1
-            # Define o container onde a tabela será adicionada
-            MDBoxLayout:
-                id: table_container
-                orientation: 'vertical'
-                # IMPORTANTE: A tabela será adicionada aqui pelo Python (main.py)
-
-        # 3. Rodapé (Botões mais proeminentes com cor de fundo)
-        MDBoxLayout:
-            orientation: 'horizontal'
+            orientation: "vertical"
             size_hint_y: None
-            height: dp(48)
-            spacing: dp(20)
-            padding: [dp(0), dp(10), dp(0), dp(0)] # Espaço acima dos botões
+            height: dp(300)
+            md_bg_color: 0.9, 0.9, 0.9, 1
+            padding: dp(10)
+            radius: [10, 10, 10, 10]
 
-            # Botão Home
-            MDRaisedButton:
-                text: 'Home'
-                # Cor de fundo similar ao verde/cinza claro da imagem
-                md_bg_color: 220/255, 235/255, 220/255, 1
-                text_color: 50/255, 50/255, 50/255, 1 # Texto escuro
-                font_style: 'Button'
-                size_hint_x: 1
-                on_release: app.root.current = "home"
+            MDGridLayout:
+                cols: 2
+                spacing: dp(2)
+                adaptive_height: True
+                row_force_default: True
+                row_default_height: dp(35)
 
-            # Botão Conta
-            MDRaisedButton:
-                text: 'Conta'
-                # Cor de fundo similar ao verde/cinza claro da imagem
-                md_bg_color: 220/255, 235/255, 220/255, 1
-                text_color: 50/255, 50/255, 50/255, 1 # Texto escuro
-                font_style: 'Button'
-                size_hint_x: 1
-                on_release: app.root.current = "home"
+                # Cabeçalho
+                MDLabel:
+                    text: "Dia - hora"
+                    halign: "center"
+                    bold: True
+                    md_bg_color: 0.85, 0.85, 0.85, 1
+                MDLabel:
+                    text: "Anotações"
+                    halign: "center"
+                    bold: True
+                    md_bg_color: 0.85, 0.85, 0.85, 1
+
+                # Primeira linha
+                MDLabel:
+                    text: "25/06/2025 - 12:30:03"
+                    halign: "center"
+                    theme_text_color: "Primary"
+                MDLabel:
+                    text: "Nessa consulta o usuário falou um pouco mais sobre suas músicas favoritas"
+                    halign: "left"
+                    text_size: self.width, None
+                    theme_text_color: "Secondary"
+
+                # Linha em branco (simulando mais espaço)
+                MDLabel:
+                    text: ""
+                MDLabel:
+                    text: ""
+
+        # Navigation bar inferior
+        MDNavigationBar:
+            height: dp(60)
+            elevation: 2
+
+            MDNavigationItem:
+                name: "home"
+                text: "Home"
+                on_release: root.on_nav_item_press("home")
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint: None, None
+                    size: dp(24), dp(24)
+                    pos_hint: {"center_x": 0.5}
+                    Image:
+                        source: "app/assets/home.png"
+                        allow_stretch: True
+                        keep_ratio: True
+
+            MDNavigationItem:
+                name: "conta"
+                text: "Conta"
+                on_release: root.on_nav_item_press("conta")
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint: None, None
+                    size: dp(24), dp(24)
+                    pos_hint: {"center_x": 0.5}
+                    Image:
+                        source: "app/assets/account.png"
+                        allow_stretch: True
+                        keep_ratio: True

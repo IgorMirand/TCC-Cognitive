@@ -35,4 +35,4 @@ class ScreenController(ScreenManager):
 
         # Mudei a tela inicial para "main", que parece ser sua tela
         # de boas-vindas. Se for "login", apenas mude aqui.
-        self.current = "main"
+        self.current = "diario"

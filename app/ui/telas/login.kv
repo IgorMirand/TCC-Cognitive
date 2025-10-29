@@ -20,7 +20,7 @@
 
             MDLabel:
                 text: "Cognitive"
-                font_style: "H3"
+                font_style: "Display"
                 valign: "center"
                 theme_text_color: "Custom"
                 text_color: (0.2, 0.2, 0.2, 1) # Cor de texto escura
@@ -35,7 +35,7 @@
 
             MDLabel:
                 text: "Login :"
-                font_style: "H5"
+                font_style: "Display"
                 halign: 'left'
                 size_hint_y: None
                 height: self.texture_size[1]
@@ -54,7 +54,7 @@
 
             MDTextField:
                 id: username
-                mode: "fill" # Modo preenchido
+                mode: "filled" # Modo preenchido
                 hint_text: "Seu Username"
                 radius: [15, 15, 15, 15] # Arredonda as bordas
                 # Cor de fundo cinza-claro
@@ -80,7 +80,7 @@
 
             MDTextField:
                 id: password
-                mode: "fill"
+                mode: "filled"
                 hint_text: "Sua senha"
                 password: True
                 radius: [15, 15, 15, 15] # Arredonda as bordas
@@ -94,27 +94,29 @@
                 height: "48dp"
 
         # --- Botão de Cadastro ---
-        MDFillRoundFlatButton:
-            text: "Login"
-            pos_hint: {'center_x': .5, 'y': .3} # Posição: 10% da base, centro X
-            size_hint: .7, None # 70% da largura da tela
-            height: "48dp"
-            # Cor de fundo cinza-claro, como na imagem
-            md_bg_color: (230/255, 230/255, 230/255, 1)
-            # Cor do texto preta
-            text_color: (0, 0, 0, 1)
-            font_size: "16sp"
+        MDButton:      
+            style: "elevated" 
+            theme_width: "Custom"
+            pos_hint: {'center_x': .5, 'y': .22}
+            height: "56dp"
+            size_hint_x: .5  
             on_release: root.do_login()
+            
+            MDButtonText:
+                text: "Login"
+                pos_hint: {"center_x": .5, "center_y": .5}
 
-        MDFillRoundFlatButton:
-            text: "Voltar"
-            pos_hint: {'center_x': .5, 'y': .2} # Posição: 10% da base, centro X
-            size_hint: .7, None # 70% da largura da tela
-            height: "48dp"
-            # Cor de fundo cinza-claro, como na imagem
-            md_bg_color: (230/255, 230/255, 230/255, 1)
-            # Cor do texto preta
-            text_color: (0, 0, 0, 1)
-            font_size: "16sp"
+        MDButton:      
+            style: "elevated" 
+            theme_width: "Custom"
+            pos_hint: {'center_x': .5, 'y': .15}
+            height: "56dp"
+            size_hint_x: .5  
             on_release: app.root.current = "main"
+
+            MDButtonText:
+                text: "Voltar"
+                pos_hint: {"center_x": .5, "center_y": .5}
+
+
 

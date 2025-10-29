@@ -5,7 +5,7 @@ from app.core.neon import Database
 from app.ui.manager import ScreenController
 
 # Defina o tamanho da janela
-Window.size = (440, 656)
+Window.size = (440, 956)
 
 # 2. Carregue TODOS os arquivos KV ANTES de tudo
 Builder.load_file("app/ui/telas/login.kv")

@@ -30,7 +30,7 @@
             pos_hint: {'center_x': .5, 'center_y': .6}
             spacing: "20dp"
 
-            MDFillRoundFlatButton:
+            MDButton:
                 text: "Registre como foi seu dia"
                 size_hint: 1, None
                 height: "60dp"
@@ -39,7 +39,7 @@
                 font_size: "16sp"
                 on_release: app.root.current = 'sentimento'
 
-            MDFillRoundFlatButton:
+            MDButton:
                 text: "Diario"
                 size_hint: 1, None
                 height: "60dp"
@@ -50,26 +50,24 @@
 
         # --- Navegação Inferior (Textos) ---
 
-        MDFillRoundFlatButton:
-            text: "Home"
-            pos_hint: {'center_x': .3, 'y': .2} # Posição: 10% da base, centro X
-            size_hint: .3, None # 70% da largura da tela
-            height: "48dp"
-            # Cor de fundo cinza-claro, como na imagem
-            md_bg_color: (223/255, 236/255, 230/255, 1)
-            # Cor do texto preta
-            text_color: (0, 0, 0, 1)
-            font_size: "16sp"
+        MDButton:      
+            style: "elevated" 
+            theme_width: "Custom"
+            pos_hint: {'center_x': .5, 'y': .15}
+            height: "56dp"
+            size_hint_x: .5  
+            
+            MDButtonText:
+                text: "Home"
 
-        MDFillRoundFlatButton:
-            text: "Sair"
-            pos_hint: {'center_x': .7, 'y': .2} # Posição: 10% da base, centro X
-            size_hint: .3, None # 70% da largura da tela
-            height: "20dp"
-            # Cor de fundo cinza-claro, como na imagem
-            md_bg_color: (223/255, 236/255, 230/255, 1)
-            # Cor do texto preta
-            text_color: (0, 0, 0, 1)
-            font_size: "16sp"
-            elevation: 3
+
+        MDButton:      
+            style: "elevated" 
+            theme_width: "Custom"
+            pos_hint: {'center_x': .5, 'y': .15}
+            height: "56dp"
+            size_hint_x: .5  
             on_release: app.root.current = "main"
+
+            MDButtonText: 
+                text: "Voltar"
