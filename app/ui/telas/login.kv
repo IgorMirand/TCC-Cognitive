@@ -21,6 +21,7 @@
             MDLabel:
                 text: "Cognitive"
                 font_style: "Display"
+                role: "medium"
                 valign: "center"
                 theme_text_color: "Custom"
                 text_color: (0.2, 0.2, 0.2, 1) # Cor de texto escura
@@ -36,6 +37,7 @@
             MDLabel:
                 text: "Login :"
                 font_style: "Display"
+                role: "small"
                 halign: 'left'
                 size_hint_y: None
                 height: self.texture_size[1]
@@ -44,7 +46,7 @@
 
             # --- Campo Email ---
             MDLabel:
-                text: "Username:"
+                text: "Email:"
                 halign: 'left'
                 size_hint_y: None
                 height: self.texture_size[1]
@@ -53,7 +55,7 @@
                 padding_y: "10dp" # Espaçamento antes do campo
 
             MDTextField:
-                id: username
+                id: email
                 mode: "filled" # Modo preenchido
                 hint_text: "Seu Username"
                 radius: [15, 15, 15, 15] # Arredonda as bordas
@@ -93,18 +95,20 @@
                 size_hint_y: None
                 height: "48dp"
 
+
         # --- Botão de Cadastro ---
-        MDButton:      
-            style: "elevated" 
+        MDButton:
+            style: "elevated"    
             theme_width: "Custom"
             pos_hint: {'center_x': .5, 'y': .22}
             height: "56dp"
-            size_hint_x: .5  
+            size_hint_x: .5            
             on_release: root.do_login()
-            
+
             MDButtonText:
-                text: "Login"
+                text: "login"
                 pos_hint: {"center_x": .5, "center_y": .5}
+
 
         MDButton:      
             style: "elevated" 

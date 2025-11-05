@@ -1,34 +1,41 @@
-# app/ui/telas/login.py (Corrigido para KivyMD 2.0.0)
-
 from kivy.uix.screenmanager import Screen
+from kivy.uix.widget import Widget
+from kivymd.uix.dialog import (
+    MDDialog, MDDialogHeadlineText, MDDialogSupportingText, MDDialogButtonContainer
+)
+from kivymd.uix.button import MDButton, MDButtonText
+from kivymd.uix.progressindicator import MDCircularProgressIndicator
+from kivy.clock import Clock
 from app.core.auth import Auth
 
-# (Importações necessárias para o MDDialog)
-from kivy.uix.widget import Widget
-from kivymd.uix.button import MDButton
-from kivymd.uix.button import MDButton, MDButtonText
-from kivymd.uix.dialog import MDDialog, MDDialogHeadlineText, MDDialogButtonContainer, MDDialogSupportingText
 
 class LoginScreen(Screen):
     dialog = None
+    spinner = None
 
     def do_login(self):
-        # (O seu código de login está perfeito, não mude)
-        username = self.ids.username.text.strip()
+        email = self.ids.email.text.strip()
         password = self.ids.password.text.strip()
 
-        if not username or not password:
+        if not email or not password:
             self.show_popup("Erro", "Por favor, preencha todos os campos.")
             return
 
+        self.show_loading("Validando credenciais...")
+
+        # Simula tempo de autenticação (use threads na prática)
+        Clock.schedule_once(lambda dt: self._process_login(email, password), 1.5)
+
+    def _process_login(self, email, password):
         auth_system = Auth(self.manager.app.db)
-        success, message, user_type, user_id = auth_system.login(username, password)
+        success, message, user_type, user_id = auth_system.login(email, password)
+
+        self.hide_loading()
 
         if success:
             self.manager.app.logged_user_id = user_id
             self.manager.app.logged_user_type = user_type
-            
-            self.ids.username.text = ""
+            self.ids.email.text = ""
             self.ids.password.text = ""
 
             if user_type == "Paciente":
@@ -40,21 +47,14 @@ class LoginScreen(Screen):
         else:
             self.show_popup("Erro de Login", message)
 
-    
-    # --- (A CORREÇÃO ESTÁ AQUI) ---
+    # --- POPUP PADRÃO ---
     def show_popup(self, title, message):
-        """Função genérica para mostrar um pop-up (Sintaxe KivyMD 2.0.0)"""
         if self.dialog:
             self.dialog.dismiss()
-        
-        # 4. Crie o diálogo
+
         self.dialog = MDDialog(
-            MDDialogHeadlineText(
-                text=title,
-            ),
-            MDDialogSupportingText(
-                text=message,
-            ),
+            MDDialogHeadlineText(text=title),
+            MDDialogSupportingText(text=message),
             MDDialogButtonContainer(
                 Widget(),
                 MDButton(
@@ -71,3 +71,20 @@ class LoginScreen(Screen):
     def close_dialog(self, *args):
         if self.dialog:
             self.dialog.dismiss()
+
+    # --- LOADING ---
+    def show_loading(self, message="Carregando..."):
+        """Mostra o indicador de carregamento"""
+        if self.spinner:
+            return  # já está mostrando
+
+        self.spinner = MDCircularProgressIndicator(size_hint=(None, None), size=("48dp", "48dp"))
+        self.add_widget(self.spinner)
+        self.spinner.pos_hint = {"center_x": 0.5, "center_y": 0.5}
+        
+
+    def hide_loading(self, *args):
+        """Remove o indicador"""
+        if self.spinner:
+            self.remove_widget(self.spinner)
+            self.spinner = None

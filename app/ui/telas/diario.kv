@@ -1,93 +1,102 @@
 <DiarioScreen>:
     name: "diario"
-    MDBoxLayout:
-        orientation: "vertical"
-        padding: dp(10)
-        spacing: dp(10)
-        md_bg_color: (146/255, 199/255, 163/255, 1)
 
+    # (1) Layout principal corrigido
+    MDFloatLayout:
+        # KivyMD 2.0.0: Corrigido para rgba()
+        md_bg_color: rgba(146, 199, 163, 255)
+
+        # (2) Logo posicionado no topo
         Image:
-            source: "app/assets/img.png"  # seu ícone PNG
+            source: "app/assets/img.png"
             size_hint: None, None
             size: dp(70), dp(70)
-            pos_hint: {"center_x": 0.5}
+            pos_hint: {"center_x": 0.5, "top": 0.95} # Posicionado
             allow_stretch: True
-            keep_ratio: True
 
-        # Card da tabela
+        # --- (3) NOVA SEÇÃO DE INPUT ---
         MDCard:
             orientation: "vertical"
-            size_hint_y: None
-            height: dp(300)
-            md_bg_color: 0.9, 0.9, 0.9, 1
+            size_hint: 0.9, None
+            adaptive_height: True
+            pos_hint: {"center_x": 0.5, "top": 0.82} # Posição: Abaixo do logo
+            md_bg_color: rgba(230, 230, 230, 255)
             padding: dp(10)
             radius: [10, 10, 10, 10]
+            spacing: dp(10)
 
+            MDLabel:
+                text: "Nova Anotação do Diário:"
+                font_style: "Title"
+                role: "medium" 
+            
+            MDTextField:
+                id: nova_anotacao_input # <-- ID do input
+                hint_text: "Como você está se sentindo hoje?"
+                mode: "filled"
+                multiline: True
+                height: dp(100) # Altura do campo de texto
+                size_hint_y: None
+                theme_bg_color: "Custom"
+                md_bg_color: rgba(255, 255, 255, 255) # Fundo branco
+
+            MDFabButton: # Botão "Salvar"
+                icon: "content-save"
+                pos_hint: {"center_x": 0.5}
+                on_release: root.salvar_nova_anotacao() # <-- Chama o Python
+
+        # --- (4) CARD DA TABELA (Corrigido) ---
+        MDCard:
+            orientation: "vertical"
+            size_hint: 0.9, 0.4 # 40% da altura da tela
+            md_bg_color: rgba(230, 230, 230, 255)
+            padding: dp(10)
+            radius: [10, 10, 10, 10]
+            pos_hint: {"center_x": 0.5, "y": 0.1} # Posição: Acima da nav bar
+
+            # Cabeçalho Fixo
             MDGridLayout:
                 cols: 2
                 spacing: dp(2)
-                adaptive_height: True
-                row_force_default: True
-                row_default_height: dp(35)
-
-                # Cabeçalho
+                size_hint_y: None # Altura adaptativa
+                height: dp(35)  # Altura fixa para o cabeçalho
+                
                 MDLabel:
                     text: "Dia - hora"
                     halign: "center"
                     bold: True
-                    md_bg_color: 0.85, 0.85, 0.85, 1
+                    md_bg_color: rgba(217, 217, 217, 255)
                 MDLabel:
                     text: "Anotações"
                     halign: "center"
                     bold: True
-                    md_bg_color: 0.85, 0.85, 0.85, 1
+                    md_bg_color: rgba(217, 217, 217, 255)
 
-                # Primeira linha
-                MDLabel:
-                    text: "25/06/2025 - 12:30:03"
-                    halign: "center"
-                    theme_text_color: "Primary"
-                MDLabel:
-                    text: "Nessa consulta o usuário falou um pouco mais sobre suas músicas favoritas"
-                    halign: "left"
-                    text_size: self.width, None
-                    theme_text_color: "Secondary"
+            # Lista rolável para os dados
+            ScrollView:
+                bar_width: 0
+                MDGridLayout:
+                    id: tabela_container # <-- ID para o Python preencher
+                    cols: 2
+                    spacing: dp(5)
+                    adaptive_height: True # Cresce com o conteúdo
+                    padding: [0, dp(10), 0, 0] # Espaço do topo
 
-                # Linha em branco (simulando mais espaço)
-                MDLabel:
-                    text: ""
-                MDLabel:
-                    text: ""
-
-        # Navigation bar inferior
+        # (5) Barra de Navegação (Corrigida para KivyMD 2.0.0)
         MDNavigationBar:
-            height: dp(60)
+            pos_hint: {"center_x": 0.5, "y": 0} # Fixa na base
             elevation: 2
 
             MDNavigationItem:
                 name: "home"
                 text: "Home"
+                icon: "app/assets/home.png"
                 on_release: root.on_nav_item_press("home")
-                MDBoxLayout:
-                    orientation: "vertical"
-                    size_hint: None, None
-                    size: dp(24), dp(24)
-                    pos_hint: {"center_x": 0.5}
-                    Image:
-                        source: "app/assets/home.png"
-                        allow_stretch: True
-                        keep_ratio: True
+                # (Removido MDBoxLayout interno, KivyMD 2.0.0 não precisa)
 
             MDNavigationItem:
                 name: "conta"
                 text: "Conta"
-                on_release: root.on_nav_item_press("conta")
-                MDBoxLayout:
-                    orientation: "vertical"
-                    size_hint: None, None
-                    size: dp(24), dp(24)
-                    pos_hint: {"center_x": 0.5}
-                    Image:
-                        source: "app/assets/account.png"
-                        allow_stretch: True
-                        keep_ratio: True
+                icon: "app/assets/account.png"
+                on_release: app.root.current = "home"
+                # (Removido MDBoxLayout interno)

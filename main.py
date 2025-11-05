@@ -1,9 +1,13 @@
+import os
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from app.core.neon import Database
 from app.ui.manager import ScreenController
 
+from dotenv import load_dotenv
+
+load_dotenv()
 # Defina o tamanho da janela
 Window.size = (440, 956)
 
@@ -13,19 +17,32 @@ Builder.load_file("app/ui/telas/register.kv")
 Builder.load_file("app/ui/telas/home.kv")
 Builder.load_file("app/ui/telas/diario.kv")
 Builder.load_file("app/ui/telas/main.kv")
-Builder.load_file("app/ui/telas/notifications.kv")
 Builder.load_file("app/ui/telas/home_psicologo.kv")
 Builder.load_file("app/ui/telas/register_activity.kv")
+Builder.load_file("app/ui/telas/consulta_anotacao.kv")
 
 
 class CognitiveApp(MDApp):
     def build(self):
-        self.db = Database()
-        self.logged_user = None
+        self.theme_cls.theme_style = "Light"
+        self.theme_cls.primary_palette = "Green"
+
+        # Tenta conectar à DB (com segurança)
+        try:
+            self.db = Database()
+        except ValueError as e:
+            print(f"--- ERRO CRÍTICO ---")
+            print(f"Erro: {e}")
+            print("Certifique-se que o ficheiro .env existe e NEON_DB_URL está definida.")
+            print("----------------------")
+            return None # Falha o arranque
+
+        # --- 5. VARIÁVEIS DE SESSÃO CORRIGIDAS ---
+        self.logged_user_id = None
+        self.logged_user_email = None
+        self.logged_user_type = None
 
         # 3. Crie a instância do ScreenController
-        #    Ele agora é o seu widget 'root'
-        #    Passamos 'self' (a instância do app) para ele
         sm = ScreenController(app=self)
         return sm
 

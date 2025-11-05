@@ -1,0 +1,74 @@
+# app/ui/telas/consulta_anotacao.kv
+#:import MDListItem kivymd.uix.list.MDListItem
+#:import MDListItemLeadingIcon kivymd.uix.list.MDListItemLeadingIcon
+
+<ConsultaAnotacaoScreen>:
+    name: "consulta_anotacao"
+    
+    MDFloatLayout:
+        md_bg_color: rgba(146, 199, 163, 255) # Fundo verde
+
+        MDLabel:
+            text: "Anotação da Consulta"
+            font_style: "Title"
+            role: "large"
+            pos_hint: {"center_x": 0.5, "top": 0.95}
+            halign: "center"
+            theme_text_color: "Custom"
+            text_color: "black"
+
+        MDCard:
+            orientation: "vertical"
+            size_hint: 0.9, None
+            adaptive_height: True
+            pos_hint: {"center_x": 0.5, "center_y": 0.6}
+            md_bg_color: rgba(250, 250, 250, 255) # Fundo branco/cinza
+            padding: dp(20)
+            radius: [15]
+            spacing: dp(15)
+
+            # --- O CAMPO QUE ABRE O DROPDOWN ---
+            MDTextField:
+                id: paciente_selector_field
+                hint_text: "Selecione o Paciente"
+                mode: "filled"
+                # 'readonly: True' impede o psicólogo de digitar
+                readonly: True
+                # 'on_focus' abre o menu quando o campo é tocado
+                on_focus: if self.focus: root.open_patient_menu()
+                
+                # KivyMD 2.0.0 Estilo
+                theme_bg_color: "Custom"
+                md_bg_color: rgba(230, 230, 230, 255)
+                theme_text_color: "Custom"
+                text_color: "black"
+
+            # --- O CAMPO DE TEXTO PARA AS NOTAS ---
+            MDTextField:
+                id: anotacao_input
+                hint_text: "Escreva suas anotações sobre a consulta..."
+                mode: "filled"
+                multiline: True
+                # Define uma altura fixa para o campo de texto
+                size_hint_y: None
+                height: dp(250) 
+                
+                theme_bg_color: "Custom"
+                md_bg_color: rgba(230, 230, 230, 255)
+                theme_text_color: "Custom"
+                text_color: "black"
+
+        # --- BOTÃO SALVAR ---
+        MDFabButton:
+            icon: "content-save"
+            pos_hint: {"center_x": 0.5, "y": 0.22}
+            on_release: root.salvar_anotacao()
+
+        # --- BOTÃO VOLTAR ---
+        MDButton:
+            text: "Voltar"
+            style: "text"
+            pos_hint: {'center_x': .5, 'y': .15}
+            theme_text_color: "Custom"
+            text_color: "black"
+            on_release: app.root.current = 'home_psicologo'

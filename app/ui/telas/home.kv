@@ -1,11 +1,11 @@
 <HomeScreen>:
     name: "home"
     MDFloatLayout:
-        md_bg_color: (146/255, 199/255, 163/255, 1)
+        # KivyMD 2.0.0: Sintaxe de cor 'rgba'
+        md_bg_color: rgba(146, 199, 163, 255)
 
         # --- Logo (Flor) ---
         Image:
-            # *** Substitua pelo caminho da sua imagem ***
             source: "app/assets/img.png"
             size_hint: None, None
             size: "80dp", "80dp"
@@ -16,58 +16,89 @@
         MDIconButton:
             icon: "bell-outline"
             pos_hint: {'right': .95, 'top': .96}
-            theme_text_color: "Custom"
-            text_color: (0.2, 0.2, 0.2, 1)
-            # --- AÇÃO DE NAVEGAÇÃO ---
-            # Ao ser pressionado, muda a tela atual para 'notifications'
+            theme_icon_color: "Custom" # KivyMD 2.0.0: Obrigatório
+            icon_color: rgba(51, 51, 51, 255)
             on_release: app.root.current = 'notifications'
 
         # --- Container para os Botões Centrais ---
         MDBoxLayout:
             orientation: 'vertical'
             size_hint: .8, None
-            height: self.minimum_height
-            pos_hint: {'center_x': .5, 'center_y': .6}
-            spacing: "20dp"
+            adaptive_height: True
+            pos_hint: {'center_x': .5, 'top': .80} # Posição ajustada
+            spacing: "15dp"
+
+            # KivyMD 2.0.0: MDButton usa 'text', não 'MDButtonText'
+            MDButton:
+                style: "elevated" 
+                theme_width: "Custom"
+                height: "56dp"
+                size_hint_x: .5
+                MDButtonText:
+                    text: "Meus Sentimentos"
 
             MDButton:
-                text: "Registre como foi seu dia"
-                size_hint: 1, None
-                height: "60dp"
-                md_bg_color: (240/255, 240/255, 240/255, 1)
-                text_color: (0.2, 0.2, 0.2, 1)
-                font_size: "16sp"
-                on_release: app.root.current = 'sentimento'
-
-            MDButton:
-                text: "Diario"
-                size_hint: 1, None
-                height: "60dp"
-                md_bg_color: (240/255, 240/255, 240/255, 1)
-                text_color: (0.2, 0.2, 0.2, 1)
-                font_size: "16sp"
-                on_release: app.root.current = 'diario'
-
-        # --- Navegação Inferior (Textos) ---
-
-        MDButton:      
-            style: "elevated" 
-            theme_width: "Custom"
-            pos_hint: {'center_x': .5, 'y': .15}
-            height: "56dp"
-            size_hint_x: .5  
+                style: "elevated" 
+                theme_width: "Custom"
+                height: "56dp"
+                size_hint_x: .5
+                MDButtonText:
+                    text: "Minhas Atividades"
             
-            MDButtonText:
+            MDButton:
+                style: "elevated" 
+                theme_width: "Custom"
+                height: "56dp"
+                size_hint_x: .5 
+                on_release: app.root.current = "diario"
+                MDButtonText:
+                    text: "Meu Diário"
+
+        # --- (NOVO) Card de Vínculo ---
+        MDCard:
+            id: vincula_card
+            orientation: "vertical"
+            size_hint: .8, None
+            adaptive_height: True
+            pos_hint: {'center_x': .5, 'top': .40} # Posição abaixo dos botões
+            padding: "15dp"
+            spacing: "10dp"
+            radius: [15]
+
+            MDLabel:
+                text: "Vincular a um Psicólogo"
+                halign: "center"
+                font_style: "Title"
+                role: "medium"
+            
+            MDTextField:
+                id: vincula_input # <-- ID corrigido
+                hint_text: "Digite o código de convite"
+                mode: "filled"
+                radius: [15, 15, 15, 15]
+                size_hint_y: None
+                height: "48dp"
+                theme_bg_color: "Custom"
+                md_bg_color: rgba(230, 230, 230, 255)
+                theme_text_color: "Custom"
+                text_color: "black"
+
+            MDButton:
+                style: "filled"
+                text: "Vincular Conta"
+                pos_hint: {'center_x': .5}
+                on_release: root.vincula() # <-- Chama a função Python
+
+        # --- Navegação Inferior (Corrigida) ---
+        MDNavigationBar:
+            pos_hint: {"center_x": 0.5, "y": 0}
+            
+            MDNavigationItem:
+                name: "home"
                 text: "Home"
-
-
-        MDButton:      
-            style: "elevated" 
-            theme_width: "Custom"
-            pos_hint: {'center_x': .5, 'y': .15}
-            height: "56dp"
-            size_hint_x: .5  
-            on_release: app.root.current = "main"
-
-            MDButtonText: 
-                text: "Voltar"
+                icon: "home"
+                
+            MDNavigationItem:
+                name: "conta"
+                text: "Conta"
+                icon: "account"

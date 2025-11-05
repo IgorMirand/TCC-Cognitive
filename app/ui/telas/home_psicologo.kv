@@ -2,7 +2,6 @@
     name: "home_psicologo"
     md_bg_color: (176/255, 214/255, 176/255, 1) # Fundo verde
     MDFloatLayout:
-
         Image:
             source: 'app/assets/img.png' # O caminho do seu logo
             size_hint: None, None
@@ -13,7 +12,7 @@
         MDLabel:
             id: id_label # <-- Damos um ID para o .py poder atualizá-lo
             text: "ID : ****"
-            pos_hint: {'center_x': .5, 'top': .85}
+            pos_hint: {'center_x': .5, 'top': .55}
             halign: 'center'
             font_style: 'Display'
             theme_text_color: "Custom"
@@ -23,77 +22,74 @@
             orientation: 'vertical'
             size_hint: .8, None
             height: self.minimum_height
-            pos_hint: {'center_x': .5, 'center_y': .6} # Centraliza os botões
-            spacing: "15dp"
+            pos_hint: {'center_x': .5, 'center_y': .6}
+            spacing: "20dp"
 
             MDButton:
-                text: "Pacientes"
-                style: "filled"
-                pos_hint: {'center_x': .7, 'y': .2}
-                size_hint: .3, None
-                height: "20dp"
-                md_bg_color: (223/255, 236/255, 230/255, 1)
-                text_color: (0, 0, 0, 1)
+                size_hint: 1, None
+                height: "60dp"
+                md_bg_color: (240/255, 240/255, 240/255, 1)
+                text_color: (0.2, 0.2, 0.2, 1)
                 font_size: "16sp"
-                elevation: 3
-                radius: [20, 20, 20, 20]  # deixa o botão arredondado
+                MDButtonText:
+                    text: "Pacientes"
+
 
             MDButton:
-                text: "Estatisticas"
-                style: "filled"
-                pos_hint: {'center_x': .7, 'y': .2}
-                size_hint: .3, None
-                height: "20dp"
-                md_bg_color: (223/255, 236/255, 230/255, 1)
-                text_color: (0, 0, 0, 1)
+                tsize_hint: 1, None
+                height: "60dp"
+                md_bg_color: (240/255, 240/255, 240/255, 1)
+                text_color: (0.2, 0.2, 0.2, 1)
                 font_size: "16sp"
-                elevation: 3
-                radius: [20, 20, 20, 20]  # deixa o botão arredondado
+                MDButtonText:
+                    text: "Estatisticas"
 
             MDButton:
-                text: "Consultas"
-                style: "filled"
-                pos_hint: {'center_x': .7, 'y': .2}
-                size_hint: .3, None
-                height: "20dp"
-                md_bg_color: (223/255, 236/255, 230/255, 1)
-                text_color: (0, 0, 0, 1)
+                tsize_hint: 1, None
+                height: "60dp"
+                md_bg_color: (240/255, 240/255, 240/255, 1)
+                text_color: (0.2, 0.2, 0.2, 1)
                 font_size: "16sp"
-                elevation: 3
-                radius: [20, 20, 20, 20]  # deixa o botão arredondado
+                MDButtonText:
+                    text: "Consultas"
 
             MDButton:
-                text: "Relatório"
-                style: "filled"
-                pos_hint: {'center_x': .7, 'y': .2}
-                size_hint: .3, None
-                height: "20dp"
-                md_bg_color: (223/255, 236/255, 230/255, 1)
-                text_color: (0, 0, 0, 1)
+                size_hint: 1, None
+                height: "60dp"
+                md_bg_color: (240/255, 240/255, 240/255, 1)
+                text_color: (0.2, 0.2, 0.2, 1)
                 font_size: "16sp"
-                elevation: 3
-                radius: [20, 20, 20, 20]  # deixa o botão arredondado
+                MDButtonText:
+                    text: "Relatório"
+                
+
+            MDButton:
+                ssize_hint: 1, None
+                height: "60dp"
+                md_bg_color: (240/255, 240/255, 240/255, 1)
+                text_color: (0.2, 0.2, 0.2, 1)
+                font_size: "16sp"
+                MDButtonText:
+                    text: "Nova Anotação"
+
+            MDFabButton:
+                icon: "plus"
+                # KivyMD 2.0.0: Define as cores do botão
+                theme_bg_color: "Custom"
+                md_bg_color: (240/255, 240/255, 240/255, 1)
+                theme_icon_color: "Custom"
+                pos_hint: {"center_x": 0.5, "y": 0.15} # Posição em baixo, acima da nav bar
+                on_release: root.show_email_dialog() # <-- Mudado de 'gerar_convite'
+                    
         MDButton:
-            text: "Home"
-            style: "filled"
-            pos_hint: {'center_x': .7, 'y': .2}
-            size_hint: .3, None
-            height: "20dp"
-            md_bg_color: (223/255, 236/255, 230/255, 1)
-            text_color: (0, 0, 0, 1)
-            font_size: "16sp"
-            elevation: 3
-            radius: [20, 20, 20, 20]  # deixa o botão arredondado
-
-        MDButton:
-            text: "Sair"
-            style: "filled"
-            pos_hint: {'center_x': .7, 'y': .2}
-            size_hint: .3, None
-            height: "20dp"
-            md_bg_color: (223/255, 236/255, 230/255, 1)
-            text_color: (0, 0, 0, 1)
-            font_size: "16sp"
-            elevation: 3
-            radius: [20, 20, 20, 20]  # deixa o botão arredondado
+            size_hint: 1, None
+            height: "60dp"
+            md_bg_color: (240/255, 240/255, 240/255, 1)
+            text_color: (0.2, 0.2, 0.2, 1)
+            font_size: "16sp"            
+            pos_hint: {'center_x': .1, 'y': .9}
             on_release: app.root.current = "main"
+            MDButtonText:
+                text: "Sair"
+        
+        
