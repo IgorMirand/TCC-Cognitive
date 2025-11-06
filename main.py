@@ -4,7 +4,6 @@ from kivy.lang import Builder
 from kivymd.app import MDApp
 from app.core.neon import Database
 from app.ui.manager import ScreenController
-
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -35,11 +34,10 @@ class CognitiveApp(MDApp):
             print(f"Erro: {e}")
             print("Certifique-se que o ficheiro .env existe e NEON_DB_URL está definida.")
             print("----------------------")
-            return None # Falha o arranque
+            return None # Falha o arran
 
         # --- 5. VARIÁVEIS DE SESSÃO CORRIGIDAS ---
         self.logged_user_id = None
-        self.logged_user_email = None
         self.logged_user_type = None
 
         # 3. Crie a instância do ScreenController

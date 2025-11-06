@@ -200,11 +200,14 @@ class Database:
                 return resultado[0] if resultado else None
     
     def get_email_psicologo(self, id):
-        with self.connect() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute("SELECT email FROM users WHERE user_id=%s AND usado_por_user_id IS NULL",(id))
-                resultado = cursor.fetchone()
-                return resultado[0] if resultado else None
+        try:    
+            with self.connect() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SELECT email FROM users WHERE user_id=%s AND usado_por_user_id IS NULL",(id))
+                    return cursor.fetchall()
+        except Exception as e:
+            print(f"[ERRO] get_email_psicologo: {e}")
+            return [] 
 
     def validar_codigo_paciente(self, codigo):
         """Verifica se é um código de paciente válido, não usado, e retorna o ID do psicólogo."""
@@ -350,7 +353,7 @@ class Database:
             with self.connect() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(
-                        "INSERT INTO diario_paciente (user_id, anotacao_texto, data_hora_iso) VALUES (%s, %s, %s)",
+                        "INSERT INTO diario_paciente (user_id, anotacao, data_hora_iso) VALUES (%s, %s, %s)",
                         (user_id, anotacao_texto, data_hora_iso)
                     )
                     return True, "Anotação salva com sucesso."
