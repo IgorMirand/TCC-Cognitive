@@ -1,52 +1,57 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, EmailStr
-import sendgrid
+from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from dotenv import load_dotenv
+import psycopg2
 import os
 
-# Carrega variáveis de ambiente
+# 🔹 Carrega variáveis do .env localmente
 load_dotenv()
 
-app = FastAPI(title="Cognitive Mail API", version="1.0")
+app = FastAPI(
+    title="Cognitive Backend",
+    description="API de envio de convites via SendGrid + PostgreSQL (Neon)",
+    version="1.0.0"
+)
 
-# Modelo de dados recebido do app
+# 🔹 Modelo de dados recebido no POST
 class EmailRequest(BaseModel):
     email: EmailStr
     codigo: str
     psicologo: str
 
+# 🔹 Rota de teste
 @app.get("/")
-def home():
-    return {"status": "ok", "message": "API Cognitive funcionando 🚀"}
+def root():
+    return {"message": "API Cognitive Online 🚀"}
 
+# 🔹 Rota para envio de convite
 @app.post("/send-invite")
-def send_invite(request: EmailRequest):
-    """Envia e-mail via SendGrid"""
+def send_invite(data: EmailRequest):
     try:
-        sg_api_key = os.getenv("SENDGRID_API_KEY")
-        remetente = os.getenv("EMAIL_SENDER")
+        sender = os.getenv("EMAIL_SENDER")
+        api_key = os.getenv("SENDGRID_API_KEY")
 
-        if not sg_api_key or not remetente:
-            raise Exception("Configuração ausente: SENDGRID_API_KEY ou EMAIL_SENDER.")
+        if not sender or not api_key:
+            raise HTTPException(status_code=500, detail="Variáveis de ambiente ausentes (EMAIL_SENDER, SENDGRID_API_KEY).")
 
-        sg = sendgrid.SendGridAPIClient(api_key=sg_api_key)
-
-        html = f"""
+        # HTML moderno
+        html_content = f"""
         <html>
         <body style="font-family: Arial, sans-serif; background:#f7f9fc; padding:20px;">
             <div style="max-width:600px;margin:auto;background:white;border-radius:8px;padding:20px;">
                 <h2 style="color:#2563EB;text-align:center;">Convite Cognitive</h2>
                 <p>Olá!</p>
-                <p>O psicólogo <b>{request.psicologo}</b> convidou você para se juntar à plataforma <b>Cognitive</b>.</p>
-                <p>Use este código de acesso ao criar sua conta:</p>
+                <p>O psicólogo <b>{data.psicologo}</b> convidou você para participar da plataforma <b>Cognitive</b>.</p>
+                <p>Use o código abaixo para criar sua conta:</p>
                 <div style="font-size:28px;font-weight:bold;color:#2563EB;text-align:center;margin:16px 0;">
-                    {request.codigo}
+                    {data.codigo}
                 </div>
                 <a href="https://cognitive.app/register"
-                   style="display:inline-block;background:#2563EB;color:white;
-                          padding:10px 20px;border-radius:6px;text-decoration:none;">
-                   Criar conta agora
+                style="display:inline-block;background:#2563EB;color:white;
+                        padding:10px 20px;border-radius:6px;text-decoration:none;">
+                Criar conta agora
                 </a>
                 <p style="margin-top:20px;">Obrigado por usar o Cognitive 💙</p>
             </div>
@@ -55,18 +60,31 @@ def send_invite(request: EmailRequest):
         """
 
         message = Mail(
-            from_email=remetente,
-            to_emails=request.email,
+            from_email=sender,
+            to_emails=data.email,
             subject="Convite para a plataforma Cognitive",
-            html_content=html
+            html_content=html_content
         )
 
-        response = sg.client.mail.send.post(request_body=message.get())
+        sg = SendGridAPIClient(api_key)
+        sg.send(message)
 
-        if response.status_code not in [200, 202]:
-            raise Exception(f"SendGrid retornou {response.status_code}")
-
-        return {"status": "success", "message": f"E-mail enviado para {request.email}"}
+        return {"status": "OK", "message": f"Convite enviado para {data.email}"}
 
     except Exception as e:
+        print(f"[ERRO NO ENVIO DE EMAIL] {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# 🔹 (Opcional) Conexão com Postgres (Neon)
+@app.get("/test-db")
+def test_db():
+    try:
+        conn = psycopg2.connect(os.getenv("NEON_DB_URL"))
+        cur = conn.cursor()
+        cur.execute("SELECT NOW();")
+        data = cur.fetchone()
+        cur.close()
+        conn.close()
+        return {"status": "OK", "db_time": str(data[0])}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao conectar ao banco: {e}")
