@@ -3,7 +3,7 @@ from kivy.metrics import dp
 from kivy.clock import Clock
 import threading
 import os
-import sendgrid
+import resend
 
 # (Importações corretas para o Pop-up KivyMD 2.0.0)
 from kivymd.uix.dialog import (
@@ -21,7 +21,7 @@ from kivymd.uix.textfield import (
 from kivymd.uix.button import MDButton, MDButtonText
 from kivymd.uix.progressindicator.progressindicator import MDCircularProgressIndicator
 from kivymd.uix.label import MDLabel
-from sendgrid.helpers.mail import Mail, Email, To, Content
+
 
 
 class PsychoHomeScreen(MDScreen):
@@ -85,58 +85,42 @@ class PsychoHomeScreen(MDScreen):
             self.show_ok_dialog("Erro", "Por favor, insira um email válido.")
             return
 
-        self.show_loading_dialog("Enviando convite...")
-
-        threading.Thread(target=self._send_invite_backend, args=(paciente_email,)).start()
-
-
-    def _send_invite_backend(self, paciente_email):
         try:
             psicologo_id = self.manager.app.logged_user_id
-            db = self.manager.app.db
-            codigo = db.gerar_codigo_paciente(psicologo_id)
-
-            url = "https://SEU_BACKEND_URL/send-invite"
-            data = {
-                "email": paciente_email,
-                "codigo": codigo,
-                "psicologo": "Dr. João Silva"
-            }
-            response = requests.post(url, json=data)
-
-            if response.status_code == 200:
-                resultado = ("Sucesso", f"Convite enviado para {paciente_email}!")
-            else:
-                resultado = ("Erro", f"Falha no envio: {response.json().get('message')}")
         except Exception as e:
-            resultado = ("Erro", f"Erro inesperado: {e}")
+            self.show_ok_dialog("Erro", f"Não foi possível obter o ID do psicólogo: {e}")
+            return
 
-        from kivy.clock import Clock
-        Clock.schedule_once(lambda dt: self._envio_email_callback(resultado))
+        if self.email_dialog:
+            self.email_dialog.dismiss()
+            self.email_dialog = None
 
-    # --- (2) LÓGICA DE EMAIL EM SEGUNDO PLANO (THREAD) ---
-    def _thread_enviar_email_worker(self, paciente_email, psicologo_id):
+        self.show_loading_dialog("Enviando convite...")
+
+        threading.Thread(
+            target=self._thread_enviar_email_resend,
+            args=(paciente_email, psicologo_id),
+            daemon=True
+        ).start()
+
+    def _thread_enviar_email_resend(self, paciente_email, psicologo_id):
         """
-        Envia e-mail de convite via SendGrid (para um único paciente).
-        Roda em thread separada.
+        Envia e-mail de convite via Resend API.
+        Executa em thread separada para não travar a UI.
         """
         try:
-            db = self.manager.app.db
+            # --- Inicializa SDK ---
+            resend.api_key = os.environ.get("RESEND_API_KEY")
+            if not resend.api_key:
+                raise Exception("Chave da API do Resend não configurada (RESEND_API_KEY).")
 
-            # Gera o código de convite
-            novo_codigo = db.gerar_codigo_paciente(psicologo_id)
-            if not novo_codigo:
+            # --- Gera o código no banco ---
+            db = self.manager.app.db
+            codigo = db.gerar_codigo_paciente(psicologo_id)
+            if not codigo:
                 raise Exception("Falha ao gerar código no banco de dados.")
 
-            # Configura SendGrid
-            sg_api_key = os.environ.get("SENDGRID_API_KEY")
-            remetente = os.environ.get("EMAIL_SENDER")
-            if not sg_api_key or not remetente:
-                raise Exception("Configuração ausente: SENDGRID_API_KEY ou EMAIL_SENDER.")
-
-            sg = sendgrid.SendGridAPIClient(api_key=sg_api_key)
-
-            # Corpo do e-mail
+            # --- Monta o conteúdo HTML ---
             assunto = "Convite para a plataforma Cognitive"
             corpo_html = f"""
             <html>
@@ -147,12 +131,12 @@ class PsychoHomeScreen(MDScreen):
                     <p>O seu psicólogo convidou você para se juntar à plataforma <b>Cognitive</b>.</p>
                     <p>Use este código de acesso ao criar sua conta:</p>
                     <div style="font-size:28px;font-weight:bold;color:#2563EB;text-align:center;margin:16px 0;">
-                        {novo_codigo}
+                        {codigo}
                     </div>
                     <a href="https://cognitive.app/register"
-                    style="display:inline-block;background:#2563EB;color:white;
-                            padding:10px 20px;border-radius:6px;text-decoration:none;">
-                    Criar conta agora
+                       style="display:inline-block;background:#2563EB;color:white;
+                              padding:10px 20px;border-radius:6px;text-decoration:none;">
+                        Criar conta agora
                     </a>
                     <p style="margin-top:20px;">Obrigado por usar o Cognitive 💙</p>
                 </div>
@@ -160,30 +144,24 @@ class PsychoHomeScreen(MDScreen):
             </html>
             """
 
-            # Monta o e-mail
-            mensagem = Mail(
-                from_email=Email(remetente, "Cognitive App"),
-                to_emails=To(paciente_email),
-                subject=assunto,
-                html_content=Content("text/html", corpo_html)
-            )
+            # --- Envia o e-mail pelo Resend ---
+            print(f"📨 Enviando convite para {paciente_email} via Resend...")
+            resend.Emails.send({
+                "from": "Cognitive App <no-reply@cognitive.app>",
+                "to": [paciente_email],
+                "subject": assunto,
+                "html": corpo_html
+            })
+            print(f"✅ Convite enviado via Resend para {paciente_email}!")
 
-            # Envia via SendGrid
-            resposta = sg.client.mail.send.post(request_body=mensagem.get())
-            print(f"✅ E-mail enviado! Status: {resposta.status_code}")
-
-            if resposta.status_code not in [200, 202]:
-                raise Exception(f"Erro SendGrid: {resposta.status_code}")
-
-            resultado = ("Sucesso", f"Convite enviado com sucesso para {paciente_email}!")
+            resultado = ("Sucesso", f"Convite enviado para {paciente_email}!")
 
         except Exception as e:
-            print(f"[ERRO NO ENVIO DE EMAIL]: {e}")
+            print(f"[ERRO NO ENVIO RESEND]: {e}")
             resultado = ("Erro", f"Falha ao enviar e-mail: {e}")
 
-        # Atualiza a interface na thread principal
+        # Atualiza a UI de volta na thread principal
         Clock.schedule_once(lambda dt: self._envio_email_callback(resultado))
-
 
     def _envio_email_callback(self, resultado):
         """(Esta função corre na MAIN THREAD)"""
@@ -222,10 +200,16 @@ class PsychoHomeScreen(MDScreen):
 
 
     def close_dialog(self, *args):
+        # Fecha o pop-up de OK/Erro
         if self.dialog:
             self.dialog.dismiss()
             self.dialog = None
-
+        
+        # (ADIÇÃO) Fecha também o pop-up de inserir email
+        if self.email_dialog:
+            self.email_dialog.dismiss()
+            self.email_dialog = None
+    
 
     def show_loading_dialog(self, text="Enviando..."):
         if self.loading_dialog:

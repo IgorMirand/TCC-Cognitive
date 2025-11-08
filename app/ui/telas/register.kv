@@ -19,7 +19,7 @@
             MDLabel:
                 text: "Cognitive"
                 font_style: "Display"
-                role: "medium"
+                role: "small"
                 valign: "center"
                 theme_text_color: "Custom"
                 text_color: (0.2, 0.2, 0.2, 1)
@@ -29,7 +29,7 @@
             orientation: 'vertical'
             size_hint: .8, None
             height: self.minimum_height
-            pos_hint: {'center_x': .5, 'center_y': .55} # Posição ajustada
+            pos_hint: {'center_x': .5, 'center_y': .5} # Posição ajustada
             spacing: "10dp"
 
             MDLabel:
@@ -44,7 +44,7 @@
 
             # --- Campo Username (Corrigido de "Email") ---
             MDLabel:
-                text: "Username:" # Rótulo corrigido
+                text: "Nome:" # Rótulo corrigido
                 halign: 'left'
                 size_hint_y: None
                 height: self.texture_size[1]
@@ -83,12 +83,7 @@
                 radius: [15]
                 size_hint_y: None
                 height: "48dp"
-                theme_bg_color: "Custom"
-                md_bg_color: rgba(230, 230, 230, 255)
-                theme_text_color: "Custom"
-                text_color: "black"
-                line_color_normal: rgba(0,0,0,0)
-                line_color_focus: rgba(0,0,0,0)
+                
 
             # --- (NOVO) Campo Idade ---
             MDLabel:
@@ -99,6 +94,7 @@
                 theme_text_color: "Custom"
                 text_color: rgba(51, 51, 51, 255)
                 padding_y: "10dp"
+                
             MDTextField:
                 id: idade_input # <-- NOVO ID
                 mode: "filled"
@@ -107,12 +103,7 @@
                 radius: [15]
                 size_hint_y: None
                 height: "48dp"
-                theme_bg_color: "Custom"
-                md_bg_color: rgba(230, 230, 230, 255)
-                theme_text_color: "Custom"
-                text_color: "black"
-                line_color_normal: rgba(0,0,0,0)
-                line_color_focus: rgba(0,0,0,0)
+                
 
             # --- Campo Senha ---
             MDLabel:
@@ -174,7 +165,7 @@
         MDButton:      
             style: "elevated" 
             theme_width: "Custom"
-            pos_hint: {'center_x': .5, 'y': .22}
+            pos_hint: {'center_x': .5, 'y': .08}
             height: "56dp"
             size_hint_x: .5  
             on_release: root.do_register()
@@ -186,7 +177,7 @@
         MDButton:      
             style: "elevated" 
             theme_width: "Custom"
-            pos_hint: {'center_x': .5, 'y': .15}
+            pos_hint: {'center_x': .5, 'y': .01}
             height: "56dp"
             size_hint_x: .5  
             on_release: app.root.current = "register1"

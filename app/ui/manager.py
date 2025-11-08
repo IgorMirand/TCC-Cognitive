@@ -8,9 +8,9 @@ from app.ui.telas.login import LoginScreen
 from app.ui.telas.main import MainScreen
 from app.ui.telas.register import RegisterScreen
 from app.ui.telas.diario import DiarioScreen
-from app.ui.telas.register_activity import RegisterActivityScreen, SentimentoScreen
+from app.ui.telas.register_activity import RegisterActivityScreen, SentimentoScreen, AnotacaoDiaScreen
 from app.ui.telas.register_activity import RegisterActivityScreen
-from app.ui.telas.consulta_anotacao import ConsultaAnotacaoScreen
+from app.ui.telas.consulta_anotacao import ConsultaAnotacaoScreen, AdicionarAtividade
 
 
 # Carrega styles.kv automaticamente
@@ -34,6 +34,8 @@ class ScreenController(ScreenManager):
         self.add_widget(PsychoHomeScreen(name="home_psicologo"))
         self.add_widget(RegisterActivityScreen(name="register_activity"))
         self.add_widget(ConsultaAnotacaoScreen(name="consulta_anotacao"))
+        self.add_widget(AdicionarAtividade(name="adicionar_atividade"))
+        self.add_widget(AnotacaoDiaScreen(name="anotacao_dia"))
 
         # Mudei a tela inicial para "main", que parece ser sua tela
         # de boas-vindas. Se for "login", apenas mude aqui.

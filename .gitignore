@@ -23,3 +23,4 @@ build/
 
 # Arquivos de dados confidenciais ou de ambiente
 .env
+"sendgrid.env" 

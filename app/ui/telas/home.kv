@@ -28,20 +28,12 @@
             pos_hint: {'center_x': .5, 'top': .80} # Posição ajustada
             spacing: "15dp"
 
-            # KivyMD 2.0.0: MDButton usa 'text', não 'MDButtonText'
             MDButton:
                 style: "elevated" 
                 theme_width: "Custom"
                 height: "56dp"
                 size_hint_x: .5
-                MDButtonText:
-                    text: "Meus Sentimentos"
-
-            MDButton:
-                style: "elevated" 
-                theme_width: "Custom"
-                height: "56dp"
-                size_hint_x: .5
+                on_release: app.root.current = "sentimento"
                 MDButtonText:
                     text: "Minhas Atividades"
             

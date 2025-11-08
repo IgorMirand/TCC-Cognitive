@@ -16,7 +16,7 @@ class RegisterScreen(Screen):
         # 1. Obter todos os dados dos campos
         username = self.ids.username.text.strip()
         password = self.ids.password.text.strip()
-        email = self.ids.email_input.text.strip()     # <-- NOVO
+        email = self.ids.email_input.text.lower().strip()     # <-- NOVO
         idade_raw = self.ids.idade_input.text.strip() # <-- NOVO
         codigo = self.ids.codigo_acesso.text.strip()
 

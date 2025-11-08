@@ -34,129 +34,60 @@ class Database:
                 ''')
 
                 cursor.execute('''
-                               CREATE TABLE IF NOT EXISTS codigos_master
-                               (
-                                   id
-                                   SERIAL
-                                   PRIMARY
-                                   KEY,
-                                   codigo
-                                   TEXT
-                                   UNIQUE
-                                   NOT
-                                   NULL,
-                                   usado_por_user_id
-                                   INT,
-                                   FOREIGN
-                                   KEY
-                               (
-                                   usado_por_user_id
-                               ) REFERENCES users
-                               (
-                                   id
-                               )
-                                   )
+                               CREATE TABLE IF NOT EXISTS codigos_master(
+                                    id  SERIAL PRIMARY KEY,
+                                    codigo TEXT UNIQUE NOT NULL,
+                                    usado_por_user_id  INT,
+                                    FOREIGN KEY (usado_por_user_id ) REFERENCES users (id)
+                                )
                                ''')
 
                 cursor.execute('''
-                               CREATE TABLE IF NOT EXISTS codigos_paciente
-                               (
-                                   id
-                                   SERIAL
-                                   PRIMARY
-                                   KEY,
-                                   codigo
-                                   TEXT
-                                   UNIQUE
-                                   NOT
-                                   NULL,
-                                   gerado_por_psicologo_id
-                                   INT
-                                   NOT
-                                   NULL,
-                                   usado_por_paciente_id
-                                   INT,
-                                   FOREIGN
-                                   KEY
-                               (
-                                   gerado_por_psicologo_id
-                               ) REFERENCES users
-                               (
-                                   id
-                               ),
-                                   FOREIGN KEY
-                               (
-                                   usado_por_paciente_id
-                               ) REFERENCES users
-                               (
-                                   id
-                               )
-                                   )
+                               CREATE TABLE IF NOT EXISTS codigos_paciente (
+                                    id SERIAL PRIMARY  KEY,
+                                    codigo TEXT UNIQUE NOT NULL,
+                                    gerado_por_psicologo_id INT NOT NULL,
+                                    usado_por_paciente_id INT,
+                                    FOREIGN KEY (gerado_por_psicologo_id) REFERENCES users (id),
+                                    FOREIGN KEY (usado_por_paciente_id)  REFERENCES users(id)
+                                )
                                ''')
 
                 cursor.execute('''
-                               CREATE TABLE IF NOT EXISTS paciente_psicologo_link
-                               (
-                                   id
-                                   SERIAL
-                                   PRIMARY
-                                   KEY,
-                                   paciente_user_id
-                                   INT
-                                   UNIQUE
-                                   NOT
-                                   NULL,
-                                   psicologo_user_id
-                                   INT
-                                   NOT
-                                   NULL,
-                                   FOREIGN
-                                   KEY
-                               (
-                                   paciente_user_id
-                               ) REFERENCES users
-                               (
-                                   id
-                               ),
-                                   FOREIGN KEY
-                               (
-                                   psicologo_user_id
-                               ) REFERENCES users
-                               (
-                                   id
-                               )
-                                   )
+                               CREATE TABLE IF NOT EXISTS paciente_psicologo_link(
+                                    id SERIAL PRIMARY KEY,
+                                    paciente_user_id INT UNIQUE NOT NULL,
+                                    psicologo_user_id INT NOT NULL,
+                                    FOREIGN KEY (paciente_user_id) REFERENCES users (id),
+                                    FOREIGN KEY (psicologo_user_id) REFERENCES users (id)
+                                )
                                ''')
 
                 cursor.execute('''
-                               CREATE TABLE IF NOT EXISTS atividades_diarias
-                               (
-                                   id
-                                   SERIAL
-                                   PRIMARY
-                                   KEY,
-                                   user_id
-                                   INT
-                                   NOT
-                                   NULL,
-                                   atividade_texto
-                                   TEXT
-                                   NOT
-                                   NULL,
-                                   data
-                                   TEXT
-                                   NOT
-                                   NULL,
-                                   FOREIGN
-                                   KEY
-                               (
-                                   user_id
-                               ) REFERENCES users
-                               (
-                                   id
+                               CREATE TABLE IF NOT EXISTS atividades_template (
+                                    id SERIAL PRIMARY KEY,
+                                    atividade_texto TEXT NOT NULL,
+                                    criado_por_psicologo_id INT NOT NULL,
+                                    FOREIGN KEY (criado_por_psicologo_id) REFERENCES users (id)
                                )
-                                   )
                                ''')
+                
+                # 2. Tabela de REGISTROS (Onde o paciente salva a seleção)
+                cursor.execute('''
+                               CREATE TABLE IF NOT EXISTS registros_atividades_paciente (
+                                    id SERIAL PRIMARY KEY,
+                                    paciente_id INT NOT NULL,
+                                    atividade_template_id INT NOT NULL,
+                                    
+                                    -- MUDANÇA AQUI
+                                    data_hora_iso TEXT NOT NULL, 
+                                    -- FIM DA MUDANÇA
+                                    
+                                    FOREIGN KEY (paciente_id) REFERENCES users (id),
+                                    FOREIGN KEY (atividade_template_id) REFERENCES atividades_template (id)
+                               )
+                               ''')
+                
                 
                 cursor.execute('''
                     CREATE TABLE IF NOT EXISTS diario_paciente (
@@ -164,6 +95,15 @@ class Database:
                         user_id INT NOT NULL,
                         data_hora_iso TEXT NOT NULL,
                         anotacao TEXT NOT NULL,
+                        FOREIGN KEY (user_id) REFERENCES users (id)
+                    )
+                ''')
+
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS sentimento (
+                        id SERIAL PRIMARY KEY,
+                        user_id INT NOT NULL,
+                        sentimento VARCHAR(255) NOT NULL,
                         FOREIGN KEY (user_id) REFERENCES users (id)
                     )
                 ''')
@@ -208,7 +148,7 @@ class Database:
         except Exception as e:
             print(f"[ERRO] get_email_psicologo: {e}")
             return [] 
-
+        
     def validar_codigo_paciente(self, codigo):
         """Verifica se é um código de paciente válido, não usado, e retorna o ID do psicólogo."""
         with self.connect() as conn:
@@ -327,25 +267,109 @@ class Database:
                 # Se 'user' for None ou o checkpw falhar
                 return False, "Usuário ou senha inválidos.", None, None
 
-    def add_atividades_diarias(self, user_id, lista_atividades, data_iso):
-        """Salva uma lista de atividades para um utilizador específico numa data."""
+    # --- FLUXO DE ATIVIDADES (M:N) ---
+
+    # 1. Para o PSICÓLOGO cadastrar uma nova atividade modelo
+    def add_atividade_template(self, atividade_texto, psicologo_id):
+        """
+        (Substitui 'add_nova_atividade')
+        Salva um novo modelo de atividade criado por um psicólogo.
+        """
         try:
             with self.connect() as conn:
                 with conn.cursor() as cursor:
-                    dados_para_salvar = [
-                        (user_id, texto, data_iso) for texto in lista_atividades
+                    query = """
+                        INSERT INTO atividades_template (atividade_texto, criado_por_psicologo_id) 
+                        VALUES (%s, %s)
+                    """
+                    cursor.execute(query, (atividade_texto, psicologo_id))
+                    conn.commit()
+                    return True, "Modelo de atividade salvo."
+        except Exception as e:
+            if conn: conn.rollback()
+            print(f"[ERRO] add_atividade_template: {e}")
+            return False, "Erro ao salvar modelo."
+
+    # 2. Para o PACIENTE ver as atividades disponíveis (para selecionar)
+    def get_atividades_template(self):
+        """
+        (Substitui 'get_atividades_disponiveis')
+        Busca todos os modelos de atividades (ID e Texto) para o paciente escolher.
+        """
+        try:
+            with self.connect() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SELECT id, atividade_texto FROM atividades_template")
+                    # Retorna uma lista de tuplas, ex: [(1, 'Meditar'), (2, 'Correr')]
+                    return True, cursor.fetchall()
+        except Exception as e:
+            print(f"[ERRO] get_atividades_template: {e}")
+            return False, []
+
+    # 3. Para o PACIENTE salvar as atividades que ele selecionou
+    # Em neon.py
+
+    # 3. Para o PACIENTE salvar as atividades que ele selecionou
+    def registrar_atividades_paciente(self, paciente_id, lista_de_ids_atividades, data_hora_iso):
+        """
+        Registra as atividades que o paciente selecionou.
+        (VERSÃO CORRIGIDA - Aceita 4 argumentos)
+        """
+        try:
+            with self.connect() as conn:
+                with conn.cursor() as cursor:
+                    
+                    # Prepara os dados: (paciente_id, atividade_id, timestamp)
+                    dados_para_inserir = [
+                        (paciente_id, atividade_id, data_hora_iso) 
+                        for atividade_id in lista_de_ids_atividades
                     ]
 
-                    # 'executemany' é ótimo para inserções em massa
-                    cursor.executemany(
-                        "INSERT INTO atividades_diarias (user_id, atividade_texto, data) VALUES (%s, %s, %s)",
-                        dados_para_salvar
-                    )
-                    return True, "Atividades salvas com sucesso."
-
+                    from psycopg2.extras import execute_values
+                    
+                    # Query agora insere a data_hora_iso
+                    query = """
+                        INSERT INTO registros_atividades_paciente 
+                            (paciente_id, atividade_template_id, data_hora_iso) 
+                        VALUES %s
+                    """
+                    
+                    execute_values(cursor, query, dados_para_inserir)
+                    
+                    conn.commit()
+                    return True, "Atividades registradas com sucesso."
         except Exception as e:
-            print(f"[ERRO] add_atividades_diarias: {e}")
-            return False, "Erro ao salvar atividades."
+            if conn: conn.rollback()
+            print(f"[ERRO] registrar_atividades_paciente: {e}")
+            return False, "Erro ao registrar atividades."
+
+    def get_registros_do_paciente(self, paciente_id):
+        """
+        Busca o HISTÓRICO de atividades de um paciente, juntando as tabelas.
+        (VERSÃO CORRIGIDA COM data_hora_iso)
+        """
+        try:
+            with self.connect() as conn:
+                with conn.cursor() as cursor:
+                    # A query agora busca 'R.data_hora_iso'
+                    query = """
+                        SELECT 
+                            T.atividade_texto, 
+                            R.data_hora_iso    
+                        FROM 
+                            registros_atividades_paciente AS R
+                        JOIN 
+                            atividades_template AS T ON R.atividade_template_id = T.id
+                        WHERE 
+                            R.paciente_id = %s
+                        ORDER BY
+                            R.data_hora_iso DESC
+                    """
+                    cursor.execute(query, (paciente_id,))
+                    return True, cursor.fetchall() 
+        except Exception as e:
+            print(f"[ERRO] get_registros_do_paciente: {e}")
+            return False, []
         
     def add_anotacao_diario(self, user_id, anotacao_texto, data_hora_iso):
         """Salva uma nova anotação do diário para o paciente."""
@@ -353,13 +377,14 @@ class Database:
             with self.connect() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(
-                        "INSERT INTO diario_paciente (user_id, anotacao, data_hora_iso) VALUES (%s, %s, %s)",
+                        "INSERT INTO diario_paciente (user_id, anotacao) VALUES (%s, %s)",
                         (user_id, anotacao_texto, data_hora_iso)
                     )
                     return True, "Anotação salva com sucesso."
         except Exception as e:
             print(f"[ERRO] add_anotacao_diario: {e}")
             return False, "Erro ao salvar anotação."
+
 
     def get_anotacoes_diario(self, user_id):
         """Busca todas as anotações de um paciente, da mais nova para a mais antiga."""
@@ -449,3 +474,35 @@ class Database:
             except Exception as e:
                 print(f"[ERRO] gerar_codigo_paciente: {e}")
                 return None # Falha
+                
+    def add_codigo_master(self):
+            """
+            Adiciona um novo código mestre (criado por um admin) ao banco de dados.
+            """
+            try:
+                
+                alfanumerico = string.ascii_uppercase + string.digits
+                parte1 = ''.join(random.choices(alfanumerico, k=4))
+                parte2 = ''.join(random.choices(alfanumerico, k=4))
+                novo_codigo = f"{parte1}-{parte2}"
+
+                novo_codigo = f"{parte1}-{parte2}"
+                with self.connect() as conn:
+                    with conn.cursor() as cursor:
+                        query = "INSERT INTO codigos_master (codigo) VALUES (%s) RETURNING id"
+                        
+                        # Usa (novo_codigo,) para criar uma tupla
+                        cursor.execute(query, (novo_codigo,))
+                        
+                        new_id = cursor.fetchone()[0]
+                        conn.commit()
+                        return True, f"Código mestre '{novo_codigo}' adicionado com ID {new_id}."
+
+            except IntegrityError: # Pega a violação da restrição UNIQUE
+                if conn: conn.rollback()
+                return False, "Erro: Esse código mestre já existe."
+            
+            except Exception as e:
+                if conn: conn.rollback()
+                print(f"[ERRO] add_codigo_master: {e}")
+                return False, f"Erro inesperado: {e}"

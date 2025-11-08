@@ -72,3 +72,23 @@
             theme_text_color: "Custom"
             text_color: "black"
             on_release: app.root.current = 'home_psicologo'
+
+<AdicionarAtividade>
+    name: "adicionar_atividade"
+    MDFloatLayout:
+        md_bg_color: rgba(146, 199, 163, 255) # Fundo verde
+
+        MDTextField:
+            id: new_activity_input
+            mode: "filled"
+            multiline: True
+            # Define uma altura fixa para o campo de texto
+            height: dp(250) 
+            pos_hint: {'center_x': .5, 'y': .5}
+            MDTextFieldHelperText:
+                text: "Escreva suas anotações sobre a consulta..."
+
+        MDFabButton: # Botão "Salvar"
+            icon: "content-save"
+            pos_hint: {"center_x": 0.5, 'y': .4}
+            on_release: root.save_new_activity_callback() # <-- Chama o Python

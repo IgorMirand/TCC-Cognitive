@@ -2,7 +2,7 @@
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.label import MDLabel
 from datetime import datetime
-import pytz # Para datas (pip install pytz)
+import pytz 
 
 class DiarioScreen(MDScreen):
 
@@ -72,32 +72,4 @@ class DiarioScreen(MDScreen):
             tabela_grid.clear_widgets()
             tabela_grid.add_widget(MDLabel(text="Erro ao carregar dados.", halign="center", size_hint_x=2))
 
-    def salvar_nova_anotacao(self):
-        """Salva a nova anotação do MDTextField no banco de dados."""
-        texto = self.ids.nova_anotacao_input.text.strip()
-        if not texto:
-            print("Anotação vazia.")
-            return # (Opcional: mostrar pop-up de erro)
-            
-        try:
-            user_id = self.get_user_id()
-            db = self.get_db()
-            
-            if not user_id:
-                print("Usuário não logado.")
-                return # (Mostrar pop-up "Faça login")
-            
-            # Pega a data/hora ATUAL em formato ISO 8601 (UTC é o padrão)
-            data_hora_agora = datetime.now(pytz.utc).isoformat()
-            
-            success, msg = db.add_anotacao_diario(user_id, texto, data_hora_agora)
-            
-            if success:
-                print("Anotação salva!")
-                self.ids.nova_anotacao_input.text = "" # Limpa o campo
-                self.load_notas() # Recarrega a lista
-            else:
-                print(f"Erro ao salvar: {msg}") # (Mostrar pop-up de erro)
-
-        except Exception as e:
-            print(f"Erro ao salvar: {e}")
+    

@@ -29,151 +29,31 @@
                 theme_text_color: "Custom"
                 text_color: (0.2, 0.2, 0.2, 1) # Cor de texto escura
 
-        # --- Lista de Atividades com Scroll ---
-        ScrollView:
-            size_hint: .9, .6
-            pos_hint: {'center_x': .5, 'center_y': .55}
-            bar_width: 0
-            MDBoxLayout:
-                orientation: 'vertical'
-                adaptive_height: True
-                spacing: "10dp"
-                padding: "10dp"
+       # --- ScrollView dos Checkboxes (Seleção) ---
+        MDScrollView:
+            size_hint: .9, .3  # 90% largura, 30% altura
+            pos_hint: {'center_x': .5, 'top': .85} # Abaixo do título
+            MDList:
+                id: lista_selecao_atividades # <-- ID para carregar_chips_disponiveis
 
-                # --- IDs dos Chips (as Chaves do seu dicionário) ---
-                MDChip:
-                    id: chk_fisicas
-                    check: True
-                    type: 'filter'
-                    radius: [dp(25)]
-                    height: "50dp"
-                    # (Defina as cores aqui, como no exemplo anterior)
-                    md_bg_color_normal: (240/255, 240/255, 240/255, 1)
-                    text_color_normal: (0.2, 0.2, 0.2, 1)
-                    md_bg_color_checked: (140/255, 190/255, 140/255, 1)
-                    text_color_checked: (1, 1, 1, 1)
-                    MDChipText:
-                        text: "Pratiquei atividades físicas"
+        # --- Rótulo "Minhas Atividades" (Histórico) ---
+        MDLabel:
+            text: "Minhas Atividades (Histórico)"
+            halign: 'center'
+            font_style: 'Display'
+            role: "small"
+            adaptive_height: True
+            pos_hint: {'center_x': .5, 'top': .5} # Abaixo da lista de seleção
 
-                MDChip:
-                    id: chk_mercado
-                    text: "Fui ao Mercado"
-                    check: True
-                    type: 'filter'
-                    radius: [dp(25)]
-                    height: "50dp"
-                    # (cores...)
-                    md_bg_color_normal: (240/255, 240/255, 240/255, 1)
-                    text_color_normal: (0.2, 0.2, 0.2, 1)
-                    md_bg_color_checked: (140/255, 190/255, 140/255, 1)
-                    text_color_checked: (1, 1, 1, 1)
-                    MDChipText:
-                        text: "Fui ao Mercado"
-
-                MDChip:
-                    id: chk_bebidas
-                    check: True
-                    type: 'filter'
-                    radius: [dp(25)]
-                    height: "50dp"
-                    # (cores...)
-                    md_bg_color_normal: (240/255, 240/255, 240/255, 1)
-                    text_color_normal: (0.2, 0.2, 0.2, 1)
-                    md_bg_color_checked: (140/255, 190/255, 140/255, 1)
-                    text_color_checked: (1, 1, 1, 1)
-                    MDChipText:
-                        text: "Consumi bebidas alcoólicas"
-
-                MDChip:
-                    id: chk_estudei
-                    check: True
-                    type: 'filter'
-                    radius: [dp(25)]
-                    height: "50dp"
-                    # (cores...)
-                    md_bg_color_normal: (240/255, 240/255, 240/255, 1)
-                    text_color_normal: (0.2, 0.2, 0.2, 1)
-                    md_bg_color_checked: (140/255, 190/255, 140/255, 1)
-                    text_color_checked: (1, 1, 1, 1)
-                    MDChipText:
-                        text: "Estudei"
-
-                MDChip:
-                    id: chk_meditei
-                    check: True
-                    type: 'filter'
-                    radius: [dp(25)]
-                    height: "50dp"
-                    # (cores...)
-                    md_bg_color_normal: (240/255, 240/255, 240/255, 1)
-                    text_color_normal: (0.2, 0.2, 0.2, 1)
-                    md_bg_color_checked: (140/255, 190/255, 140/255, 1)
-                    text_color_checked: (1, 1, 1, 1)
-                    MDChipText:
-                        text: "Meditei"
-
-                MDChip:
-                    id: chk_musicas
-                    check: True
-                    type: 'filter'
-                    radius: [dp(25)]
-                    height: "50dp"
-                    # (cores...)
-                    md_bg_color_normal: (240/255, 240/255, 240/255, 1)
-                    text_color_normal: (0.2, 0.2, 0.2, 1)
-                    md_bg_color_checked: (140/255, 190/255, 140/255, 1)
-                    text_color_checked: (1, 1, 1, 1)
-                    MDChipText:
-                        text: "Ouvi Músicas"
-
-                MDChip:
-                    id: chk_desenhei
-                    check: True
-                    type: 'filter'
-                    radius: [dp(25)]
-                    height: "50dp"
-                    # (cores...)
-                    md_bg_color_normal: (240/255, 240/255, 240/255, 1)
-                    text_color_normal: (0.2, 0.2, 0.2, 1)
-                    md_bg_color_checked: (140/255, 190/255, 140/255, 1)
-                    text_color_checked: (1, 1, 1, 1)
-                    MDChipText:
-                        text: "Desenhei, pintei ou colori"
-
-                MDChip:
-                    id: chk_aprendi
-                    check: True
-                    type: 'filter'
-                    radius: [dp(25)]
-                    height: "50dp"
-                    # (cores...)
-                    md_bg_color_normal: (240/255, 240/255, 240/255, 1)
-                    text_color_normal: (0.2, 0.2, 0.2, 1)
-                    md_bg_color_checked: (140/255, 190/255, 140/255, 1)
-                    text_color_checked: (1, 1, 1, 1)
-                    MDChipText:
-                        text: "Aprendi algo novo (ex: idioma)"
-
-                MDChip:
-                    id: chk_amigo
-                    check: True
-                    type: 'filter'
-                    radius: [dp(25)]
-                    height: "50dp"
-                    # (cores...)
-                    md_bg_color_normal: (240/255, 240/255, 240/255, 1)
-                    text_color_normal: (0.2, 0.2, 0.2, 1)
-                    md_bg_color_checked: (140/255, 190/255, 140/255, 1)
-                    text_color_checked: (1, 1, 1, 1)
-                    MDChipText:
-                        text: "Encontrei um amigo ou familiar"
-
-                #  Repita MDChip e MDChipText para adicionar uma atividade
-
+        # --- ScrollView da Lista (HISTÓRICO) ---
+        MDScrollView:
+            size_hint: .9, .25 # 90% largura, 25% altura
+            pos_hint: {'center_x': .5, 'top': .45} # Abaixo do rótulo
+            MDList:
+                id: lista_atividades # <-- O ID QUE ESTÁ DANDO O ERRO
 
         # --- Botão de Cadastro (Principal) ---
         MDButton:
-            text: "Registrar"
             pos_hint: {'center_x': .5, 'y': .1} # Posição: 10% da base
             size_hint: .7, None # 70% da largura da tela
             height: "55dp"
@@ -182,17 +62,20 @@
             # Cor do texto preta
             text_color: (0, 0, 0, 1)
             font_size: "18sp"
-            on_release: root.do_register_activities
-        # --- Botão VOLTAR ---
+            on_release: root.do_register_activities()
+            MDButtonText:
+                text: "Cadastrar"
 
+        # --- Botão VOLTAR ---
         MDButton:
             style: "text" # <-- NOVO PADRÃO
-            text: "Voltar"
             icon: "arrow-left"
             pos_hint: {'center_x': 0.5}
             theme_text_color: "Custom"
             text_color: rgba(50, 50, 50, 255) # <-- CORRIGIDO
             on_release: app.root.current = "sentimento"
+            MDButtonText:
+                text: "Voltar"
 
 <EmotionButton@ToggleButtonBehavior+MDBoxLayout>:
     orientation: 'vertical'
@@ -303,22 +186,76 @@
 
         # Botão Registrar
         MDButton:
-            style: "text" # <-- NOVO PADRÃO
-            text: "Voltar"
+            style: "text" # <-- NOVO PADRÃO            
             icon: "arrow-left"
             pos_hint: {'center_x': 0.5}
             theme_text_color: "Custom"
             text_color: rgba(50, 50, 50, 255) # <-- CORRIGIDO
             on_release: app.root.current = "register_activity"
+            MDButtonText:
+                text: "Proximo"
 
 
         # Botão/Link Voltar
         MDButton:
-            style: "text" # <-- NOVO PADRÃO
-            text: "Voltar"
+            style: "text" # <-- NOVO PADRÃO            
             icon: "arrow-left"
             pos_hint: {'center_x': 0.5}
             theme_text_color: "Custom"
             text_color: rgba(50, 50, 50, 255) # <-- CORRIGIDO
             on_release: app.root.current = "home"
+            MDButtonText:
+                text: "Voltar"
+
+<AnotacaoDiaScreen>
+    name: "anotacao_dia"
+    MDBoxLayout:
+        orientation: 'vertical'
+        padding: "20dp"
+        spacing: "15dp"
+        md_bg_color: (146/255, 199/255, 163/255, 1)
+
+        # --- (3) NOVA SEÇÃO DE INPUT ---
+        MDCard:
+            orientation: "vertical"
+            size_hint: 0.9, None
+            adaptive_height: True
+            pos_hint: {"center_x": 0.5, "top": 0.82} # Posição: Abaixo do logo
+            md_bg_color: rgba(230, 230, 230, 255)
+            padding: dp(10)
+            radius: [10, 10, 10, 10]
+            spacing: dp(10)
+
+            MDLabel:
+                text: "Nova Anotação do Diário:"
+                font_style: "Title"
+                role: "medium" 
+            
+            MDTextField:
+                id: nova_anotacao_input # <-- ID do input
+                hint_text: "Como você está se sentindo hoje?"
+                mode: "filled"
+                multiline: True
+                height: dp(100) # Altura do campo de texto
+                size_hint_y: None
+                theme_bg_color: "Custom"
+                md_bg_color: rgba(255, 255, 255, 255) # Fundo branco
+
+            MDFabButton: # Botão "Salvar"
+                icon: "content-save"
+                pos_hint: {"center_x": 0.5}
+                on_release: root.salvar_nova_anotacao() # <-- Chama o Python
+
+
+
+        # Botão/Link Voltar
+        MDButton:
+            style: "text" # <-- NOVO PADRÃO            
+            icon: "arrow-left"
+            pos_hint: {'center_x': 0.5}
+            theme_text_color: "Custom"
+            text_color: rgba(50, 50, 50, 255) # <-- CORRIGIDO
+            on_release: app.root.current = "home"
+            MDButtonText:
+                text: "Voltar"
 

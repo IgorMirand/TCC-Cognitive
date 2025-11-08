@@ -1,7 +1,6 @@
 from kivymd.uix.screen import Screen
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.list import MDListItem, MDListItemLeadingIcon
-from kivy.metrics import dp
 from datetime import datetime
 import pytz # (Lembre-se: pip install pytz)
 
@@ -11,8 +10,10 @@ from kivymd.uix.dialog import (
     MDDialogHeadlineText,
     MDDialogSupportingText,
     MDDialogButtonContainer,
+    MDDialogContentContainer
 )
-from kivymd.uix.button import MDButton
+from kivymd.uix.button import MDButton, MDButtonText
+from kivymd.uix.textfield import MDTextField, MDTextFieldHintText # <-- NOVO
 
 class ConsultaAnotacaoScreen(Screen):
     dialog = None
@@ -134,3 +135,67 @@ class ConsultaAnotacaoScreen(Screen):
     def close_dialog(self, *args):
         if self.dialog:
             self.dialog.dismiss()
+
+class AdicionarAtividade(Screen):
+    dialog = None
+    add_dialog = None
+
+    def save_new_activity_callback(self, *args):
+        nova_atividade = self.ids.new_activity_input.text.strip()
+        
+        if not nova_atividade:
+            self.show_popup("Atenção", "O nome da atividade não pode ser vazio.")
+            return
+
+        try:
+            user_id = self.get_user_id()
+            db = self.get_db()
+            
+            if not user_id:
+                print("Usuário não logado.")
+                return # (Mostrar pop-up "Faça login")
+            
+            success, msg = db.add_atividade_template(nova_atividade, user_id)
+            
+            if success:
+                self.close_add_dialog()
+                self.show_popup("Sucesso", f"Atividade '{nova_atividade}' adicionada!")
+                self.ids.new_activity_input.text = ""
+            else:
+                self.show_popup("Erro", msg)
+
+        except Exception as e:
+            print("Erro", f"Falha ao salvar: {e}")
+            self.show_popup("Erro", f"Falha ao salvar: {e}")
+
+    def show_popup(self, title, message):
+        self.close_message_dialog()
+
+        close_button = MDButton(
+            MDButtonText(text="OK"),
+            style="text",
+            on_release=self.close_message_dialog
+        )
+        
+        self.dialog = MDDialog(
+            MDDialogHeadlineText(text=title),
+            MDDialogSupportingText(text=message),
+            MDDialogButtonContainer(close_button, spacing="8dp")
+        )
+        self.dialog.open()
+
+    def close_message_dialog(self, *args):
+        if self.dialog:
+            self.dialog.dismiss()
+            self.dialog = None
+
+    def close_add_dialog(self, *args):
+        if self.add_dialog:
+            self.add_dialog.dismiss()
+            self.add_dialog = None
+
+    def get_db(self):
+        return self.manager.app.db
+    
+    def get_user_id(self):
+        return self.manager.app.logged_user_id

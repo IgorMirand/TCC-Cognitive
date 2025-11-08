@@ -14,37 +14,6 @@
             pos_hint: {"center_x": 0.5, "top": 0.95} # Posicionado
             allow_stretch: True
 
-        # --- (3) NOVA SEÇÃO DE INPUT ---
-        MDCard:
-            orientation: "vertical"
-            size_hint: 0.9, None
-            adaptive_height: True
-            pos_hint: {"center_x": 0.5, "top": 0.82} # Posição: Abaixo do logo
-            md_bg_color: rgba(230, 230, 230, 255)
-            padding: dp(10)
-            radius: [10, 10, 10, 10]
-            spacing: dp(10)
-
-            MDLabel:
-                text: "Nova Anotação do Diário:"
-                font_style: "Title"
-                role: "medium" 
-            
-            MDTextField:
-                id: nova_anotacao_input # <-- ID do input
-                hint_text: "Como você está se sentindo hoje?"
-                mode: "filled"
-                multiline: True
-                height: dp(100) # Altura do campo de texto
-                size_hint_y: None
-                theme_bg_color: "Custom"
-                md_bg_color: rgba(255, 255, 255, 255) # Fundo branco
-
-            MDFabButton: # Botão "Salvar"
-                icon: "content-save"
-                pos_hint: {"center_x": 0.5}
-                on_release: root.salvar_nova_anotacao() # <-- Chama o Python
-
         # --- (4) CARD DA TABELA (Corrigido) ---
         MDCard:
             orientation: "vertical"
