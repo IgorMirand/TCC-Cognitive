@@ -1,94 +1,108 @@
-# app/ui/telas/consulta_anotacao.kv
-#:import MDListItem kivymd.uix.list.MDListItem
-#:import MDListItemLeadingIcon kivymd.uix.list.MDListItemLeadingIcon
+#:import hex kivy.utils.get_color_from_hex
+#:import dp kivy.metrics.dp
 
 <ConsultaAnotacaoScreen>:
     name: "consulta_anotacao"
     
     MDFloatLayout:
-        md_bg_color: rgba(146, 199, 163, 255) # Fundo verde
+        md_bg_color: hex("#F5F7F6")
 
-        MDLabel:
-            text: "Anotação da Consulta"
-            font_style: "Title"
-            role: "large"
-            pos_hint: {"center_x": 0.5, "top": 0.95}
-            halign: "center"
-            theme_text_color: "Custom"
-            text_color: "black"
-
-        MDCard:
-            orientation: "vertical"
-            size_hint: 0.9, None
+        # --- Cabeçalho ---
+        MDBoxLayout:
+            orientation: "horizontal"
             adaptive_height: True
-            pos_hint: {"center_x": 0.5, "center_y": 0.6}
-            md_bg_color: rgba(250, 250, 250, 255) # Fundo branco/cinza
-            padding: dp(20)
-            radius: [15]
-            spacing: dp(15)
+            padding: "16dp"
+            spacing: "12dp"
+            pos_hint: {"top": 1}
+            md_bg_color: hex("#92C7A3")
+            radius: [0, 0, 0, 30]
+            elevation: 2
 
-            # --- O CAMPO QUE ABRE O DROPDOWN ---
-            MDTextField:
-                id: paciente_selector_field
-                hint_text: "Selecione o Paciente"
-                mode: "filled"
-                # 'readonly: True' impede o psicólogo de digitar
-                readonly: True
-                # 'on_focus' abre o menu quando o campo é tocado
-                on_focus: if self.focus: root.open_patient_menu()
-                
-                # KivyMD 2.0.0 Estilo
-                theme_bg_color: "Custom"
-                md_bg_color: rgba(230, 230, 230, 255)
+            MDIconButton:
+                icon: "arrow-left"
+                theme_icon_color: "Custom"
+                icon_color: 1, 1, 1, 1
+                pos_hint: {"center_y": .5}
+                on_release: app.root.current = "home_psicologo"
+
+            MDLabel:
+                text: "Nova Anotação"
+                font_style: "Title"
+                role: "large"
                 theme_text_color: "Custom"
-                text_color: "black"
+                text_color: 1, 1, 1, 1
+                pos_hint: {"center_y": .5}
 
-            # --- O CAMPO DE TEXTO PARA AS NOTAS ---
-            MDTextField:
-                id: anotacao_input
-                hint_text: "Escreva suas anotações sobre a consulta..."
-                mode: "filled"
-                multiline: True
-                # Define uma altura fixa para o campo de texto
-                size_hint_y: None
-                height: dp(250) 
-                
-                theme_bg_color: "Custom"
-                md_bg_color: rgba(230, 230, 230, 255)
-                theme_text_color: "Custom"
-                text_color: "black"
+        # --- Conteúdo ---
+        MDScrollView:
+            pos_hint: {"top": .88}
+            
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                padding: "20dp"
+                spacing: "20dp"
 
-        # --- BOTÃO SALVAR ---
-        MDFabButton:
-            icon: "content-save"
-            pos_hint: {"center_x": 0.5, "y": 0.22}
-            on_release: root.salvar_anotacao()
+                # --- CORREÇÃO AQUI: Botão Seletor com MDButtonText ---
+                MDButton:
+                    id: btn_selecionar_paciente
+                    style: "elevated"
+                    # Removemos a propriedade 'text' daqui de cima, ela não faz nada sozinha
+                    size_hint_x: 1
+                    height: "56dp"
+                    theme_bg_color: "Custom"
+                    md_bg_color: hex("#E8E8E8")
+                    
+                    # Abre o menu ao clicar
+                    on_release: root.menu.open() if root.menu else None
 
-        # --- BOTÃO VOLTAR ---
-        MDButton:
-            text: "Voltar"
-            style: "text"
-            pos_hint: {'center_x': .5, 'y': .15}
-            theme_text_color: "Custom"
-            text_color: "black"
-            on_release: app.root.current = 'home_psicologo'
+                    # O Texto precisa ser um widget filho no KivyMD 2.0
+                    MDButtonText:
+                        id: lbl_btn_paciente # Demos um ID para alterar via Python
+                        text: "Selecione o Paciente..."
+                        theme_text_color: "Custom"
+                        text_color: 0, 0, 0, 0.8
+                        pos_hint: {"center_x": .5, "center_y": .5}
 
-<AdicionarAtividade>
-    name: "adicionar_atividade"
-    MDFloatLayout:
-        md_bg_color: rgba(146, 199, 163, 255) # Fundo verde
+                # --- 2. Campo de Texto ---
+                MDTextField:
+                    id: anotacao_input
+                    mode: "outlined"
+                    multiline: True
+                    size_hint_y: None
+                    height: "150dp"
+                    max_text_length: 500
+                    
+                    MDTextFieldHintText:
+                        text: "Detalhes da consulta..."
 
-        MDTextField:
-            id: new_activity_input
-            mode: "filled"
-            multiline: True
-            # Define uma altura fixa para o campo de texto
-            height: dp(250) 
-            pos_hint: {'center_x': .5, 'y': .5}
-            MDTextFieldHelperText:
-                text: "Escreva suas anotações sobre a consulta..."
+                    MDTextFieldMaxLengthText:
+                        max_text_length: 500
 
-        MDFabButton: # Botão "Salvar"
-            icon: "content-save"
-            pos_hint: {"center_x": 0.5, 'y': .4}
-            on_release: root.save_new_activity_callback() # <-- Chama o Python
+                # --- 3. Botão Salvar ---
+                MDButton:
+                    style: "filled"
+                    size_hint_x: 1
+                    theme_bg_color: "Custom"
+                    md_bg_color: hex("#92C7A3")
+                    on_release: root.salvar_anotacao()
+
+                    MDButtonText:
+                        text: "Salvar no Histórico"
+                        theme_text_color: "Custom"
+                        text_color: 1, 1, 1, 1
+                        pos_hint: {"center_x": .5, "center_y": .5}
+
+                MDDivider:
+                    height: "2dp"
+
+                MDLabel:
+                    text: "Histórico Recente"
+                    font_style: "Title"
+                    role: "small"
+                    theme_text_color: "Secondary"
+
+                # --- 4. Lista de Histórico ---
+                MDList:
+                    id: lista_historico
+                    spacing: "10dp"

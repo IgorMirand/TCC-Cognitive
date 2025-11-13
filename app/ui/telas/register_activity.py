@@ -8,12 +8,24 @@ from kivymd.uix.dialog import (
     MDDialogButtonContainer
 )
 from kivymd.uix.button import MDButton, MDButtonText
-from kivymd.uix.boxlayout import MDBoxLayout 
-from kivy.properties import ObjectProperty, NumericProperty, ListProperty
-from kivymd.uix.selectioncontrol import MDCheckbox
-from kivymd.uix.list import MDListItem, MDListItemHeadlineText, MDListItemTrailingCheckbox, MDListItemSupportingText
+from kivy.properties import  NumericProperty, ListProperty
+from kivymd.uix.list import MDListItem, MDListItemHeadlineText, MDListItemTrailingCheckbox, MDListItemSupportingText, MDListItemTertiaryText
 from kivy.clock import Clock 
 
+EMOCOES_MAP = {
+    1: "Feliz",
+    2: "Triste",
+    3: "Medo",
+    4: "Surpreso",
+    5: "Raiva",
+    6: "Envergonhado",
+    7: "Constrangido",
+    8: "Receoso",
+    9: "Apático",
+    10: "Deprimido",
+    11: "Irritado"
+}
+    
 class StepManager(ScreenManager): 
     etapa_atual = NumericProperty(1)
     
@@ -24,9 +36,6 @@ class StepManager(ScreenManager):
 
     def ir_etapa_anterior(self):
             self.transition.direction = 'right'
-
-class Barras(MDBoxLayout):
-    manager = ObjectProperty(None) 
     
 class RegisterActivityScreen(Screen):
     dialog = None
@@ -45,7 +54,6 @@ class RegisterActivityScreen(Screen):
     def carregar_dados_tela(self, *args):
         """Chama as duas funções de carregamento."""
         self.carregar_chips_disponiveis()
-        self.carregar_atividades_historico()
 
     def carregar_chips_disponiveis(self):
         """
@@ -87,137 +95,38 @@ class RegisterActivityScreen(Screen):
             
             list_widget.add_widget(list_item)
 
+    # Em RegisterActivityScreen
     def do_register_activities(self):
         """
-        Coleta os IDs dos checkboxes marcados e salva no banco de dados.
-        (VERSÃO COM REFERÊNCIA DIRETA)
+        MODIFICADO: Apenas coleta os IDs e passa para a próxima tela.
+        NÃO SALVA MAIS NO BANCO.
         """
-        user_id = self.get_user_id()
-        db = self.get_db()
-
-        if not user_id or not db:
-            self.show_popup("Erro", "Não foi possível conectar ao banco. Faça login novamente.")
-            return
-
+        print("DEBUG (Atividades): 'do_register_activities' foi chamado.")
+        
         ids_selecionados = []
         list_widget = self.ids.lista_selecao_atividades
 
-        # Itera sobre os MDListItems na lista
         for item in list_widget.children:
-            
-            # --- CORREÇÃO PRINCIPAL ---
-            # Verifica se o item tem nossa referência customizada
             if hasattr(item, 'my_checkbox_ref'):
-                
-                checkbox_widget = item.my_checkbox_ref
-                
-                # Agora sim, podemos checar com segurança
-                if checkbox_widget.active:
-                    try:
-                        ids_selecionados.append(checkbox_widget.atividade_id)
-                    except AttributeError:
-                        print(f"ERRO: Checkbox {checkbox_widget} não tem 'atividade_id'!")
-            # --- FIM DA CORREÇÃO ---
+                if item.my_checkbox_ref.active:
+                    ids_selecionados.append(item.my_checkbox_ref.atividade_id)
         
-        if not ids_selecionados:
-            self.show_popup("Atenção", "Você não selecionou nenhuma atividade.")
-            return
+        # --- MUDANÇA PRINCIPAL ---
+        # Nós aceitamos 0 atividades. NÃO mostre um popup de erro.
         
-        try:
-            # Pega o timestamp
-            data_hora_agora = datetime.now(pytz.utc).isoformat()
-            
-            success, msg = db.registrar_atividades_paciente(user_id, ids_selecionados, data_hora_agora)
-            
-            if success:
-                # Desativa os checkboxes (usando a mesma referência)
-                for item in list_widget.children:
-                    if hasattr(item, 'my_checkbox_ref'):
-                        item.my_checkbox_ref.active = False
-                            
-                self.show_popup("Sucesso", "Suas atividades foram registradas!")
-                self.carregar_atividades_historico() # Atualiza o histórico
-                self.manager.current = 'anotacao_dia'
-            else:
-                self.show_popup("Erro", msg)
+        # 1. Guarda os IDs (mesmo que seja uma lista vazia)
+        self.manager.app.temp_entry_data['atividades_ids'] = ids_selecionados
+        print(f"DEBUG (Atividades): IDs {ids_selecionados} salvos. Indo para anotação.")
 
-        except Exception as e:
-            print(f"Erro ao tentar registrar atividades: {e}")
-            self.show_popup("Erro", "Não foi possível salvar. Verifique se está logado.")
-
-    # 3. Para o PACIENTE salvar as atividades que ele selecionou
-    def registrar_atividades_paciente(self, paciente_id, lista_de_ids_atividades, data_hora_iso):
-        """
-        Registra as atividades que o paciente selecionou.
-        Recebe o ID do paciente, uma LISTA de IDs de atividades e o timestamp ISO.
-        """
-        try:
-            with self.connect() as conn:
-                with conn.cursor() as cursor:
-                    
-                    # Prepara os dados como uma lista de tuplas
-                    # ex: [(15, 1, 'timestamp...'), (15, 3, 'timestamp...')]
-                    dados_para_inserir = [
-                        (paciente_id, atividade_id, data_hora_iso) 
-                        for atividade_id in lista_de_ids_atividades
-                    ]
-
-                    # Esta é uma forma otimizada de inserir múltiplos registros
-                    from psycopg2.extras import execute_values
-                    query = """
-                        INSERT INTO registros_atividades_paciente 
-                            (paciente_id, atividade_template_id, data_hora_iso) 
-                        VALUES %s
-                    """
-                    
-                    execute_values(cursor, query, dados_para_inserir)
-                    
-                    conn.commit()
-                    return True, "Atividades registradas com sucesso."
-        except Exception as e:
-            if conn: conn.rollback()
-            print(f"[ERRO] registrar_atividades_paciente: {e}")
-            return False, "Erro ao registrar atividades."
-
-
-    def carregar_atividades_historico(self):
-        """
-        Carrega o HISTÓRICO do paciente (atividades já registradas).
-        Usa a lista 'lista_atividades'.
-        """
-        user_id = self.get_user_id()
-        db = self.get_db()
-
-        if not user_id or not db:
-            print("Usuário ou DB não encontrado, não posso carregar histórico.")
-            return
-
-        list_widget = self.ids.lista_atividades
-        list_widget.clear_widgets()
-
-        # 2. Busca o histórico de registros do paciente
-        success, registros = db.get_registros_do_paciente(user_id)
-
-        if not success:
-            list_widget.add_widget(
-                MDListItem(MDListItemHeadlineText(text="Erro ao carregar histórico."))
-            )
-            return
+        # 2. Limpa os checkboxes
+        for item in list_widget.children:
+            if hasattr(item, 'my_checkbox_ref'):
+                item.my_checkbox_ref.active = False
         
-
-        # O retorno é [('Texto Ativ 1', data1), ('Texto Ativ 2', data2)]
-        print(f"Encontrados {len(registros)} registros de histórico.")
-        for atividade_texto, data_registro in registros:
-            item = MDListItem(
-                MDListItemHeadlineText(text=atividade_texto),
-                MDListItemSupportingText(text=str(data_registro)) # Mostra a data
-            )
-            list_widget.add_widget(item)
-
-    
+        # 3. Vai para a próxima tela
+        self.manager.current = 'anotacao_dia'
 
     # --- Funções de Popup e Getters (Sem Mudanças) ---
-
     def show_popup(self, title, message):
         self.close_dialog() # Chama a função unificada
 
@@ -259,38 +168,146 @@ class RegisterActivityScreen(Screen):
         return None
     
 class SentimentoScreen(Screen):
-    pass
 
-class AnotacaoDiaScreen(Screen):
-    def salvar_nova_anotacao(self):
-        """Salva a nova anotação do MDTextField no banco de dados."""
-        texto = self.ids.nova_anotacao_input.text.strip()
-        if not texto:
-            print("Anotação vazia.")
-            return # (Opcional: mostrar pop-up de erro)
+    def on_enter(self, *args):
+        # Reseta os dados temporários e carrega os sentimentos
+        self.manager.app.temp_entry_data = {}
+        self.carregar_sentimentos()
+
+    def carregar_sentimentos(self):
+        """
+        Cria a lista de sentimentos com checkboxes de seleção única.
+        """
+        list_widget = self.ids.lista_sentimentos
+        list_widget.clear_widgets()
+
+        # Usa o dicionário global EMOCOES_MAP
+        for sentimento_id, sentimento_texto in EMOCOES_MAP.items():
             
+            list_item = MDListItem()
+            list_item.add_widget(MDListItemHeadlineText(text=sentimento_texto))
+            
+            checkbox = MDListItemTrailingCheckbox(
+                # --- A CHAVE PARA SELEÇÃO ÚNICA ---
+                group="sentimentos_group" 
+            )
+            # Salva o ID do sentimento (ex: 1) no checkbox
+            checkbox.sentimento_id = sentimento_id 
+            
+            list_item.add_widget(checkbox)
+
+            # Usa nossa referência manual (a prova de bugs)
+            list_item.my_checkbox_ref = checkbox
+            
+            list_widget.add_widget(list_item)
+
+    def ir_para_atividades(self):
+        """
+        Pega o sentimento selecionado e o salva temporariamente antes de ir
+        para a próxima tela.
+        """
+        sentimento_selecionado_id = None
+        list_widget = self.ids.lista_sentimentos
+
+        # Loop para encontrar qual checkbox está ativo
+        for item in list_widget.children:
+            if hasattr(item, 'my_checkbox_ref'):
+                checkbox_widget = item.my_checkbox_ref
+                if checkbox_widget.active:
+                    sentimento_selecionado_id = checkbox_widget.sentimento_id
+                    break # Encontramos (só pode haver um)
+        
+        # Verifica se o usuário selecionou algo
+        if sentimento_selecionado_id is None:
+            # (Opcional: mostrar popup de erro)
+            print("ERRO: Nenhum sentimento selecionado.")
+            # (Você precisará de uma função show_popup nesta classe)
+            # self.show_popup("Atenção", "Você precisa selecionar um sentimento.")
+            return
+
+        # Guarda o ID do sentimento (ex: 1) no dicionário temporário do App
+        self.manager.app.temp_entry_data['sentimento_id'] = sentimento_selecionado_id
+        print(f"DEBUG (Sentimento): ID {sentimento_selecionado_id} salvo. Indo para atividades.")
+        
+        # Vai para a próxima tela
+        self.manager.current = 'register_activity'
+class AnotacaoDiaScreen(Screen):
+    
+    def on_enter(self):
+        # Reseta os campos quando entra na tela (opcional)
+        pass
+
+    def salvar_nova_anotacao(self):
+        """Coleta todas as respostas, formata em um texto único e salva."""
+        
+        # 1. Coleta os textos dos Inputs
+        p1 = self.ids.input_humor.text.strip() or "Não respondeu"
+        p2 = self.ids.input_desconforto.text.strip() or "Não respondeu"
+        p3 = int(self.ids.slider_bem_estar.value) # Valor de 0 a 10
+        p4 = self.ids.input_desafio.text.strip() or "Não respondeu"
+        p5 = self.ids.input_medo.text.strip() or "Não respondeu"
+        p6 = self.ids.input_vitoria.text.strip() or "Não respondeu"
+
+        # 2. Coleta Autocuidado (Checkboxes)
+        cuidados = []
+        if self.ids.check_sono.active: cuidados.append("Sono")
+        if self.ids.check_alimentacao.active: cuidados.append("Alimentação")
+        if self.ids.check_movimento.active: cuidados.append("Movimento")
+        p_autocuidado = ", ".join(cuidados) if cuidados else "Nenhum específico"
+
+        # 3. Formata o texto final para salvar no banco (campo 'anotacao')
+        texto_consolidado = (
+            f"1. Influência no humor: {p1}\n"
+            f"2. Desconforto/Estresse: {p2}\n"
+            f"3. Nota Bem-estar: {p3}/10\n"
+            f"4. Maior desafio: {p4}\n"
+            f"5. Evitou algo (medo): {p5}\n"
+            f"6. Autocuidado: {p_autocuidado}\n"
+            f"7. Vitória do dia: {p6}"
+        )
+
         try:
+            temp_data = self.manager.app.temp_entry_data
             user_id = self.get_user_id()
             db = self.get_db()
             
+            # Verifica se tem dados anteriores
+            sentimento_id = temp_data.get('sentimento_id', 1) # Default 1 se der erro
+            atividades_ids = temp_data.get('atividades_ids', [])
+            
             if not user_id:
                 print("Usuário não logado.")
-                return # (Mostrar pop-up "Faça login")
+                return 
             
-            # Pega a data/hora ATUAL em formato ISO 8601 (UTC é o padrão)
             data_hora_agora = datetime.now(pytz.utc).isoformat()
             
-            success, msg = db.add_anotacao_diario(user_id, texto, data_hora_agora)
+            # Salva no banco usando o texto consolidado
+            success, msg = db.add_entrada_completa_diario(
+                user_id, data_hora_agora, sentimento_id, texto_consolidado, atividades_ids
+            )
             
             if success:
-                print("Anotação salva!")
-                self.ids.nova_anotacao_input.text = "" # Limpa o campo
+                print("Diário completo salvo!")
+                self.limpar_campos()
+                self.manager.app.temp_entry_data = {} 
+                self.manager.current = 'home' 
             else:
-                print(f"Erro ao salvar: {msg}") # (Mostrar pop-up de erro)
+                print(f"Erro ao salvar: {msg}")
 
         except Exception as e:
             print(f"Erro ao salvar: {e}")
     
+    def limpar_campos(self):
+        self.ids.input_humor.text = ""
+        self.ids.input_desconforto.text = ""
+        self.ids.input_desafio.text = ""
+        self.ids.input_medo.text = ""
+        self.ids.input_vitoria.text = ""
+        self.ids.slider_bem_estar.value = 5
+        self.ids.check_sono.active = False
+        self.ids.check_alimentacao.active = False
+        self.ids.check_movimento.active = False
+
     def get_db(self):
         return self.manager.app.db
 

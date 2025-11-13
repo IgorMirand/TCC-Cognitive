@@ -87,7 +87,7 @@
 
             # --- (NOVO) Campo Idade ---
             MDLabel:
-                text: "Idade:"
+                text: "Data de Nacimento:"
                 halign: 'left'
                 size_hint_y: None
                 height: self.texture_size[1]
@@ -95,15 +95,15 @@
                 text_color: rgba(51, 51, 51, 255)
                 padding_y: "10dp"
                 
-            MDTextField:
-                id: idade_input # <-- NOVO ID
-                mode: "filled"
-                hint_text: "Sua idade"
-                input_type: "number" # Teclado numérico
-                radius: [15]
-                size_hint_y: None
-                height: "48dp"
-                
+            MDButton:
+                pos_hint: {'center_x': .5, 'center_y': .5}
+                # CORREÇÃO 1: Mudei de 'app' para 'root'
+                on_release: root.show_modal_date_picker()
+
+                MDButtonText:
+                    # CORREÇÃO 2: Adicionei o ID para o Python ler depois
+                    id: data_nacimento 
+                    text: "Selecionar Data"
 
             # --- Campo Senha ---
             MDLabel:
@@ -180,7 +180,7 @@
             pos_hint: {'center_x': .5, 'y': .01}
             height: "56dp"
             size_hint_x: .5  
-            on_release: app.root.current = "register1"
+            on_release: app.root.current = "main"
             MDButtonText:
                 text: "Voltar"
                 pos_hint: {"center_x": .5, "center_y": .5}

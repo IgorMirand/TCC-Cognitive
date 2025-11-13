@@ -2,15 +2,15 @@ from kivy.uix.screenmanager import ScreenManager, SlideTransition
 from kivy.lang import Builder
 from pathlib import Path
 #--- IMPORTA TODAS AS CLASSES QUE VAI GERIR ---
-from app.ui.telas.home import HomeScreen
-from app.ui.telas.home_psicologo import PsychoHomeScreen
+from app.ui.telas.home import HomeScreen, AgendamentoScreen
+from app.ui.telas.home_psicologo import PsychoHomeScreen, PatientListScreen, ListAtividadeScreen, DisponibilidadeScreen
 from app.ui.telas.login import LoginScreen
 from app.ui.telas.main import MainScreen
 from app.ui.telas.register import RegisterScreen
 from app.ui.telas.diario import DiarioScreen
 from app.ui.telas.register_activity import RegisterActivityScreen, SentimentoScreen, AnotacaoDiaScreen
-from app.ui.telas.register_activity import RegisterActivityScreen
-from app.ui.telas.consulta_anotacao import ConsultaAnotacaoScreen, AdicionarAtividade
+from app.ui.telas.consulta_anotacao import ConsultaAnotacaoScreen
+from app.ui.telas.conta import ContaScreen
 
 
 # Carrega styles.kv automaticamente
@@ -32,11 +32,16 @@ class ScreenController(ScreenManager):
         self.add_widget(SentimentoScreen(name="sentimento"))
         self.add_widget(MainScreen(name="main"))
         self.add_widget(PsychoHomeScreen(name="home_psicologo"))
+        self.add_widget(PatientListScreen(name="pacientes"))
+        self.add_widget(ListAtividadeScreen(name="lista_atividade"))
+        self.add_widget(DisponibilidadeScreen(name="disponibilidade"))
         self.add_widget(RegisterActivityScreen(name="register_activity"))
         self.add_widget(ConsultaAnotacaoScreen(name="consulta_anotacao"))
-        self.add_widget(AdicionarAtividade(name="adicionar_atividade"))
         self.add_widget(AnotacaoDiaScreen(name="anotacao_dia"))
+        self.add_widget(ContaScreen(name="conta"))
+        self.add_widget(AgendamentoScreen(name="agendamento"))
+
 
         # Mudei a tela inicial para "main", que parece ser sua tela
         # de boas-vindas. Se for "login", apenas mude aqui.
-        self.current = "main"
+        self.current = "home_psicologo"

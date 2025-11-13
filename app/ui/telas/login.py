@@ -7,18 +7,23 @@ from kivymd.uix.button import MDButton, MDButtonText
 from kivymd.uix.progressindicator import MDCircularProgressIndicator
 from kivy.clock import Clock
 from app.core.auth import Auth
-
+import re
 
 class LoginScreen(Screen):
     dialog = None
     spinner = None
 
     def do_login(self):
-        email = self.ids.email.text.strip()
+        email = self.ids.email_input.text.strip()
         password = self.ids.password.text.strip()
 
         if not email or not password:
             self.show_popup("Erro", "Por favor, preencha todos os campos.")
+            return
+        
+        if not self.is_email_valido(email):
+            self.ids.email_input.error = True # Fica vermelho no MDTextField
+            self.show_popup("Formato de e-mail inválido!")
             return
 
         self.show_loading("Validando credenciais...")
@@ -26,16 +31,24 @@ class LoginScreen(Screen):
         # Simula tempo de autenticação (use threads na prática)
         Clock.schedule_once(lambda dt: self._process_login(email, password), 1.5)
 
+    def is_email_valido(self, email):
+        padrao = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+        if re.match(padrao, email):
+            return True
+        return False
+    
     def _process_login(self, email, password):
         auth_system = Auth(self.manager.app.db)
-        success, message, user_type, user_id = auth_system.login(email, password)
+        success, message, user_type, user_id, username = auth_system.login(email, password)
 
         self.hide_loading()
 
         if success:
             self.manager.app.logged_user_id = user_id
             self.manager.app.logged_user_type = user_type
-            self.ids.email.text = ""
+            self.manager.app.logged_user_name = username
+            
+            self.ids.email_input.text = ""
             self.ids.password.text = ""
 
             if user_type == "Paciente":

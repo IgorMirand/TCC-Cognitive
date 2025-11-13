@@ -1,96 +1,242 @@
+#:import hex kivy.utils.get_color_from_hex
+
+# --- Componente Reutilizável para os Botões Principais ---
+<DashboardCard@MDCard>:
+    orientation: "vertical"
+    size_hint_y: None
+    height: "140dp"
+    radius: [20, 20, 20, 20]
+    padding: "16dp"
+    spacing: "10dp"
+    theme_bg_color: "Custom"
+    md_bg_color: hex("#FFFFFF")
+    elevation: 1
+    ripple_behavior: True
+    
+    # Propriedades customizadas
+    text: ""
+    icon: ""
+    icon_color: hex("#92C7A3")
+    
+    MDIcon:
+        icon: root.icon
+        theme_text_color: "Custom"
+        text_color: root.icon_color
+        font_size: "48sp"
+        pos_hint: {"center_x": .5}
+        
+    MDLabel:
+        text: root.text
+        halign: "center"
+        theme_text_color: "Primary"
+        font_style: "Title"
+        role: "medium"
+        adaptive_height: True
+
+# --- Tela Principal (Paciente) ---
 <HomeScreen>:
     name: "home"
+    
     MDFloatLayout:
-        # KivyMD 2.0.0: Sintaxe de cor 'rgba'
-        md_bg_color: rgba(146, 199, 163, 255)
+        md_bg_color: hex("#F5F7F6")
 
-        # --- Logo (Flor) ---
-        Image:
-            source: "app/assets/img.png"
-            size_hint: None, None
-            size: "80dp", "80dp"
-            allow_stretch: True
-            pos_hint: {'center_x': .5, 'top': .96}
-
-        # --- Ícone de Notificação (Sino) ---
-        MDIconButton:
-            icon: "bell-outline"
-            pos_hint: {'right': .95, 'top': .96}
-            theme_icon_color: "Custom" # KivyMD 2.0.0: Obrigatório
-            icon_color: rgba(51, 51, 51, 255)
-            on_release: app.root.current = 'notifications'
-
-        # --- Container para os Botões Centrais ---
+        # --- Cabeçalho Fixo (Header) ---
         MDBoxLayout:
-            orientation: 'vertical'
-            size_hint: .8, None
+            orientation: "horizontal"
             adaptive_height: True
-            pos_hint: {'center_x': .5, 'top': .80} # Posição ajustada
-            spacing: "15dp"
+            padding: "16dp" # Ajustei levemente o padding para caber tudo
+            spacing: "8dp"
+            pos_hint: {"top": 1}
+            md_bg_color: hex("#92C7A3")
+            radius: [0, 0, 0, 30]
 
-            MDButton:
-                style: "elevated" 
-                theme_width: "Custom"
-                height: "56dp"
-                size_hint_x: .5
-                on_release: app.root.current = "sentimento"
-                MDButtonText:
-                    text: "Minhas Atividades"
-            
-            MDButton:
-                style: "elevated" 
-                theme_width: "Custom"
-                height: "56dp"
-                size_hint_x: .5 
-                on_release: app.root.current = "diario"
-                MDButtonText:
-                    text: "Meu Diário"
+            Image:
+                source: "app/assets/img.png"
+                size_hint: None, None
+                size: "45dp", "45dp"
+                allow_stretch: True
 
-        # --- (NOVO) Card de Vínculo ---
-        MDCard:
-            id: vincula_card
-            orientation: "vertical"
-            size_hint: .8, None
-            adaptive_height: True
-            pos_hint: {'center_x': .5, 'top': .40} # Posição abaixo dos botões
-            padding: "15dp"
-            spacing: "10dp"
-            radius: [15]
-
-            MDLabel:
-                text: "Vincular a um Psicólogo"
-                halign: "center"
-                font_style: "Title"
-                role: "medium"
-            
-            MDTextField:
-                id: vincula_input # <-- ID corrigido
-                hint_text: "Digite o código de convite"
-                mode: "filled"
-                radius: [15, 15, 15, 15]
-                size_hint_y: None
-                height: "48dp"
-                theme_bg_color: "Custom"
-                md_bg_color: rgba(230, 230, 230, 255)
-                theme_text_color: "Custom"
-                text_color: "black"
-
-            MDButton:
-                style: "filled"
-                text: "Vincular Conta"
-                pos_hint: {'center_x': .5}
-                on_release: root.vincula() # <-- Chama a função Python
-
-        # --- Navegação Inferior (Corrigida) ---
-        MDNavigationBar:
-            pos_hint: {"center_x": 0.5, "y": 0}
-            
-            MDNavigationItem:
-                name: "home"
-                text: "Home"
-                icon: "home"
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                pos_hint: {"center_y": .5}
                 
-            MDNavigationItem:
-                name: "conta"
-                text: "Conta"
+                MDLabel:
+                    id: id_label
+                    text: "Bem-vindo, Dr(a)."
+                    font_style: "Title"
+                    role: "medium"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    adaptive_height: True
+
+                MDLabel:
+                    text: "Bem-vindo de volta"
+                    font_style: "Label"
+                    role: "large"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 0.8
+                    adaptive_height: True
+
+            Widget: # Espaçador flexível que empurra os botões para a direita
+
+            # --- Botão de Notificação ---
+            MDIconButton:
+                icon: "bell-outline"
+                theme_icon_color: "Custom"
+                icon_color: 1, 1, 1, 1
+                #on_release: app.root.current = 'notifications'
+                pos_hint: {"center_y": .5}
+
+        # --- Conteúdo com Scroll ---
+        MDScrollView:
+            pos_hint: {"top": .82, "bottom": .1}
+            do_scroll_x: False
+            
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                padding: "24dp"
+                spacing: "24dp"
+
+                MDLabel:
+                    text: "O que vamos fazer hoje?"
+                    font_style: "Title"
+                    role: "medium"
+                    adaptive_height: True
+                    theme_text_color: "Secondary"
+
+                # Grid para os botões principais
+                MDGridLayout:
+                    cols: 2
+                    spacing: "16dp"
+                    adaptive_height: True
+                    size_hint_y: None
+
+                    DashboardCard:
+                        text: "Sentimentos"
+                        icon: "emoticon-outline"
+                        on_release: app.root.current = "sentimento"
+
+                    DashboardCard:
+                        text: "Meu Diário"
+                        icon: "book-open-variant"
+                        on_release: app.root.current = "diario"
+                        
+                    DashboardCard:
+                        text: "Agendar Consulta"
+                        icon: "calendar-plus"
+                        on_release: app.root.current = "agendamento"
+
+                # --- Card de Vínculo ---
+                MDCard:
+                    id: vincula_card
+                    orientation: "vertical"
+                    size_hint_y: None
+                    adaptive_height: True
+                    padding: "20dp"
+                    spacing: "15dp"
+                    radius: [20]
+                    theme_bg_color: "Custom"
+                    md_bg_color: hex("#FFFFFF")
+                    elevation: 1
+
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        spacing: "10dp"
+                        adaptive_height: True
+
+                        MDIcon:
+                            icon: "doctor"
+                            theme_text_color: "Custom"
+                            text_color: hex("#92C7A3")
+                            pos_hint: {"center_y": .5}
+
+                        MDLabel:
+                            text: "Vincular Psicólogo"
+                            font_style: "Title"
+                            role: "medium"
+                            pos_hint: {"center_y": .5}
+
+                    MDLabel:
+                        text: "Insira o código fornecido pelo seu profissional."
+                        font_style: "Body"
+                        role: "medium"
+                        theme_text_color: "Secondary"
+                        adaptive_height: True
+
+                    MDTextField:
+                        id: vincula_input
+                        mode: "outlined"
+                        radius: [10, 10, 10, 10]
+                        
+                        MDTextFieldHintText:
+                            text: "Código de convite"
+
+                    MDButton:
+                        style: "filled"
+                        theme_bg_color: "Custom"
+                        md_bg_color: hex("#92C7A3")
+                        pos_hint: {'center_x': .5}
+                        size_hint_x: 1
+                        on_release: root.vincula()
+
+                        MDButtonText:
+                            text: "Confirmar Vínculo"
+                            theme_text_color: "Custom"
+                            text_color: 1, 1, 1, 1
+
+                Widget:
+                    size_hint_y: None
+                    height: "20dp"
+
+    # --- Navegação Inferior ---
+    MDNavigationBar:
+        on_switch_tabs: app.root.current = args[1].name
+        MDNavigationItem:
+            name: "home"
+            active: True
+            MDNavigationItemIcon:
+                icon: "home"
+            MDNavigationItemLabel:
+                text: "Home"
+
+        MDNavigationItem:
+            name: "conta"
+            MDNavigationItemIcon:
                 icon: "account"
+            MDNavigationItemLabel:
+                text: "Conta"
+
+<AgendamentoScreen>:
+    name: "agendamento"
+    
+    MDFloatLayout:
+        md_bg_color: hex("#F5F7F6")
+
+        MDBoxLayout:
+            orientation: "horizontal"
+            adaptive_height: True
+            padding: "16dp"
+            spacing: "12dp"
+            pos_hint: {"top": 1}
+            md_bg_color: hex("#92C7A3")
+            
+            MDIconButton:
+                icon: "arrow-left"
+                on_release: app.root.current = "home"
+            
+            MDLabel:
+                text: "Agendar Consulta"
+                font_style: "Title"
+                role: "large"
+                theme_text_color: "Custom"
+                text_color: 1,1,1,1
+                pos_hint: {"center_y": .5}
+
+        MDScrollView:
+            pos_hint: {"top": .88}
+            MDList:
+                id: container_horarios
+                padding: "20dp"
+                spacing: "15dp"

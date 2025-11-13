@@ -1,71 +1,130 @@
+#:import hex kivy.utils.get_color_from_hex
+
+# --- Componente Customizado para o Card do Diário (KivyMD 2.0 M3) ---
+<DiarioCard@MDCard>:
+    style: "elevated" # Estilo padrão do M3
+    orientation: "vertical"
+    size_hint_y: None
+    height: self.minimum_height
+    padding: "16dp"
+    spacing: "10dp"
+    radius: [20]
+    md_bg_color: 1, 1, 1, 1
+    ripple_behavior: True
+    
+    # --- Cabeçalho do Card: Data e Sentimento ---
+    MDBoxLayout:
+        adaptive_height: True
+        spacing: "10dp"
+
+        MDIcon:
+            id: icon_sentimento
+            icon: "emoticon-outline"
+            theme_text_color: "Custom"
+            text_color: hex("#92C7A3")
+            pos_hint: {"center_y": .5}
+
+        MDLabel:
+            id: lbl_sentimento
+            text: "Sentimento"
+            bold: True
+            # MUDANÇA AQUI: Subtitle1 -> Title Medium
+            font_style: "Title"
+            role: "medium"
+            theme_text_color: "Primary"
+            size_hint_x: 0.6
+
+        MDLabel:
+            id: lbl_data
+            text: "00/00/0000"
+            halign: "right"
+            # MUDANÇA AQUI: Caption -> Label Medium
+            font_style: "Label"
+            role: "medium"
+            theme_text_color: "Hint"
+            pos_hint: {"center_y": .5}
+
+    MDDivider:
+
+    # --- Conteúdo: Atividades ---
+    MDBoxLayout:
+        adaptive_height: True
+        orientation: "vertical"
+        spacing: "4dp"
+
+        MDLabel:
+            text: "Atividades:"
+            font_style: "Label"
+            role: "small"
+            theme_text_color: "Secondary"
+        
+        MDLabel:
+            id: lbl_atividades
+            text: "Nenhuma atividade"
+            font_style: "Body"
+            role: "medium"
+            adaptive_height: True
+
+    # --- Conteúdo: Anotação ---
+    MDBoxLayout:
+        adaptive_height: True
+        orientation: "vertical"
+        spacing: "4dp"
+
+        MDLabel:
+            text: "Reflexão do dia:"
+            font_style: "Label"
+            role: "small"
+            theme_text_color: "Secondary"
+
+        MDLabel:
+            id: lbl_anotacao
+            text: "..."
+            font_style: "Body"
+            role: "medium"
+            adaptive_height: True
+            markup: True
+
 <DiarioScreen>:
     name: "diario"
-
-    # (1) Layout principal corrigido
+    
     MDFloatLayout:
-        # KivyMD 2.0.0: Corrigido para rgba()
-        md_bg_color: rgba(146, 199, 163, 255)
+        md_bg_color: hex("#F5F7F6")
 
-        # (2) Logo posicionado no topo
-        Image:
-            source: "app/assets/img.png"
-            size_hint: None, None
-            size: dp(70), dp(70)
-            pos_hint: {"center_x": 0.5, "top": 0.95} # Posicionado
-            allow_stretch: True
-
-        # --- (4) CARD DA TABELA (Corrigido) ---
-        MDCard:
-            orientation: "vertical"
-            size_hint: 0.9, 0.4 # 40% da altura da tela
-            md_bg_color: rgba(230, 230, 230, 255)
-            padding: dp(10)
-            radius: [10, 10, 10, 10]
-            pos_hint: {"center_x": 0.5, "y": 0.1} # Posição: Acima da nav bar
-
-            # Cabeçalho Fixo
-            MDGridLayout:
-                cols: 2
-                spacing: dp(2)
-                size_hint_y: None # Altura adaptativa
-                height: dp(35)  # Altura fixa para o cabeçalho
-                
-                MDLabel:
-                    text: "Dia - hora"
-                    halign: "center"
-                    bold: True
-                    md_bg_color: rgba(217, 217, 217, 255)
-                MDLabel:
-                    text: "Anotações"
-                    halign: "center"
-                    bold: True
-                    md_bg_color: rgba(217, 217, 217, 255)
-
-            # Lista rolável para os dados
-            ScrollView:
-                bar_width: 0
-                MDGridLayout:
-                    id: tabela_container # <-- ID para o Python preencher
-                    cols: 2
-                    spacing: dp(5)
-                    adaptive_height: True # Cresce com o conteúdo
-                    padding: [0, dp(10), 0, 0] # Espaço do topo
-
-        # (5) Barra de Navegação (Corrigida para KivyMD 2.0.0)
-        MDNavigationBar:
-            pos_hint: {"center_x": 0.5, "y": 0} # Fixa na base
+        # --- 1. Cabeçalho ---
+        MDBoxLayout:
+            orientation: "horizontal"
+            adaptive_height: True
+            padding: "16dp"
+            spacing: "12dp"
+            pos_hint: {"top": 1}
+            md_bg_color: hex("#92C7A3")
+            radius: [0, 0, 0, 30]
             elevation: 2
 
-            MDNavigationItem:
-                name: "home"
-                text: "Home"
-                icon: "app/assets/home.png"
-                on_release: root.on_nav_item_press("home")
-                # (Removido MDBoxLayout interno, KivyMD 2.0.0 não precisa)
-
-            MDNavigationItem:
-                name: "conta"
-                text: "Conta"
-                icon: "app/assets/account.png"
+            MDIconButton:
+                icon: "arrow-left"
+                style: "standard" # M3 Standard
+                theme_icon_color: "Custom"
+                icon_color: 1, 1, 1, 1
+                pos_hint: {"center_y": .5}
                 on_release: app.root.current = "home"
-                # (Removido MDBoxLayout interno)
+
+            MDLabel:
+                text: "Meu Histórico"
+                font_style: "Title"
+                role: "large"
+                theme_text_color: "Custom"
+                text_color: 1, 1, 1, 1
+                pos_hint: {"center_y": .5}
+
+        # --- 2. Lista de Entradas ---
+        MDScrollView:
+            pos_hint: {"top": .88, "bottom": .12}
+            do_scroll_x: False
+            bar_width: 0 
+            
+            MDList:
+                id: tabela_container
+                padding: "20dp"
+                spacing: "16dp" 

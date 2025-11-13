@@ -1,0 +1,89 @@
+<ContaScreen>:
+    name: "conta"
+    MDFloatLayout:
+        md_bg_color: hex("#F5F7F6")
+
+        # --- Cabeçalho ---
+        MDBoxLayout:
+            orientation: "horizontal"
+            adaptive_height: True
+            padding: "16dp"
+            spacing: "12dp"
+            pos_hint: {"top": 1}
+            md_bg_color: hex("#92C7A3")
+            radius: [0, 0, 0, 30]
+            elevation: 2
+
+            MDIconButton:
+                icon: "arrow-left"
+                theme_icon_color: "Custom"
+                icon_color: 1, 1, 1, 1
+                pos_hint: {"center_y": .5}
+                # Lógica inteligente de voltar
+                on_release: 
+                    root.manager.current = "home_psicologo" if app.logged_user_type == "Psicólogo" else "home"
+
+            MDLabel:
+                text: "Minha Conta"
+                font_style: "Title"
+                role: "large"
+                theme_text_color: "Custom"
+                text_color: 1, 1, 1, 1
+                pos_hint: {"center_y": .5}
+
+        # --- Conteúdo ---
+        MDScrollView:
+            pos_hint: {"top": .88, "bottom": .12}
+            
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                padding: "20dp"
+                spacing: "20dp"
+
+                # Card de Perfil
+                MDCard:
+                    style: "elevated"
+                    orientation: "vertical"
+                    size_hint_y: None
+                    height: "160dp"
+                    padding: "20dp"
+                    radius: [20]
+                    md_bg_color: 1, 1, 1, 1
+                    
+                    MDIcon:
+                        icon: "account-circle"
+                        font_size: "60sp"
+                        halign: "center"
+                        theme_text_color: "Custom"
+                        text_color: hex("#92C7A3")
+                        pos_hint: {"center_x": .5}
+                    
+                    MDLabel:
+                        id: lbl_nome
+                        text: "Carregando..."
+                        halign: "center"
+                        font_style: "Title"
+                        role: "medium"
+                        bold: True
+                        adaptive_height: True
+
+                    MDLabel:
+                        id: lbl_email
+                        text: "..."
+                        halign: "center"
+                        font_style: "Body"
+                        role: "medium"
+                        theme_text_color: "Secondary"
+                        adaptive_height: True
+
+                MDLabel:
+                    text: "Opções"
+                    font_style: "Title"
+                    role: "small"
+                    theme_text_color: "Secondary"
+
+                # Lista VAZIA (será preenchida pelo Python)
+                MDList:
+                    id: menu_list
+                    spacing: "10dp"

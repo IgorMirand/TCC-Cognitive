@@ -57,14 +57,15 @@ class Auth:
             print(f"[ERRO] Auth.register: {e}")
             return False, "Ocorreu um erro inesperado durante o registro."
 
-    def login(self, username, password):
+    def login(self, name, password):
         """
         Gerencia a lógica de login.
         Retorna: (bool_sucesso, str_mensagem, str_user_type, int_user_id)
         """
-        success, msg, user_type, user_id = self.db.verify_user(username, password)
+        success, msg, user_type, user_id, username = self.db.verify_user(name, password)
 
         if success:
-            return True, msg, user_type, user_id
+            return True, msg, user_type, user_id, username
         else:
             return False, msg, None, None
+        
