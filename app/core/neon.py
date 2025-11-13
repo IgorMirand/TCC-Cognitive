@@ -634,7 +634,7 @@ class Database:
         """Paciente reserva um horário."""
         try:
             with self.connect() as conn:
-                with self.conn.cursor() as cursor:
+                with conn.cursor() as cursor:
                     cursor.execute("""
                         UPDATE agenda 
                         SET paciente_id = %s 

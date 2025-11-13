@@ -275,11 +275,11 @@ class PatientListScreen(MDScreen):
                     MDListItemLeadingIcon(icon="account-circle"),
                     MDListItemHeadlineText(text=nome_paciente),
                     MDListItemSupportingText(text=f"ID: {paciente_id}"),
-                    style="elevated",
+                    # style="elevated",  <-- REMOVA ESTA LINHA (CAUSA O ERRO)
                     radius=[15],
                     theme_bg_color="Custom",
                     md_bg_color=[1, 1, 1, 1], # Branco
-                    elevation=1
+                    # elevation=1 <-- E REMOVA ESTA LINHA (CAUSA O ERRO)
                 )
                 item.on_release = lambda pid=paciente_id, pname=nome_paciente: self.view_patient_details(pid, pname)
                 list_widget.add_widget(item)
@@ -458,7 +458,7 @@ class DisponibilidadeScreen(MDScreen):
             item = MDListItem(
                 MDListItemHeadlineText(text=f"{data_str} às {hora_str}"),
                 MDListItemSupportingText(text=status_txt, theme_text_color="Custom", text_color=status_color),
-                style="elevated",
+                #style="elevated",
                 pos_hint={"center_x": .5},
             )
             

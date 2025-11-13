@@ -14,11 +14,11 @@ from kivymd.uix.textfield import (
     MDTextFieldHintText,
 )
 from kivymd.uix.button import MDButton,MDButtonText
-from kivymd.uix.label import MDLabel
+from kivymd.uix.label import MDLabel,MDIcon
 from kivy.uix.widget import Widget
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.card import MDCard
-from kivymd.icon_definitions import md_icons
+
 
 class HomeScreen(Screen):
 
@@ -167,7 +167,7 @@ class AgendamentoScreen(Screen):
             )
             
             layout = MDBoxLayout(orientation="horizontal")
-            layout.add_widget(md_icons(icon="calendar-check", pos_hint={"center_y": .5}))
+            layout.add_widget(MDIcon(icon="calendar-check", pos_hint={"center_y": .5}))
             layout.add_widget(MDLabel(text=data_fmt, font_style="Title", role="medium", pos_hint={"center_y": .5}, padding=[20,0,0,0]))
             
             card.add_widget(layout)
