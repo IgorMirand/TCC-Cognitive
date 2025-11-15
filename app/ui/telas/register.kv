@@ -1,186 +1,236 @@
+#:import hex kivy.utils.get_color_from_hex
+
 <RegisterScreen>:
     name: "register"
+
     MDFloatLayout:
-        md_bg_color: (146/255, 199/255, 163/255, 1)
+        md_bg_color: hex("#F5F7F6")
 
-        # --- Área do Logo ---
+        # --- HEADER SUAVE ---
         MDBoxLayout:
-            orientation: 'horizontal'
-            #adaptive_size: True
+            orientation: "horizontal"
             adaptive_height: True
-            pos_hint: {'center_x': .7, 'top': .92}
-            spacing: "5dp"
+            padding: "16dp"
+            spacing: "12dp"
+            pos_hint: {"top": 1}
+            md_bg_color: hex("#92C7A3")
+            radius: [0, 0, 30, 30] # Arredondamento generoso embaixo
+            # Sem elevation (sombra) para ficar mais leve
+            z_index: 10
 
-            Image:
-                source: "app/assets/img.png"
-                size_hint: None, None
-                size: "64dp", "64dp"
-
-            MDLabel:
-                text: "Cognitive"
-                font_style: "Display"
-                role: "small"
-                valign: "center"
-                theme_text_color: "Custom"
-                text_color: (0.2, 0.2, 0.2, 1)
-
-        # --- Área do Formulário ---
-        MDBoxLayout:
-            orientation: 'vertical'
-            size_hint: .8, None
-            height: self.minimum_height
-            pos_hint: {'center_x': .5, 'center_y': .5} # Posição ajustada
-            spacing: "10dp"
+            MDIconButton:
+                icon: "arrow-left"
+                style: "standard"
+                theme_icon_color: "Custom"
+                icon_color: 1, 1, 1, 1
+                pos_hint: {"center_y": .5}
+                on_release: app.root.current = "main"
 
             MDLabel:
-                text: "Cadastro :"
-                font_style: "Display"
-                role: "small"
-                halign: 'left'
-                size_hint_y: None
-                height: self.texture_size[1] # <-- CORREÇÃO IMPORTANTE
+                text: "Criar Conta"
+                font_style: "Title"
+                role: "large"
                 theme_text_color: "Custom"
-                text_color: (0.2, 0.2, 0.2, 1)
+                text_color: 1, 1, 1, 1
+                bold: True
+                pos_hint: {"center_y": .5}
 
-            # --- Campo Username (Corrigido de "Email") ---
-            MDLabel:
-                text: "Nome:" # Rótulo corrigido
-                halign: 'left'
-                size_hint_y: None
-                height: self.texture_size[1]
-                theme_text_color: "Custom"
-                text_color: (0.2, 0.2, 0.2, 1)
-                padding_y: "10dp"
+        # --- CONTEÚDO ---
+        MDScrollView:
+            pos_hint: {"center_x": .5}
+            size_hint_y: None
+            height: root.height - dp(80)
+            y: 0
+            always_overscroll: False
 
-            MDTextField:
-                id: username
-                mode: "filled"
-                hint_text: "Seu Username"
-                radius: [15, 15, 15, 15]
-                fill_color_normal: (230/255, 230/255, 230/255, 1)
-                fill_color_focus: (220/255, 220/255, 220/255, 1)
-                line_color_normal: (0,0,0,0)
-                line_color_focus: (0,0,0,0)
-                text_color_normal: (0, 0, 0, 1)
-                text_color_focus: (0, 0, 0, 1)
-                size_hint_y: None
-                height: "48dp"
+            MDBoxLayout:
+                orientation: 'vertical'
+                adaptive_height: True
+                padding: "20dp"
+                spacing: "10dp"
+                pos_hint: {'center_x': .5}
 
-            # --- (NOVO) Campo Email ---
-            MDLabel:
-                text: "Email:"
-                halign: 'left'
-                size_hint_y: None
-                height: self.texture_size[1]
-                theme_text_color: "Custom"
-                text_color: rgba(51, 51, 51, 255)
-                padding_y: "10dp"
-            
-            MDTextField:
-                id: email_input # <-- NOVO ID
-                mode: "filled"
-                hint_text: "seu.email@exemplo.com"
-                radius: [15]
-                size_hint_y: None
-                height: "48dp"
-                
+                # --- ÁREA BRANCA (Sem sombra forte, apenas um fundo limpo) ---
+                MDBoxLayout:
+                    orientation: "vertical"
+                    adaptive_height: True
+                    padding: "24dp"
+                    spacing: "18dp" # Espaço relaxado entre itens
+                    md_bg_color: 1, 1, 1, 1
+                    radius: [30, 30, 30, 30] # Bordas bem redondas
+                    
+                    # Ícone
+                    Image:
+                        source: "app/assets/img.png"
+                        size_hint: None, None
+                        size: "70dp", "70dp"
+                        pos_hint: {"center_x": .5}
+                        opacity: 0.9 # Leve transparência para suavizar a imagem
 
-            # --- (NOVO) Campo Idade ---
-            MDLabel:
-                text: "Data de Nacimento:"
-                halign: 'left'
-                size_hint_y: None
-                height: self.texture_size[1]
-                theme_text_color: "Custom"
-                text_color: rgba(51, 51, 51, 255)
-                padding_y: "10dp"
-                
-            MDButton:
-                pos_hint: {'center_x': .5, 'center_y': .5}
-                # CORREÇÃO 1: Mudei de 'app' para 'root'
-                on_release: root.show_modal_date_picker()
+                    MDLabel:
+                        text: "Seja bem-vindo"
+                        font_style: "Headline"
+                        role: "small"
+                        halign: 'center'
+                        bold: True
+                        adaptive_height: True
+                        theme_text_color: "Custom"
+                        text_color: hex("#666666") # Cinza escuro em vez de preto (menos agressivo)
 
-                MDButtonText:
-                    # CORREÇÃO 2: Adicionei o ID para o Python ler depois
-                    id: data_nacimento 
-                    text: "Selecionar Data"
+                    # --- CAMPOS ARREDONDADOS (Estilo Pílula) ---
+                    MDTextField:
+                        id: username
+                        mode: "outlined"
+                        radius: [25, 25, 25, 25] # <--- O segredo da suavidade
+                        
+                        theme_line_color: "Custom"
+                        line_color_normal: hex("#EEEEEE") # Borda quase invisível
+                        line_color_focus: hex("#92C7A3")
+                        
+                        MDTextFieldHintText:
+                            text: "Nome de usuário"
+                            text_color_normal: hex("#AAAAAA") # Texto cinza claro
+                        
+                        MDTextFieldLeadingIcon:
+                            icon: "account-outline"
+                            theme_icon_color: "Custom"
+                            icon_color_normal: hex("#AAAAAA")
+                            icon_color_focus: hex("#92C7A3")
 
-            # --- Campo Senha ---
-            MDLabel:
-                text: "Senha:"
-                halign: 'left'
-                size_hint_y: None
-                height: self.texture_size[1]
-                theme_text_color: "Custom"
-                text_color: (0.2, 0.2, 0.2, 1)
-                padding_y: "10dp"
+                    MDTextField:
+                        id: email_input
+                        mode: "outlined"
+                        radius: [25, 25, 25, 25]
+                        theme_line_color: "Custom"
+                        line_color_normal: hex("#EEEEEE")
+                        line_color_focus: hex("#92C7A3")
+                        
+                        MDTextFieldHintText:
+                            text: "E-mail"
+                        MDTextFieldLeadingIcon:
+                            icon: "email-outline"
+                            theme_icon_color: "Custom"
+                            icon_color_normal: hex("#AAAAAA")
+                            icon_color_focus: hex("#92C7A3")
+                        MDTextFieldHelperText:
+                            text: "E-mail inválido"
+                            mode: "on_error"
 
-            MDTextField:
-                id: password
-                mode: "filled"
-                hint_text: "Sua senha"
-                password: True
-                radius: [15, 15, 15, 15]
-                fill_color_normal: (230/255, 230/255, 230/255, 1)
-                fill_color_focus: (220/255, 220/255, 220/255, 1)
-                line_color_normal: (0,0,0,0)
-                line_color_focus: (0,0,0,0)
-                text_color_normal: (0, 0, 0, 1)
-                text_color_focus: (0, 0, 0, 1)
-                size_hint_y: None
-                height: "48dp"
-            
-            MDLabel:
-                text: "Tipo de Usuário"
-                halign: 'left'
-                size_hint_y: None
-                height: self.texture_size[1]
-                theme_text_color: "Custom"
-                text_color: (0.2, 0.2, 0.2, 1)
-                padding_y: "10dp"
+                    MDTextField:
+                        id: password
+                        mode: "outlined"
+                        password: True
+                        radius: [25, 25, 25, 25]
+                        theme_line_color: "Custom"
+                        line_color_normal: hex("#EEEEEE")
+                        line_color_focus: hex("#92C7A3")
+                        
+                        MDTextFieldHintText:
+                            text: "Senha"
+                        MDTextFieldLeadingIcon:
+                            icon: "lock-outline"
+                            theme_icon_color: "Custom"
+                            icon_color_normal: hex("#AAAAAA")
+                            icon_color_focus: hex("#92C7A3")
 
-            MDDropDownItem:
-                id: tipo_usuario
-                pos_hint: {"center_x": 0.1}
-                on_release: root.menu_tipo.open()
-                MDDropDownItemText:
-                    text: "Selecione"
+                    # Botão Mostrar Senha (Texto simples e discreto)
+                    MDButton:
+                        style: "text"
+                        height: "30dp"
+                        pos_hint: {"right": 1}
+                        on_release: root.toggle_password_visibility()
+                        MDButtonText:
+                            text: "Mostrar Senha"
+                            theme_text_color: "Custom"
+                            text_color: hex("#92C7A3")
+                            font_style: "Label"
+                            role: "medium"
 
+                    MDTextField:
+                        id: data_nacimento
+                        mode: "outlined"
+                        readonly: True 
+                        radius: [25, 25, 25, 25]
+                        theme_line_color: "Custom"
+                        line_color_normal: hex("#EEEEEE")
+                        line_color_focus: hex("#92C7A3")
+                        on_focus: if self.focus: root.show_modal_date_picker()
+                        
+                        MDTextFieldHintText:
+                            text: "Data de Nascimento"
+                        MDTextFieldLeadingIcon:
+                            icon: "calendar-outline"
+                            theme_icon_color: "Custom"
+                            icon_color_normal: hex("#AAAAAA")
+                            icon_color_focus: hex("#92C7A3")
 
-            MDTextField:
-                id: codigo_acesso
-                hint_text: "Seu código (se for Psicólogo)"
-                mode: "filled"
-                radius: [15, 15, 15, 15]
-                height: "48dp"
-                opacity: 0
-                disabled: True
-                MDTextFieldHintText:
-                    text: "Código de Acesso"
-                    mode: "persistent"
+                    MDTextField:
+                        id: tipo_usuario
+                        mode: "outlined"
+                        readonly: True
+                        radius: [25, 25, 25, 25]
+                        theme_line_color: "Custom"
+                        line_color_normal: hex("#EEEEEE")
+                        line_color_focus: hex("#92C7A3")
+                        on_focus: if self.focus: root.open_menu_tipo()
+                        
+                        MDTextFieldHintText:
+                            text: "Tipo de Usuário"
+                        MDTextFieldLeadingIcon:
+                            icon: "account-question-outline"
+                            theme_icon_color: "Custom"
+                            icon_color_normal: hex("#AAAAAA")
+                            icon_color_focus: hex("#92C7A3")
+                        MDTextFieldTrailingIcon:
+                            icon: "menu-down"
 
+                    # Container Código (Mantido, mas sem bordas duras)
+                    MDBoxLayout:
+                        id: container_codigo
+                        orientation: "vertical"
+                        adaptive_height: True
+                        size_hint_y: None
+                        height: "0dp" if codigo_acesso.disabled else "80dp"
+                        opacity: 0 if codigo_acesso.disabled else 1
+                        
+                        MDTextField:
+                            id: codigo_acesso
+                            mode: "outlined"
+                            disabled: True
+                            radius: [25, 25, 25, 25]
+                            theme_line_color: "Custom"
+                            line_color_focus: hex("#92C7A3")
+                            MDTextFieldHintText:
+                                text: "Código de Acesso"
+                            MDTextFieldLeadingIcon:
+                                icon: "key-variant"
 
+                    # --- BOTÃO PRINCIPAL SUAVE ---
+                    MDButton:
+                        style: "filled"
+                        theme_width: "Custom"
+                        size_hint_x: 1
+                        height: "50dp"
+                        theme_bg_color: "Custom"
+                        md_bg_color: hex("#92C7A3")
+                        radius: [25, 25, 25, 25] # Botão totalmente redondo (Pílula)
+                        on_release: root.do_register()
+                        
+                        MDButtonText:
+                            text: "Criar Cadastro"
+                            pos_hint: {"center_x": .5, "center_y": .5}
+                            text_color: 1, 1, 1, 1
+                            font_style: "Title"
+                            role: "medium"
+                            bold: True
 
-        # --- Botões ---
-        MDButton:      
-            style: "elevated" 
-            theme_width: "Custom"
-            pos_hint: {'center_x': .5, 'y': .08}
-            height: "56dp"
-            size_hint_x: .5  
-            on_release: root.do_register()
-            
-            MDButtonText:
-                text: "Cadastrar"
-                pos_hint: {"center_x": .5, "center_y": .5}
-
-        MDButton:      
-            style: "elevated" 
-            theme_width: "Custom"
-            pos_hint: {'center_x': .5, 'y': .01}
-            height: "56dp"
-            size_hint_x: .5  
-            on_release: app.root.current = "main"
-            MDButtonText:
-                text: "Voltar"
-                pos_hint: {"center_x": .5, "center_y": .5}
+                # --- BOTÃO VOLTAR (Rodapé) ---
+                MDButton:
+                    style: "text"
+                    pos_hint: {"center_x": .5}
+                    on_release: app.root.current = "login"
+                    MDButtonText:
+                        text: "Já tenho uma conta"
+                        theme_text_color: "Custom"
+                        text_color: hex("#757575")
+                        

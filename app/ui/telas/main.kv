@@ -1,73 +1,122 @@
-<MainScreen>
+#:import hex kivy.utils.get_color_from_hex
+
+<MainScreen>:
     name: "main"
+    
     MDFloatLayout:
-        md_bg_color: (146/255, 199/255, 163/255, 1)
-        # --- Texto Superior ---
-        MDLabel:
-            text: "Bem Vindo"
+        md_bg_color: hex("#F5F7F6")
 
-            halign: 'center'
-            # Posição: 85% do topo, centralizado no eixo X
-            pos_hint: {'center_x': .5, 'top': 1.3}
-            font_style: 'Display'
-            theme_text_color: "Custom"
-            text_color: (0.2, 0.2, 0.2, 1) # Cor escura
-
-        # --- Bloco Central (Logo + Nome) ---
-        MDBoxLayout:
-            orientation: 'vertical'
-            #adaptive_size: True # Ocupa o tamanho dos filhos
-            adaptive_height: True
-            pos_hint: {'center_x': .5, 'center_y': .6} # Posição central
-            spacing: '10dp'
-
-            Image:
-                # *** ATENÇÃO: Substitua 'flor_logo.png' pelo caminho/nome do seu arquivo de imagem ***
-                source: "app/assets/img.png"
-                size_hint: None, None
-                size: "120dp", "120dp" # Logo maior nesta tela
-                allow_stretch: True
-                # Centraliza a imagem dentro do BoxLayout
-                pos_hint: {'center_x': .5}
-
+        # --- 1. Cabeçalho (Ajustado) ---
+        MDFloatLayout:
+            size_hint_y: .35
+            pos_hint: {"top": 1}
+            md_bg_color: hex("#92C7A3")
+            radius: [0, 0, 40, 40]
+            
             MDLabel:
-                text: "cognitive"
-                halign: 'center'
-                font_style: 'Display'
+                text: "Bem-vindo"
+                halign: "center"
+                # Ajustei a posição para não ficar colado no topo
+                pos_hint: {"center_x": .5, "center_y": .6} 
+                
+                # Mudei para Headline (menor e mais elegante que Display)
+                font_style: "Headline" 
                 role: "medium"
                 theme_text_color: "Custom"
-                # Cor escura, levemente marrom/cinza, como na imagem
-                text_color: (80/255, 70/255, 70/255, 1)
-                padding_y: "20dp"
-                # NOTA: A fonte da imagem é personalizada.
-                # Para usá-la, adicione: font_name: 'caminho/para/sua/fonte.ttf'
+                text_color: 1, 1, 1, 1 
 
+        # --- 2. Área Central (Logo e Textos) ---
+        MDBoxLayout:
+            orientation: 'vertical'
+            adaptive_height: True
+            # Centralizei um pouco mais para cima (.55) para não colar nos botões
+            pos_hint: {'center_x': .5, 'center_y': .58} 
+            spacing: "24dp" # Aumentei o espaço entre Logo e Texto
 
-        # --- Bloco de Botões Inferiores ---
-        
-        # --- Botão "Entrar" ---
-        MDButton:
-            style: "elevated"    
-            theme_width: "Custom"
-            pos_hint: {'center_x': .5, 'y': .22}
-            height: "56dp"
-            size_hint_x: .5            
-            on_release: app.root.current = "login"
+            # Logo
+            MDFloatLayout:
+                size_hint: None, None
+                size: "140dp", "140dp"
+                pos_hint: {"center_x": .5}
+                
+                canvas.before:
+                    Color:
+                        rgba: 1, 1, 1, 0.5
+                    Ellipse:
+                        pos: self.pos
+                        size: self.size
 
-            MDButtonText:
-                text: "Entrar"
-                pos_hint: {"center_x": .5, "center_y": .5}
+                Image:
+                    source: "app/assets/img.png"
+                    size_hint: None, None
+                    size: "110dp", "110dp"
+                    pos_hint: {"center_x": .5, "center_y": .5}
+                    allow_stretch: True
 
+            # Bloco de Textos (Para garantir que fiquem juntos)
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                spacing: "8dp" # Espaço entre "Cognitive" e a frase
 
-        # --- Botão "Cadastrar" ---
-        MDButton:      
-            style: "elevated" 
-            theme_width: "Custom"
-            pos_hint: {'center_x': .5, 'y': .15}
-            height: "56dp"
-            size_hint_x: .5            
-            on_release: app.root.current = "register"
+                MDLabel:
+                    text: "Cognitive"
+                    halign: 'center'
+                    font_style: 'Headline'
+                    role: "large"
+                    bold: True
+                    theme_text_color: "Custom"
+                    text_color: hex("#2F4F4F")
+                    # CRUCIAL: Isso impede que o texto invada o espaço do outro
+                    adaptive_height: True 
 
-            MDButtonText:
-                text: "Cadastrar"
-                pos_hint: {"center_x": .5, "center_y": .5}
+                MDLabel:
+                    text: "Cuide da sua mente,\ncuide de você."
+                    halign: 'center'
+                    font_style: 'Body'
+                    role: "large" # Aumentei um pouco para ler melhor
+                    theme_text_color: "Secondary"
+                    adaptive_height: True # CRUCIAL
+
+        # --- 3. Botões ---
+        MDBoxLayout:
+            orientation: 'vertical'
+            adaptive_height: True
+            size_hint_x: .8
+            pos_hint: {'center_x': .5, 'bottom': 5} # Cola no fundo
+            padding: 0, 0, 0, "40dp" # Margem inferior segura
+            spacing: "16dp"
+
+            MDButton:
+                style: "outlined"
+                theme_width: "Custom"
+                size_hint_x: 1
+                height: "54dp"
+                theme_line_color: "Custom"
+                line_color: hex("#92C7A3")
+                on_release: app.root.current = "login"
+
+                MDButtonText:
+                    text: "ENTRAR"
+                    pos_hint: {"center_x": .5, "center_y": .5}
+                    theme_text_color: "Custom"
+                    text_color: hex("#92C7A3")
+                    font_style: "Label"
+                    role: "large"
+
+            MDButton:
+                style: "outlined"
+                theme_width: "Custom"
+                size_hint_x: 1
+                height: "54dp"
+                theme_line_color: "Custom"
+                line_color: hex("#92C7A3")
+                on_release: app.root.current = "register"
+
+                MDButtonText:
+                    text: "CRIAR UMA CONTA"
+                    pos_hint: {"center_x": .5, "center_y": .5}
+                    theme_text_color: "Custom"
+                    text_color: hex("#92C7A3")
+                    font_style: "Label"
+                    role: "large"

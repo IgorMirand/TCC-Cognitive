@@ -9,7 +9,7 @@ def inserir_codigo_mestre():
         # 1. Conecta ao banco de dados
         # (A classe Database vai ler a NEON_DB_URL sozinha)
         db = Database()
-        novo_codigo = db.gerar_codigo_master()()
+        novo_codigo = db.gerar_codigo_master()
         
         # 3. Mostra o resultado
         print(f"iserido novo o código mestre: '{novo_codigo}'...")

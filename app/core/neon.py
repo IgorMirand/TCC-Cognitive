@@ -152,35 +152,44 @@ class Database:
                 return resultado[0] if resultado else None
 
     # --- FUNÇÕES DE REGISTRO E VÍNCULO ---
-    def register_user(self, username, password, user_type, email, idade):
-        """Apenas regista o utilizador na tabela 'users'."""
+    def register_user(self, username, password, user_type, email, data_nascimento_str):
+        """
+        Registra o usuário convertendo a data DD/MM/YYYY para YYYY-MM-DD (Postgres).
+        """
         try:
+            # Converte "25/12/1990" para "1990-12-25"
+            data_obj = datetime.strptime(data_nascimento_str, "%d/%m/%Y")
+            data_iso = data_obj.strftime("%Y-%m-%d")
+
             with self.connect() as conn:
                 with conn.cursor() as cursor:
                     password_hash_bytes = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
                     password_hash_str = password_hash_bytes.decode('utf-8')
 
-                    # Adiciona email e idade ao INSERT
+                    # CORRIGIDO: Usa data_nacimento em vez de idade
                     cursor.execute(
                         """
-                        INSERT INTO users (username, password_hash, user_type, email, idade) 
+                        INSERT INTO users (username, password_hash, user_type, email, data_nacimento) 
                         VALUES (%s, %s, %s, %s, %s) 
                         RETURNING id
                         """,
-                        (username, password_hash_str, user_type, email, idade)
+                        (username, password_hash_str, user_type, email, data_iso)
                     )
                     user_id = cursor.fetchone()[0]
-
                     return True, "Usuário cadastrado com sucesso!", user_id
 
         except IntegrityError as e:
-            # Verifica se a violação foi de 'username' ou 'email'
+            print(f"⚠️ ERRO REAL DO BANCO: {e}")  # <--- ADICIONE ISSO
+            
             if 'users_username_key' in str(e):
                 return False, "Esse nome de usuário já existe.", None
             if 'users_email_key' in str(e):
                 return False, "Esse email já está em uso.", None
             return False, "Usuário já existe.", None
+        except ValueError:
+             return False, "Formato de data inválido.", None
         except Exception as e:
+            print(f"[ERRO] register_user: {e}")
             return False, f"Erro inesperado: {e}", None
 
     def vincular_paciente_psicologo(self, paciente_id, psicologo_id):
@@ -277,10 +286,36 @@ class Database:
             print(f"[ERRO] get_next_appointment: {e}")
             return False, None
 
+    def marcar_codigo_paciente_usado(self, codigo, paciente_id):
+        """Marca o código de paciente como utilizado no banco de dados."""
+        try:
+            with self.connect() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        "UPDATE codigos_paciente SET usado_por_paciente_id = %s WHERE codigo = %s", 
+                        (paciente_id, codigo)
+                    )
+                    # O commit acontece automaticamente ao sair do bloco 'with', 
+                    # mas se quiser garantir, o psycopg2 faz no fechamento da conexão.
+        except Exception as e:
+            print(f"[ERRO] marcar_codigo_paciente_usado: {e}")
+
     def marcar_codigo_master_usado(self, codigo_id, user_id):
-        with self.connect() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute("UPDATE codigos_master SET usado_por_user_id = %s WHERE id = %s", (user_id, codigo_id))
+            """
+            Marca o código mestre como usado pelo psicólogo recém-criado.
+            """
+            try:
+                with self.connect() as conn:
+                    with conn.cursor() as cursor:
+                        cursor.execute(
+                            "UPDATE codigos_master SET usado_por_user_id = %s WHERE id = %s",
+                            (user_id, codigo_id)
+                        )
+                        # O commit é automático ao sair do bloco with
+                        return True
+            except Exception as e:
+                print(f"[ERRO] marcar_codigo_master_usado: {e}")
+                return False
 
     # --- FUNÇÃO DE LOGIN ---
     def verify_user(self, email, password):

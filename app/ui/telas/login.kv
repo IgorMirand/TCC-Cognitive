@@ -1,126 +1,186 @@
+#:import hex kivy.utils.get_color_from_hex
+
 <LoginScreen>:
     name: "login"
     MDFloatLayout:
-        md_bg_color: (146/255, 199/255, 163/255, 1)
+        md_bg_color: hex("#F5F7F6") # Mesmo fundo suave
 
-        # --- Área do Logo ---
-        # Usamos um MDBoxLayout para agrupar o ícone e o texto
-        MDBoxLayout:
-            orientation: 'horizontal'
-            #adaptive_size: True
-            adaptive_height: True
-            pos_hint: {'center_x': .7, 'top': .92} # Posição: 92% do topo, centro X
-            spacing: "10dp"
-
-            # ATENÇÃO: Substitua este MDIcon pelo seu widget de Imagem
-            Image:
-                source: "app/assets/img.png"
-                size_hint: None, None
-                size: "64dp", "64dp"
-
-            MDLabel:
-                text: "Cognitive"
-                font_style: "Display"
-                role: "medium"
-                valign: "center"
-                theme_text_color: "Custom"
-                text_color: (0.2, 0.2, 0.2, 1) # Cor de texto escura
-
-        # --- Área do Formulário ---
-        MDBoxLayout:
-            orientation: 'vertical'
-            size_hint: .8, None  # 80% da largura da tela
-            height: self.minimum_height # Altura se ajusta ao conteúdo
-            pos_hint: {'center_x': .5, 'center_y': .60}
-            spacing: "10dp"
-
-            MDLabel:
-                text: "Login :"
-                font_style: "Display"
-                role: "small"
-                halign: 'left'
-                size_hint_y: None
-                height: self.texture_size[1]
-                theme_text_color: "Custom"
-                text_color: (0.2, 0.2, 0.2, 1)
-
-            # --- Campo Email ---
-            MDLabel:
-                text: "Email:"
-                halign: 'left'
-                size_hint_y: None
-                height: self.texture_size[1]
-                theme_text_color: "Custom"
-                text_color: (0.2, 0.2, 0.2, 1)
-                padding_y: "10dp" # Espaçamento antes do campo
-
-            MDTextField:
-                id: email_input
-                mode: "filled" # Modo preenchido
-                hint_text: "Seu Username"
-                radius: [15, 15, 15, 15] # Arredonda as bordas
-                # Cor de fundo cinza-claro
-                fill_color_normal: (230/255, 230/255, 230/255, 1)
-                fill_color_focus: (220/255, 220/255, 220/255, 1)
-                # Remove a linha inferior
-                line_color_normal: (0,0,0,0)
-                line_color_focus: (0,0,0,0)
-                text_color_normal: (0, 0, 0, 1)
-                text_color_focus: (0, 0, 0, 1)
-                size_hint_y: None
-                height: "48dp"
-
-            # --- Campo Senha ---
-            MDLabel:
-                text: "Senha:"
-                halign: 'left'
-                size_hint_y: None
-                height: self.texture_size[1]
-                theme_text_color: "Custom"
-                text_color: (0.2, 0.2, 0.2, 1)
-                padding_y: "10dp" # Espaçamento antes do campo
-
-            MDTextField:
-                id: password
-                mode: "filled"
-                hint_text: "Sua senha"
-                password: True
-                radius: [15, 15, 15, 15] # Arredonda as bordas
-                fill_color_normal: (230/255, 230/255, 230/255, 1)
-                fill_color_focus: (220/255, 220/255, 220/255, 1)
-                line_color_normal: (0,0,0,0)
-                line_color_focus: (0,0,0,0)
-                text_color_normal: (0, 0, 0, 1)
-                text_color_focus: (0, 0, 0, 1)
-                size_hint_y: None
-                height: "48dp"
-
-
-        # --- Botão de Cadastro ---
-        MDButton:
-            style: "elevated"    
-            theme_width: "Custom"
-            pos_hint: {'center_x': .5, 'y': .22}
-            height: "56dp"
-            size_hint_x: .5            
-            on_release: root.do_login()
-
-            MDButtonText:
-                text: "login"
-                pos_hint: {"center_x": .5, "center_y": .5}
-
-
-        MDButton:      
-            style: "elevated" 
-            theme_width: "Custom"
-            pos_hint: {'center_x': .5, 'y': .15}
-            height: "56dp"
-            size_hint_x: .5  
+        # --- HEADER SIMPLES ---
+        MDIconButton:
+            icon: "arrow-left"
+            style: "standard"
+            pos_hint: {"top": .98, "left": 1}
+            x: "10dp" # Margem esquerda
+            theme_icon_color: "Custom"
+            icon_color: hex("#92C7A3")
             on_release: app.root.current = "main"
 
-            MDButtonText:
-                text: "Voltar"
-                pos_hint: {"center_x": .5, "center_y": .5}
+        # --- CONTEÚDO CENTRALIZADO ---
+        MDScrollView:
+            pos_hint: {"center_x": .5}
+            size_hint_y: None
+            height: root.height - dp(60) # Espaço para o header
+            y: 0
+            always_overscroll: False
 
+            MDBoxLayout:
+                orientation: 'vertical'
+                adaptive_height: True
+                padding: "20dp"
+                spacing: "20dp"
+                pos_hint: {'center_x': .5, 'center_y': .5} # Tenta centralizar verticalmente
 
+                # --- LOGO FORA DO CARTÃO (Fica mais elegante) ---
+                MDBoxLayout:
+                    orientation: 'vertical'
+                    adaptive_height: True
+                    spacing: "10dp"
+                    
+                    Image:
+                        source: "app/assets/img.png"
+                        size_hint: None, None
+                        size: "90dp", "90dp"
+                        pos_hint: {"center_x": .5}
+                        opacity: 0.9
 
+                    MDLabel:
+                        text: "Bem-vindo de volta!"
+                        font_style: "Headline"
+                        role: "small"
+                        halign: "center"
+                        bold: True
+                        adaptive_height: True
+                        theme_text_color: "Custom"
+                        text_color: hex("#666666")
+
+                # --- CARTÃO DE LOGIN (White Card) ---
+                MDBoxLayout:
+                    orientation: "vertical"
+                    adaptive_height: True
+                    md_bg_color: 1, 1, 1, 1 # Fundo Branco
+                    radius: [30, 30, 30, 30] # Bordas bem redondas
+                    padding: "24dp"
+                    spacing: "20dp"
+                    
+                    # --- Input Email ---
+                    MDTextField:
+                        id: email_input
+                        mode: "outlined"
+                        radius: [25, 25, 25, 25] # Pílula
+                        theme_line_color: "Custom"
+                        line_color_normal: hex("#EEEEEE") # Borda suave
+                        line_color_focus: hex("#92C7A3")  # Verde foco
+                        
+                        MDTextFieldHintText:
+                            text: "E-mail"
+                            text_color_normal: hex("#AAAAAA")
+                            
+                        MDTextFieldLeadingIcon:
+                            icon: "email-outline"
+                            theme_icon_color: "Custom"
+                            icon_color_normal: hex("#AAAAAA")
+                            icon_color_focus: hex("#92C7A3")
+
+                    # --- Input Senha ---
+                    MDTextField:
+                        id: password
+                        mode: "outlined"
+                        password: True
+                        radius: [25, 25, 25, 25]
+                        theme_line_color: "Custom"
+                        line_color_normal: hex("#EEEEEE")
+                        line_color_focus: hex("#92C7A3")
+                        
+                        MDTextFieldHintText:
+                            text: "Senha"
+                            text_color_normal: hex("#AAAAAA")
+                            
+                        MDTextFieldLeadingIcon:
+                            icon: "lock-outline"
+                            theme_icon_color: "Custom"
+                            icon_color_normal: hex("#AAAAAA")
+                            icon_color_focus: hex("#92C7A3")
+
+                    # Opções de Senha (Mostrar / Esqueci)
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        adaptive_height: True
+                        padding: 0, "-10dp", 0, 0
+                        
+                        # Botão "Esqueci a senha" (Opcional, mas útil)
+                        MDButton:
+                            style: "text"
+                            height: "30dp"
+                            on_release: print("Esqueci senha")
+                            MDButtonText:
+                                text: "Esqueci a senha"
+                                font_style: "Label"
+                                role: "small"
+                                theme_text_color: "Custom"
+                                text_color: hex("#AAAAAA")
+
+                        Widget: # Espaçador flexível
+
+                        # Botão Mostrar Senha
+                        MDButton:
+                            style: "text"
+                            height: "30dp"
+                            on_release: root.toggle_password_visibility()
+                            MDButtonText:
+                                text: "Mostrar"
+                                font_style: "Label"
+                                role: "medium"
+                                theme_text_color: "Custom"
+                                text_color: hex("#92C7A3")
+
+                    # --- BOTÃO ENTRAR (Destaque) ---
+                    MDButton:
+                        style: "filled"
+                        theme_width: "Custom"
+                        size_hint_x: 1
+                        height: "54dp"
+                        theme_bg_color: "Custom"
+                        md_bg_color: hex("#92C7A3")
+                        radius: [25, 25, 25, 25] # Redondo
+                        on_release: root.do_login() # Atenção: sem parenteses se for binding direto, com parenteses se for chamada lambda
+                        
+                        MDButtonText:
+                            text: "ENTRAR"
+                            pos_hint: {"center_x": .5, "center_y": .5}
+                            theme_text_color: "Custom"
+                            text_color: 1, 1, 1, 1
+                            font_style: "Title"
+                            role: "medium"
+                            bold: True
+
+                # --- LINK CADASTRO (Fora do cartão) ---
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    adaptive_height: True
+                    spacing: "4dp"
+                    pos_hint: {"center_x": .5}
+                    padding: 0, "10dp", 0, "20dp"
+
+                    MDLabel:
+                        text: "Não tem uma conta?"
+                        adaptive_width: True
+                        theme_text_color: "Custom"
+                        text_color: hex("#999999")
+                        font_style: "Body"
+                        role: "small"
+                        pos_hint: {"center_y": .5}
+
+                    MDButton:
+                        style: "text"
+                        adaptive_width: True
+                        height: "30dp"
+                        on_release: app.root.current = "register"
+                        pos_hint: {"center_y": .5}
+                        
+                        MDButtonText:
+                            text: "Cadastre-se"
+                            theme_text_color: "Custom"
+                            text_color: hex("#92C7A3")
+                            font_style: "Label"
+                            role: "large"
+                            bold: True
