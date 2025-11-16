@@ -19,7 +19,6 @@ from kivy.uix.widget import Widget
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.card import MDCard
 
-
 class HomeScreen(Screen):
 
     dialog = None
@@ -28,20 +27,54 @@ class HomeScreen(Screen):
         """Chamado sempre que a tela é exibida."""
         self.load_user_data()
 
+
     def load_user_data(self):
-        """Carrega o NOME e ID do psicólogo logado."""
+        """
+        Carrega o NOME do paciente e verifica se ele JÁ TEM VÍNCULO
+        para esconder o card de vincular.
+        """
         try:
-            # Verifica se o ID e Nome estão disponíveis na App class
+            # --- 1. Carregar nome de usuário ---
             if hasattr(self.manager.app, 'logged_user_name'):
                 username = self.manager.app.logged_user_name
-                self.ids.id_label.text = f"Ola, {username}"
+                # Use "Olá," para pacientes, "Dr(a)." é para psicólogos
+                self.ids.id_label.text = f"Olá, {username}" 
             else:
                 self.ids.id_label.text = "Bem-vindo(a), Paciente"
+
+            # --- 2. Verificar Vínculo Existente ---
+            db = self.manager.app.db
+            paciente_id = self.manager.app.logged_user_id
+            card = self.ids.vincula_card
+
+            if not paciente_id:
+                # Se não houver ID (erro de login?), não podemos checar.
+                # Apenas mostramos o card como padrão.
+                card.height = card.minimum_height
+                card.opacity = 1
+                card.disabled = False
+                return
+
+            # Busca o ID do psicólogo vinculado
+            psicologo_id = db.get_psicologo_id_by_paciente(paciente_id)
+
+            if psicologo_id:
+                # PACIENTE JÁ VINCULADO: Esconder o card
+                card.height = "0dp"
+                card.opacity = 0
+                card.disabled = True
+            else:
+                # PACIENTE SEM VÍNCULO: Mostrar o card
+                # (Garante que ele apareça caso o estado mude)
+                card.height = card.minimum_height # Força o 'adaptive_height'
+                card.opacity = 1
+                card.disabled = False
             
         except Exception as e:
             print(f"Erro ao carregar dados do Paciente: {e}")
             self.ids.id_label.text = "Bem-vindo"
 
+            
     def vincula(self):
         """
         Chamado pelo botão "Vincular" no .kv.
@@ -70,38 +103,11 @@ class HomeScreen(Screen):
             self.show_popup("Sucesso!", msg)
             self.ids.vincula_input.text = "" # Limpa o campo
             # Opcional: Esconder o card de vincular
-            self.ids.vincula_card.height = 0
+            self.ids.vincula_card.height = "0dp"
             self.ids.vincula_card.opacity = 0
+            self.ids.vincula_card.disabled = True
         else:
             self.show_popup("Erro", msg)
-
-
-    def show_email_dialog(self):
-        # Cria o campo de texto e o guarda como atributo
-        self.email_input = MDTextField(
-            MDTextFieldLeadingIcon(icon="email-outline"),
-            MDTextFieldHintText(text="Digite o email do paciente"),
-        )
-
-        # Cria o diálogo
-        self.email_dialog = MDDialog(
-            MDDialogHeadlineText(text="Enviar convite"),
-            MDDialogContentContainer(self.email_input),
-            MDDialogButtonContainer(
-                MDButton(
-                    MDButtonText(text="Cancelar"),
-                    style="text",
-                    on_release=self.close_dialog
-                ),
-                MDButton(
-                    MDButtonText(text="Enviar"),
-                    style="text",
-                    on_release=self.iniciar_envio_email
-                ),
-                spacing="8dp",
-            ),
-        )
-        self.email_dialog.open()
 
     # --- Funções de Pop-up (KivyMD 2.0.0) ---
     def show_popup(self, title, message):

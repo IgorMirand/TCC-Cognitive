@@ -1,5 +1,5 @@
 import os
-import sys  # <-- 1. Importe o 'sys'
+import sys
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivymd.app import MDApp
@@ -7,7 +7,6 @@ from app.core.neon import Database
 from app.ui.manager import ScreenController
 from dotenv import load_dotenv
 from kivy.resources import resource_add_path 
-
 
 load_dotenv()
 Window.size = (440, 956)

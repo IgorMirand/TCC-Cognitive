@@ -10,7 +10,7 @@ from app.ui.telas.register import RegisterScreen
 from app.ui.telas.diario import DiarioScreen
 from app.ui.telas.register_activity import RegisterActivityScreen, SentimentoScreen, AnotacaoDiaScreen
 from app.ui.telas.consulta_anotacao import ConsultaAnotacaoScreen
-from app.ui.telas.conta import ContaScreen
+from app.ui.telas.conta import ContaScreen, EditarDadosScreen
 
 
 # Carrega styles.kv automaticamente
@@ -40,6 +40,7 @@ class ScreenController(ScreenManager):
         self.add_widget(AnotacaoDiaScreen(name="anotacao_dia"))
         self.add_widget(ContaScreen(name="conta"))
         self.add_widget(AgendamentoScreen(name="agendamento"))
+        self.add_widget(EditarDadosScreen(name="editar_dados"))
 
 
         # Mudei a tela inicial para "main", que parece ser sua tela

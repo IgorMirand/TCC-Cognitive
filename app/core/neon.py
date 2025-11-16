@@ -717,3 +717,54 @@ class Database:
                 print(f"[ERRO] get_psicologo_id_by_paciente: {e}")
                 return None
             
+    def get_user_details(self, user_id):
+        """Busca os detalhes editáveis de um usuário (nome, email, data_nasc)."""
+        try:
+            with self.connect() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        "SELECT username, email, data_nacimento FROM users WHERE id = %s",
+                        (user_id,)
+                    )
+                    # Retorna (username, email, <datetime.date object>)
+                    return cursor.fetchone() 
+        except Exception as e:
+            print(f"[ERRO] get_user_details: {e}")
+            return None
+
+    def update_user_details(self, user_id, username, email, data_nascimento_str):
+        """
+        Atualiza os dados do usuário.
+        Converte a data DD/MM/YYYY para YYYY-MM-DD (Postgres).
+        """
+        try:
+            # Converte "25/12/1990" para "1990-12-25"
+            data_obj = datetime.strptime(data_nascimento_str, "%d/%m/%Y")
+            data_iso = data_obj.strftime("%Y-%m-%d")
+
+            with self.connect() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        UPDATE users 
+                        SET username = %s, email = %s, data_nacimento = %s
+                        WHERE id = %s
+                        """,
+                        (username, email, data_iso, user_id)
+                    )
+                    # conn.commit() é automático
+                    return True, "Dados atualizados com sucesso!"
+
+        except IntegrityError as e:
+            # Erro se o username ou email já estiverem em uso por *outro* usuário
+            if 'users_username_key' in str(e):
+                return False, "Esse nome de usuário já está em uso."
+            if 'users_email_key' in str(e):
+                return False, "Esse email já está em uso."
+            return False, "Erro de integridade."
+        except ValueError:
+             return False, "Formato de data inválido. Use DD/MM/YYYY."
+        except Exception as e:
+            print(f"[ERRO] update_user_details: {e}")
+            return False, f"Erro inesperado: {e}"
+            

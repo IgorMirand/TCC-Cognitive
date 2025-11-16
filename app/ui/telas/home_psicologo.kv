@@ -144,15 +144,14 @@
 
                         PsychoCard:
                             icon: "plus"
-                            title: "Adicionar Atividades"
-                            subtitle: "Enviar uma nova atividade"
+                            title: "Relatório"
+                            subtitle: "Fazer anotações sobre a consulta"
                             on_release: app.root.current= "consulta_anotacao"
 
                 MDNavigationBar:
-                    on_switch_tabs: app.root.current = args[1].name
+                    #on_switch_tabs: app.root.current = "conta"
                     MDNavigationItem:
                         name: "home"
-                        active: True
                         MDNavigationItemIcon:
                             icon: "home"
                         MDNavigationItemLabel:
@@ -160,6 +159,7 @@
 
                     MDNavigationItem:
                         name: "conta"
+                        on_release: app.root.current= "conta"
                         MDNavigationItemIcon:
                             icon: "account"
                         MDNavigationItemLabel:

@@ -1,3 +1,5 @@
+#:import hex kivy.utils.get_color_from_hex
+
 <ContaScreen>:
     name: "conta"
     MDFloatLayout:
@@ -77,6 +79,15 @@
                         theme_text_color: "Secondary"
                         adaptive_height: True
 
+                    MDLabel:
+                        id: lbl_idade
+                        text: "..."
+                        halign: "center"
+                        font_style: "Body"
+                        role: "medium"
+                        theme_text_color: "Secondary"
+                        adaptive_height: True
+
                 MDLabel:
                     text: "Opções"
                     font_style: "Title"
@@ -87,3 +98,78 @@
                 MDList:
                     id: menu_list
                     spacing: "10dp"
+
+<EditarDadosScreen>:
+    name: "editar_dados"
+    MDFloatLayout:
+        md_bg_color: hex("#F5F7F6")
+
+        # --- Cabeçalho (Barra Superior) ---
+        MDTopAppBar:
+            type: "small"
+            pos_hint: {"top": 1}
+            theme_bg_color: "Custom"
+            md_bg_color: hex("#92C7A3")
+            elevation: 2
+            radius: [0, 0, 0, 30]
+
+            MDTopAppBarLeadingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "arrow-left"
+                    theme_icon_color: "Custom"
+                    icon_color: 1, 1, 1, 1
+                    on_release: root.manager.current = 'conta' # Volta para a conta
+
+            MDTopAppBarTitle:
+                text: "Editar Meus Dados"
+                font_style: "Title"
+                role: "large"
+                theme_text_color: "Custom"
+                text_color: 1, 1, 1, 1
+
+        # --- Conteúdo (Campos de Edição) ---
+        MDScrollView:
+            pos_hint: {"top": .88}
+            
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                padding: "20dp"
+                spacing: "24dp"
+
+                MDTextField:
+                    id: field_username
+                    mode: "outlined"
+                    radius: [10]
+                    
+                    MDTextFieldHintText:
+                        text: "Nome de Usuário"
+
+                MDTextField:
+                    id: field_email
+                    mode: "outlined"
+                    radius: [10]
+                    
+                    MDTextFieldHintText:
+                        text: "Email"
+
+                MDTextField:
+                    id: field_nasc
+                    mode: "outlined"
+                    radius: [10]
+                    
+                    MDTextFieldHintText:
+                        text: "Data de Nascimento (DD/MM/AAAA)"
+
+                MDButton:
+                    style: "filled"
+                    theme_bg_color: "Custom"
+                    md_bg_color: hex("#92C7A3")
+                    pos_hint: {'center_x': .5}
+                    size_hint_x: 1
+                    on_release: root.salvar_dados()
+
+                    MDButtonText:
+                        text: "Salvar Alterações"
+                        theme_text_color: "Custom"
+                        text_color: 1, 1, 1, 1
