@@ -9,7 +9,7 @@ from kivymd.uix.dialog import (
 )
 from kivymd.uix.button import MDButton, MDButtonText
 from kivy.uix.widget import Widget
-from datetime import date
+from datetime import datetime
 
 class BaseScreen(Screen):
 
@@ -64,35 +64,56 @@ class ContaScreen(BaseScreen):
         self.carregar_dados()
         self.montar_menu()
     
-    def _calcular_idade(self, data_nasc_obj):
-        """Helper para calcular a idade a partir de um objeto date."""
-        if not data_nasc_obj:
+    def _calcular_idade(self, data_nasc_str):
+        """
+        Calcula idade aceitando formatos BR (DD/MM/AAAA) ou ISO (AAAA-MM-DD).
+        """
+        # Se a data for vazia, None ou string "None", retorna ?
+        if not data_nasc_str or str(data_nasc_str).lower() == "none" or data_nasc_str == "":
             return "?"
         
-        hoje = date.today()
-        # Cálculo preciso que considera se o aniversário já passou no ano
-        idade = hoje.year - data_nasc_obj.year - ((hoje.month, hoje.day) < (data_nasc_obj.month, data_nasc_obj.day))
-        return str(idade)
+        dt_nasc = None
+        
+        try:
+            # Tentativa 1: Formato Brasileiro (O mais provável vindo do neon.py)
+            dt_nasc = datetime.strptime(data_nasc_str, "%d/%m/%Y")
+        except ValueError:
+            try:
+                # Tentativa 2: Formato ISO (Caso venha direto do banco sem converter)
+                dt_nasc = datetime.strptime(data_nasc_str, "%Y-%m-%d")
+            except ValueError:
+                return "?" # Formato desconhecido
+
+        # Se conseguiu converter, calcula a idade
+        if dt_nasc:
+            hoje = datetime.today()
+            idade = hoje.year - dt_nasc.year - ((hoje.month, hoje.day) < (dt_nasc.month, dt_nasc.day))
+            return str(idade)
+            
+        return "?"
 
     def carregar_dados(self):
-        # Pega o nome e tipo (como antes)
+        # Pega o nome e tipo (cache local)
         self.ids.lbl_nome.text = self.get_user_name()
         tipo = self.get_user_type()
         self.ids.lbl_email.text = f"Perfil: {tipo}"
 
-        # Agora, busca detalhes (incluindo data de nasc.) para a idade
+        # Busca detalhes na API
         try:
             db = self.get_db()
             user_id = self.get_user_id()
-            # A função get_user_details retorna (username, email, data_obj)
+            
+            # Retorna DICT: {'username': '...', 'data_nascimento': '01/01/2000', ...}
             dados = db.get_user_details(user_id) 
             
             if dados:
-                data_nasc_obj = dados[2] # O terceiro item é a data de nascimento
-                idade = self._calcular_idade(data_nasc_obj)
+                # --- CORREÇÃO AQUI ---
+                # Usamos .get('chave') em vez de índice [2]
+                data_nasc_str = dados.get('data_nascimento') 
+                
+                idade = self._calcular_idade(data_nasc_str)
                 self.ids.lbl_idade.text = f"{idade} anos"
             else:
-                # Falha ao buscar dados (raro, mas possível)
                 self.ids.lbl_idade.text = "Idade: N/D"
 
         except Exception as e:
@@ -102,11 +123,11 @@ class ContaScreen(BaseScreen):
     def montar_menu(self):
         """Cria os itens do menu dinamicamente baseado no tipo de usuário."""
         menu_list = self.ids.menu_list
-        menu_list.clear_widgets() # Limpa itens antigos
+        menu_list.clear_widgets() 
         
         tipo = self.get_user_type()
 
-        # --- ITENS COMUNS ---
+        # Meus Dados
         self.adicionar_item(
             menu_list, 
             "Meus Dados", 
@@ -115,7 +136,7 @@ class ContaScreen(BaseScreen):
             lambda x: setattr(self.manager, 'current', 'editar_dados')
         )
 
-        # --- ITENS ESPECÍFICOS ---
+        # Itens Específicos
         if tipo == "Paciente":
             self.adicionar_item(
                 menu_list, 
@@ -141,7 +162,7 @@ class ContaScreen(BaseScreen):
                 lambda x: setattr(self.manager, 'current', 'lista_atividade')
             )
 
-        # --- ITEM DE LOGOUT (SEMPRE O ÚLTIMO) ---
+        # Logout
         self.adicionar_item(
             menu_list, 
             "Sair do App", 
@@ -152,12 +173,9 @@ class ContaScreen(BaseScreen):
         )
 
     def adicionar_item(self, container, titulo, subtitulo, icone, acao, is_logout=False):
-        """Helper para criar MDListItem do KivyMD 2.0"""
-        
         cor_icone = "#F44336" if is_logout else "#92C7A3"
         cor_texto = "Error" if is_logout else "Primary"
         
-        # --- CORREÇÃO AQUI: Removemos style="elevated" ---
         item = MDListItem(
             MDListItemLeadingIcon(
                 icon=icone,
@@ -168,10 +186,9 @@ class ContaScreen(BaseScreen):
                 text=titulo,
                 theme_text_color=cor_texto
             ),
-            
             theme_bg_color="Custom",
-            md_bg_color=[1, 1, 1, 1], # Fundo Branco
-            radius=[16],              # Bordas arredondadas
+            md_bg_color=[1, 1, 1, 1], 
+            radius=[16],
             pos_hint={"center_x": .5},
             on_release=acao
         )
@@ -189,33 +206,41 @@ class ContaScreen(BaseScreen):
         app.root.current = "main"
 
 class EditarDadosScreen(BaseScreen):
-    
+    dialog = None
+
     def on_enter(self, *args):
-        """Chamado sempre que a tela é exibida. Carrega os dados."""
         self.carregar_dados_atuais()
 
+    # --- FUNÇÃO REMOVIDA DAQUI (calcular_e_exibir_idade) ---
+
     def carregar_dados_atuais(self):
-        """Busca os dados do DB e preenche os campos."""
-        db = self.get_db()
-        user_id = self.get_user_id()
-        
-        dados = db.get_user_details(user_id)
-        
-        if dados:
-            username, email, data_obj = dados
-            self.ids.field_username.text = username
-            self.ids.field_email.text = email
-            # Formata o objeto 'date' do banco para string DD/MM/YYYY
-            self.ids.field_nasc.text = data_obj.strftime("%d/%m/%Y")
-        else:
-            self.show_popup("Erro", "Não foi possível carregar seus dados.")
+        try:
+            user_id = self.manager.app.logged_user_id
+            db = self.manager.app.db
+            
+            dados = db.get_user_details(user_id)
+            
+            if dados:
+                self.ids.field_username.text = dados.get("username", "")
+                self.ids.field_email.text = dados.get("email", "")
+                
+                # Apenas carrega o texto da data, sem calcular nada
+                data_nasc = dados.get("data_nascimento", "")
+                self.ids.field_nasc.text = str(data_nasc)
+                
+                # --- LINHA REMOVIDA: self.calcular_e_exibir_idade(data_nasc) ---
+                
+            else:
+                self.show_popup("Erro", "Não foi possível carregar seus dados.")
+
+        except Exception as e:
+            print(f"Erro no carregamento: {e}")
 
     def salvar_dados(self):
-        """Pega os dados dos campos e envia para o DB."""
+        # ... (seu código de salvar continua igual) ...
         db = self.get_db()
         user_id = self.get_user_id()
         
-        # Pega os valores dos campos de texto
         username = self.ids.field_username.text.strip()
         email = self.ids.field_email.text.strip()
         nascimento = self.ids.field_nasc.text.strip()
@@ -224,20 +249,13 @@ class EditarDadosScreen(BaseScreen):
             self.show_popup("Erro", "Todos os campos são obrigatórios.")
             return
             
-        # Chama a nova função do DB
-        success, message = db.update_user_details(
-            user_id, 
-            username, 
-            email, 
-            nascimento
-        )
+        success, message = db.update_user_details(user_id, username, email, nascimento)
         
         if success:
-            # IMPORTANTE: Atualiza o nome de usuário na sessão da app
             app = self.get_app()
             app.logged_user_name = username
-            
             self.show_popup("Sucesso!", message)
-            self.manager.current = "conta" # Volta para a tela de conta
+            # Ao voltar para 'conta', lá sim a idade será recalculada corretamente
+            self.manager.current = "conta" 
         else:
             self.show_popup("Erro ao Salvar", message)

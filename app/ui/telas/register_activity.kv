@@ -1,36 +1,39 @@
-#:import dp kivy.metrics.dp
 #:import hex kivy.utils.get_color_from_hex
 
-# --- Cores do Tema ---
-#:set color_bg hex("#92C7A3")       # Verde fundo
-#:set color_card hex("#FFFFFF")     # Branco card
-#:set color_primary hex("#4a4939")  # Verde escuro/Cinza para texto
-#:set color_active hex("#2E7D32")   # Verde destaque (passo ativo)
-#:set color_inactive hex("#BDBDBD") # Cinza (passo inativo)
+# --- Cores do Tema (Baseadas no seu print) ---
+#:set color_bg hex("#F5F7F6")       
+#:set color_card hex("#FFFFFF")     
+#:set color_primary hex("#2E7D32")  
+#:set color_text hex("#1b1b1b")
+#:set color_inactive hex("#BDBDBD")
 
-# --- Componente: Barra de Progresso (StepIndicator) ---
-# Este widget será reutilizado em todas as telas para mostrar em qual etapa estamos
-<StepIndicator@MDBoxLayout>:
+# =============================================================================
+# 1. COMPONENTE STEP INDICATOR
+# =============================================================================
+# =============================================================================
+# 1. COMPONENTE STEP INDICATOR
+# =============================================================================
+# Note que removemos o "@MDBoxLayout", pois agora a classe existe no Python
+<StepIndicator>:
     orientation: "horizontal"
     adaptive_height: True
     spacing: "4dp"
-    padding: "16dp", "10dp", "16dp", "20dp"
-    pos_hint: {"top": 1}
+    padding: "16dp", "10dp", "16dp", "0dp"
+    size_hint_y: None
+    height: "60dp"
     
-    # Propriedade para saber qual passo está ativo (1, 2 ou 3)
-    current_step: 1 
-
     # Passo 1
     MDIcon:
+        # O root.current_step agora é garantido pelo Python
         icon: "numeric-1-circle" if root.current_step >= 1 else "numeric-1-circle-outline"
         theme_text_color: "Custom"
-        text_color: color_active if root.current_step >= 1 else color_inactive
+        text_color: color_primary if root.current_step >= 1 else color_inactive
         font_size: "32sp"
         pos_hint: {"center_y": .5}
 
     MDLinearProgressIndicator:
         value: 100 if root.current_step >= 2 else 0
-        color: color_active
+        color: color_primary
         track_color: color_inactive
         size_hint_y: None
         height: "4dp"
@@ -40,13 +43,13 @@
     MDIcon:
         icon: "numeric-2-circle" if root.current_step >= 2 else "numeric-2-circle-outline"
         theme_text_color: "Custom"
-        text_color: color_active if root.current_step >= 2 else color_inactive
+        text_color: color_primary if root.current_step >= 2 else color_inactive
         font_size: "32sp"
         pos_hint: {"center_y": .5}
 
     MDLinearProgressIndicator:
         value: 100 if root.current_step >= 3 else 0
-        color: color_active
+        color: color_primary
         track_color: color_inactive
         size_hint_y: None
         height: "4dp"
@@ -56,71 +59,60 @@
     MDIcon:
         icon: "numeric-3-circle" if root.current_step >= 3 else "numeric-3-circle-outline"
         theme_text_color: "Custom"
-        text_color: color_active if root.current_step >= 3 else color_inactive
+        text_color: color_primary if root.current_step >= 3 else color_inactive
         font_size: "32sp"
         pos_hint: {"center_y": .5}
 
+# =============================================================================
+# 2. TELAS (Usando BoxLayout para organizar)
+# =============================================================================
 
 # --- TELA 1: Sentimento ---
 <SentimentoScreen>:
     name: 'sentimento'
     
-    MDFloatLayout:
+    # O BoxLayout Vertical organiza tudo de cima para baixo automaticamente
+    MDBoxLayout:
+        orientation: "vertical"
         md_bg_color: color_bg
+        spacing: "10dp"
 
-        # 1. Barra de Etapas (Passo 1)
+        # 1. TOPO: Indicador de Passos
         StepIndicator:
             current_step: 1
             id: step_bar
 
-        # 2. Conteúdo em Card
-        MDCard:
-            orientation: "vertical"
-            size_hint: .9, .75
-            pos_hint: {"center_x": .5, "center_y": .5}
-            radius: [20]
-            padding: "16dp"
-            spacing: "10dp"
-            md_bg_color: color_card
-            elevation: 2
+        # 2. MEIO: Lista (Expansível)
+        MDScrollView:
+            do_scroll_x: False
+            # size_hint_y: 1 faz ele ocupar todo espaço sobrando
+            size_hint_y: 1 
+            
+            MDList:
+                id: lista_sentimentos
+                spacing: "2dp"
+                padding: "0dp", "10dp", "0dp", "10dp"
+                # A lista vai crescer aqui dentro
 
-            MDLabel:
-                text: "Como você está se sentindo?"
-                halign: "center"
-                font_style: "Headline"
-                role: "small"
-                adaptive_height: True
-                theme_text_color: "Custom"
-                text_color: color_primary
-
-            MDDivider:
-
-            # Lista de Sentimentos
-            MDScrollView:
-                do_scroll_x: False
-                MDList:
-                    id: lista_sentimentos
-                    spacing: "8dp"
-                    padding: "8dp"
-
-        # 3. Botões de Navegação (Rodapé fixo)
+        # 3. RODAPÉ: Botões
         MDBoxLayout:
             orientation: "horizontal"
             adaptive_height: True
             spacing: "20dp"
             padding: "20dp"
-            pos_hint: {"bottom": 1}
+            md_bg_color: color_bg # Garante fundo sólido atrás dos botões
             
             MDButton:
                 style: "text"
                 on_release: app.root.current = "home"
                 size_hint_x: .4
+                height: "48dp"
                 MDButtonText:
                     text: "Cancelar"
                     theme_text_color: "Custom"
-                    text_color: color_primary
+                    text_color: color_text
             
-            Widget: # Espaçador
+            Widget: # Espaço vazio no meio
 
             MDButton:
                 style: "filled"
@@ -128,265 +120,194 @@
                 md_bg_color: color_primary
                 on_release: root.ir_para_atividades()
                 size_hint_x: .4
+                height: "48dp"
                 MDButtonText:
                     text: "Próximo"
-                    theme_text_color: "Custom"
-                    text_color: 1, 1, 1, 1 # Branco
-
+                    text_color: 1, 1, 1, 1
 
 # --- TELA 2: Atividades ---
 <RegisterActivityScreen>:
     name: "register_activity"
 
-    MDFloatLayout:
+    MDBoxLayout:
+        orientation: "vertical"
         md_bg_color: color_bg
+        spacing: "10dp"
 
-        # 1. Barra de Etapas (Passo 2)
+        # 1. TOPO
         StepIndicator:
             current_step: 2
 
-        # 2. Conteúdo Principal
-        MDCard:
-            orientation: "vertical"
-            size_hint: .9, .75
-            pos_hint: {"center_x": .5, "center_y": .5}
-            radius: [20]
-            padding: "16dp"
-            spacing: "10dp"
-            md_bg_color: color_card
-            elevation: 2
+        # Título centralizado
+        MDLabel:
+            text: "O que você fez hoje?"
+            halign: "center"
+            font_style: "Headline"
+            role: "small"
+            adaptive_height: True
+            padding: "0dp", "10dp", "0dp", "10dp"
+            theme_text_color: "Custom"
+            text_color: color_text
 
-            MDLabel:
-                text: "O que você fez hoje?"
-                halign: "center"
-                font_style: "Headline"
-                role: "small"
-                adaptive_height: True
-                theme_text_color: "Custom"
-                text_color: color_primary
+        # 2. MEIO: Lista
+        MDScrollView:
+            do_scroll_x: False
+            size_hint_y: 1
+            
+            MDList:
+                id: lista_selecao_atividades
+                padding: "0dp"
+                spacing: "2dp"
 
-            MDLabel:
-                text: "Selecione uma ou mais atividades:"
-                halign: "center"
-                font_style: "Label"
-                role: "large"
-                theme_text_color: "Secondary"
-                adaptive_height: True
-
-            MDDivider:
-
-            # Lista de Checkboxes
-            MDScrollView:
-                do_scroll_x: False
-                MDList:
-                    id: lista_selecao_atividades
-                    spacing: "8dp"
-
-        # 3. Botões de Navegação
+        # 3. RODAPÉ
         MDBoxLayout:
             orientation: "horizontal"
             adaptive_height: True
             spacing: "20dp"
             padding: "20dp"
-            pos_hint: {"bottom": 1}
-
+            
             MDButton:
-                style: "outlined"
-                theme_width: "Custom"
+                style: "text"
                 size_hint_x: .4
+                height: "48dp"
                 on_release: app.root.current = "sentimento"
                 MDButtonText:
                     text: "Voltar"
                     theme_text_color: "Custom"
-                    text_color: color_primary
+                    text_color: color_text
 
-            Widget: # Espaçador
+            Widget:
 
             MDButton:
                 style: "filled"
                 theme_bg_color: "Custom"
                 md_bg_color: color_primary
                 size_hint_x: .4
+                height: "48dp"
                 on_release: root.do_register_activities()
                 MDButtonText:
                     text: "Próximo"
-                    theme_text_color: "Custom"
                     text_color: 1, 1, 1, 1
 
-
-# (Mantenha os imports e o StepIndicator como estavam antes...)
-
-# --- TELA 3: Questionário de Reflexão ---
+# --- TELA 3: Reflexão (Mantém estrutura similar) ---
 <AnotacaoDiaScreen>:
     name: "anotacao_dia"
     
-    MDFloatLayout:
+    MDBoxLayout:
+        orientation: "vertical"
         md_bg_color: color_bg
 
-        # 1. Barra de Etapas (Passo 3)
         StepIndicator:
             current_step: 3
-            id: step_bar
 
-        # 2. Conteúdo Rolável (Formulário)
         MDScrollView:
-            pos_hint: {"top": .88, "bottom": .12} # Deixa espaço para barra e botões
             do_scroll_x: False
+            size_hint_y: 1
             
             MDBoxLayout:
                 orientation: "vertical"
-                padding: "16dp"
-                spacing: "16dp"
+                padding: "20dp"
+                spacing: "20dp"
                 adaptive_height: True
 
-                # --- Card Principal ---
-                MDCard:
-                    orientation: "vertical"
+                MDLabel:
+                    text: "Reflexão Rápida"
+                    font_style: "Headline"
+                    role: "small"
+                    halign: "center"
                     adaptive_height: True
-                    padding: "16dp"
+                    theme_text_color: "Custom"
+                    text_color: color_text
+
+                MDTextField:
+                    id: input_humor
+                    mode: "outlined"
+                    multiline: True
+                    MDTextFieldHintText:
+                        text: "O que influenciou seu humor?"
+
+                MDTextField:
+                    id: input_desconforto
+                    mode: "outlined"
+                    multiline: True
+                    MDTextFieldHintText:
+                        text: "Houve algum desconforto?"
+
+                MDLabel:
+                    text: "Nota do dia (Bem-estar)"
+                    role: "medium"
+                    theme_text_color: "Secondary"
+                
+                MDSlider:
+                    id: slider_bem_estar
+                    min: 0
+                    max: 10
+                    value: 5
+                    step: 1
+                    MDSliderHandle:
+                    MDSliderValueLabel:
+
+                MDTextField:
+                    id: input_desafio
+                    mode: "outlined"
+                    multiline: True
+                    MDTextFieldHintText:
+                        text: "Qual foi o maior desafio?"
+                
+                MDTextField:
+                    id: input_medo
+                    mode: "outlined"
+                    multiline: True
+                    MDTextFieldHintText:
+                        text: "Evitou algo por medo?"
+
+                MDTextField:
+                    id: input_vitoria
+                    mode: "outlined"
+                    multiline: True
+                    MDTextFieldHintText:
+                        text: "Uma pequena vitória de hoje"
+                
+                MDLabel:
+                    text: "Autocuidado Hoje:"
+                    role: "medium"
+                
+                MDBoxLayout:
+                    adaptive_height: True
                     spacing: "20dp"
-                    radius: [20]
-                    md_bg_color: color_card
-                    elevation: 1
-
-                    MDLabel:
-                        text: "Reflexão Diária"
-                        font_style: "Headline"
-                        role: "small"
-                        halign: "center"
-                        adaptive_height: True
-                        theme_text_color: "Custom"
-                        text_color: color_primary
-
-                    # Pergunta 1
-                    MDTextField:
-                        id: input_humor
-                        mode: "outlined"
-                        multiline: True
-                        MDTextFieldHintText:
-                            text: "O que aconteceu hoje que influenciou seu humor?"
-
-                    # Pergunta 2
-                    MDTextField:
-                        id: input_desconforto
-                        mode: "outlined"
-                        multiline: True
-                        MDTextFieldHintText:
-                            text: "Algo gerou desconforto ou estresse? Como reagiu?"
-
-                    # Pergunta 3: Bem-estar (Slider)
+                    
                     MDBoxLayout:
-                        orientation: "vertical"
-                        adaptive_height: True
-                        spacing: "10dp"
-                        
+                        adaptive_size: True
+                        MDCheckbox:
+                            id: check_sono
                         MDLabel:
-                            text: "Nota para seu bem-estar hoje (0 a 10):"
-                            role: "medium"
-                            adaptive_height: True
-                            theme_text_color: "Secondary"
+                            text: "Sono"
+                            adaptive_size: True
+                            pos_hint: {"center_y": .5}
 
-                        MDSlider:
-                            id: slider_bem_estar
-                            min: 0
-                            max: 10
-                            value: 5
-                            step: 1
-                            size_hint_y: None
-                            height: "40dp"
-                            
-                            MDSliderHandle:
-                            MDSliderValueLabel:
-
-                    # Pergunta 4
-                    MDTextField:
-                        id: input_desafio
-                        mode: "outlined"
-                        multiline: True
-                        MDTextFieldHintText:
-                            text: "Qual foi o maior desafio e como lidou com ele?"
-
-                    # Pergunta 5
-                    MDTextField:
-                        id: input_medo
-                        mode: "outlined"
-                        multiline: True
-                        MDTextFieldHintText:
-                            text: "Evitou algo por medo ou insegurança?"
-
-                    # Pergunta 6: Autocuidado (Checkboxes)
                     MDBoxLayout:
-                        orientation: "vertical"
-                        adaptive_height: True
-                        spacing: "5dp"
-
+                        adaptive_size: True
+                        MDCheckbox:
+                            id: check_alimentacao
                         MDLabel:
-                            text: "Você cuidou do seu corpo hoje?"
-                            role: "medium"
-                            adaptive_height: True
-                            theme_text_color: "Secondary"
+                            text: "Dieta"
+                            adaptive_size: True
+                            pos_hint: {"center_y": .5}
 
-                        MDBoxLayout:
-                            orientation: "horizontal"
-                            adaptive_height: True
-                            spacing: "20dp"
-
-                            MDBoxLayout:
-                                orientation: "horizontal"
-                                adaptive_size: True
-                                spacing: "5dp"
-                                MDCheckbox:
-                                    id: check_sono
-                                    size_hint: None, None
-                                    size: "48dp", "48dp"
-                                MDLabel:
-                                    text: "Sono"
-                                    adaptive_size: True
-                                    pos_hint: {"center_y": .5}
-
-                            MDBoxLayout:
-                                orientation: "horizontal"
-                                adaptive_size: True
-                                spacing: "5dp"
-                                MDCheckbox:
-                                    id: check_alimentacao
-                                    size_hint: None, None
-                                    size: "48dp", "48dp"
-                                MDLabel:
-                                    text: "Dieta"
-                                    adaptive_size: True
-                                    pos_hint: {"center_y": .5}
-
-                            MDBoxLayout:
-                                orientation: "horizontal"
-                                adaptive_size: True
-                                spacing: "5dp"
-                                MDCheckbox:
-                                    id: check_movimento
-                                    size_hint: None, None
-                                    size: "48dp", "48dp"
-                                MDLabel:
-                                    text: "Treino"
-                                    adaptive_size: True
-                                    pos_hint: {"center_y": .5}
-
-                    # Pergunta 7
-                    MDTextField:
-                        id: input_vitoria
-                        mode: "outlined"
-                        multiline: True
-                        MDTextFieldHintText:
-                            text: "Qual pequena vitória merece ser celebrada?"
-
-        # 3. Botões de Ação (Rodapé Fixo)
+                    MDBoxLayout:
+                        adaptive_size: True
+                        MDCheckbox:
+                            id: check_movimento
+                        MDLabel:
+                            text: "Treino"
+                            adaptive_size: True
+                            pos_hint: {"center_y": .5}
+        
+        # Botão final fixo no rodapé da tela 3
         MDBoxLayout:
-            orientation: "vertical"
-            adaptive_height: True
-            spacing: "10dp"
             padding: "20dp"
-            pos_hint: {"bottom": 0}
-            md_bg_color: color_bg # Garante que o fundo cubra o scroll
-
+            adaptive_height: True
+            
             MDButton:
                 style: "filled"
                 theme_bg_color: "Custom"
@@ -395,21 +316,6 @@
                 height: "56dp"
                 on_release: root.salvar_nova_anotacao()
                 
-                MDButtonIcon:
-                    icon: "check-circle-outline"
-                    theme_icon_color: "Custom"
-                    icon_color: 1, 1, 1, 1
-                
                 MDButtonText:
-                    text: "Salvar Reflexão"
-                    theme_text_color: "Custom"
+                    text: "Salvar Diário"
                     text_color: 1, 1, 1, 1
-
-            MDButton:
-                style: "text"
-                size_hint_x: 1
-                on_release: app.root.current = "register_activity"
-                MDButtonText:
-                    text: "Voltar"
-                    theme_text_color: "Custom"
-                    text_color: color_primary

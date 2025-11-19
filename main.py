@@ -18,17 +18,15 @@ def resource_path(relative_path):
     Funciona para modo 'dev' e para o executável do PyInstaller.
     """
     try:
-        # PyInstaller cria uma pasta temporária e armazena o caminho em _MEIPASS
         base_path = sys._MEIPASS
     except Exception:
-        # Se não estiver rodando como .exe, use o caminho normal
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
 
 if hasattr(sys, '_MEIPASS'):
     resource_add_path(os.path.join(sys._MEIPASS))
-
+    
 # --- 3. USE A FUNÇÃO 'resource_path' em TODOS os 'Builder.load_file' ---
 Builder.load_file(resource_path("app/ui/telas/login.kv"))
 Builder.load_file(resource_path("app/ui/telas/register.kv"))

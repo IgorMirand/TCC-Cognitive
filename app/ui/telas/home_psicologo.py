@@ -82,11 +82,19 @@ class PsychoHomeScreen(MDScreen):
             if success_appt and next_appt:
                 data_iso, paciente_nome = next_appt
                 try:
-                    dt = datetime.fromisoformat(data_iso)
+                    # Tenta converter string ISO para objeto e formatar bonito
+                    dt = datetime.fromisoformat(str(data_iso).replace('Z', '')) # .replace previne erro de timezone simples
                     data_formatada = dt.strftime("%d/%m às %H:%M")
                     data_ui['appt_text'] = f"{data_formatada} - {paciente_nome}"
-                except:
-                    data_ui['appt_text'] = f"{data_iso} - {paciente_nome}"
+                except ValueError:
+                    # Se falhar, tenta outro formato comum
+                    try:
+                         dt = datetime.strptime(str(data_iso), "%Y-%m-%d %H:%M:%S")
+                         data_formatada = dt.strftime("%d/%m às %H:%M")
+                         data_ui['appt_text'] = f"{data_formatada} - {paciente_nome}"
+                    except:
+                        # Se tudo falhar, mostra o texto cru
+                        data_ui['appt_text'] = f"{data_iso} - {paciente_nome}"
             
             Clock.schedule_once(lambda dt: self._update_dashboard_ui(data_ui))
             
@@ -143,23 +151,55 @@ class PsychoHomeScreen(MDScreen):
         ).start()
 
     def _thread_enviar_email_resend(self, paciente_email, psicologo_id):
-        # (Sua lógica existente de envio de e-mail aqui... mantive a estrutura para economizar espaço)
         try:
-            # Simulação ou chamada real
+            # Configura API
             resend.api_key = os.environ.get("RESEND_API_KEY")
-            if not resend.api_key: raise Exception("API Key missing")
-            
+            if not resend.api_key:
+                raise Exception("RESEND_API_KEY não encontrada nas variáveis de ambiente.")
+
             db = self.manager.app.db
+
+            # Gera código único do paciente
             codigo = db.gerar_codigo_paciente(psicologo_id)
-            
-            # ... (Código de HTML e envio igual ao seu original) ...
-            
-            # Simulando sucesso para o exemplo:
+
+            # Link para cadastro
+            link_convite = f"https://seuapp.com/cadastro?codigo={codigo}"
+
+            # HTML bonito do e-mail
+            html_body = f"""
+            <div style="font-family: Arial; padding: 20px;">
+                <h2>Convite para acessar sua área no aplicativo</h2>
+                <p>Olá! Você foi convidado pelo seu psicólogo para acessar o aplicativo.</p>
+                <p>Clique no botão abaixo para criar sua conta:</p>
+
+                <a href="{link_convite}" 
+                style="display:inline-block; padding:12px 20px; background:#4CAF50; color:white;
+                        text-decoration:none; border-radius:6px; margin-top:10px;">
+                    Criar minha conta
+                </a>
+
+                <p style="margin-top:20px;">Ou copie e cole este link no navegador:</p>
+                <p>{link_convite}</p>
+            </div>
+            """
+
+            # Envio usando Resend
+            response = resend.Emails.send({
+                "from": "Seu App <no-reply@seuapp.com>",
+                "to": paciente_email,
+                "subject": "Convite para acesso ao aplicativo",
+                "html": html_body,
+            })
+
+            # Retorno de sucesso
             resultado = ("Sucesso", f"Convite enviado para {paciente_email}")
+
         except Exception as e:
             resultado = ("Erro", str(e))
-            
+
+        # Atualiza UI no thread principal
         Clock.schedule_once(lambda dt: self._envio_email_callback(resultado))
+
 
     def _envio_email_callback(self, resultado):
         self.dismiss_loading_dialog()
@@ -438,42 +478,48 @@ class DisponibilidadeScreen(MDScreen):
         db = self.manager.app.db
         psicologo_id = self.manager.app.logged_user_id
         
-        # Retorna lista de tuplas: (id, data_hora_obj, paciente_id)
-        # Nota: O driver psycopg2 geralmente já retorna data_hora como objeto datetime
         agenda = db.get_agenda_psicologo(psicologo_id)
 
         if not agenda:
             list_widget.add_widget(MDLabel(text="Nenhum horário cadastrado.", halign="center"))
             return
 
-        for ag_id, dt_obj, pac_id in agenda:
-            # Formatação visual
+        for ag_id, data_hora_texto, pac_id in agenda:
+            # 1. Tratamento da Data (como fizemos antes)
+            try:
+                dt_obj = datetime.fromisoformat(data_hora_texto)
+            except ValueError:
+                dt_obj = datetime.strptime(data_hora_texto, "%Y-%m-%d %H:%M:%S")
+
             data_str = dt_obj.strftime("%d/%m/%Y")
             hora_str = dt_obj.strftime("%H:%M")
             
-            # Define status
             status_txt = "Livre" if pac_id is None else "AGENDADO"
-            status_color = [0, 0.7, 0, 1] if pac_id is None else [1, 0, 0, 1] # Verde ou Vermelho
+            status_color = [0, 0.7, 0, 1] if pac_id is None else [1, 0, 0, 1]
 
+            # 2. Cria o Item
             item = MDListItem(
                 MDListItemHeadlineText(text=f"{data_str} às {hora_str}"),
                 MDListItemSupportingText(text=status_txt, theme_text_color="Custom", text_color=status_color),
-                #style="elevated",
                 pos_hint={"center_x": .5},
+                # REMOVIDO: item.on_release aqui (para não deletar ao clicar no texto)
             )
             
-            # Botão de Lixeira para remover horário
+            # 3. Cria o Botão de Lixeira
             btn_delete = MDIconButton(
                 icon="trash-can-outline",
+                style="standard",
                 pos_hint={"center_y": .5},
+                theme_icon_color="Custom",
+                icon_color=[1, 0, 0, 1], 
+                
+                # --- CORREÇÃO AQUI ---
+                # Usamos lambda x, i=ag_id para garantir que estamos enviando 
+                # o NÚMERO (i) e não o BOTÃO (x)
                 on_release=lambda x, i=ag_id: self.excluir_horario(i)
             )
             
-            # Adiciona widget container no item (KivyMD 2.0 requires custom content implementation often, but let's use trailing icon logic if available or simple add)
-            # Como MDListItem do 2.0 é complexo, vamos simplificar usando o container dele se possível, ou apenas um evento de clique no item para deletar
-            # Vamos usar o clique do item para deletar para simplificar o código
-            item.on_release = lambda x=None, i=ag_id: self.excluir_horario(i)
-            
+            item.add_widget(btn_delete)
             list_widget.add_widget(item)
 
     def adicionar_horario_dialog(self):
@@ -521,5 +567,10 @@ class DisponibilidadeScreen(MDScreen):
 
     def excluir_horario(self, agenda_id):
         db = self.manager.app.db
-        db.excluir_horario(agenda_id)
-        self.carregar_agenda()
+        # Chama a nova função do neon.py
+        success, msg = db.excluir_horario(agenda_id)
+        
+        if success:
+            self.carregar_agenda() # Recarrega a lista
+        else:
+            print(msg) # O ideal seria um self.show_popup("Erro", msg)

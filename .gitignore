@@ -26,3 +26,7 @@ build/
 "sendgrid.env" 
 
 CognitiveApp.spec
+
+buildozer.spec
+
+add_code.py

@@ -18,6 +18,7 @@ from kivymd.uix.label import MDLabel,MDIcon
 from kivy.uix.widget import Widget
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.card import MDCard
+from datetime import datetime
 
 class HomeScreen(Screen):
 
@@ -145,24 +146,30 @@ class AgendamentoScreen(Screen):
         db = self.manager.app.db
         paciente_id = self.manager.app.logged_user_id
         
-        # 1. Descobrir quem é o psicólogo desse paciente
         psicologo_id = db.get_psicologo_id_by_paciente(paciente_id) 
         
         if not psicologo_id:
             container.add_widget(MDLabel(text="Você ainda não tem psicólogo vinculado.", halign="center"))
             return
 
-        # 2. Buscar horários livres desse psicólogo
         horarios = db.get_horarios_disponiveis(psicologo_id)
         
         if not horarios:
             container.add_widget(MDLabel(text="Sem horários disponíveis no momento.", halign="center"))
             return
 
-        for ag_id, dt_obj in horarios:
-            data_fmt = dt_obj.strftime("%d/%m - %H:%M") # Ex: 12/11 - 14:00
+        # Loop com o ajuste do Unpack (ag_id, data_texto, _)
+        for ag_id, data_texto, _ in horarios:
             
-            # Card simples para cada horário
+            # 1. Converte Texto da API -> Objeto Data
+            try:
+                dt_obj = datetime.fromisoformat(data_texto)
+            except ValueError:
+                dt_obj = datetime.strptime(data_texto, "%Y-%m-%d %H:%M:%S")
+            
+            # 2. Converte Objeto Data -> Texto Bonito para Exibir (STRING)
+            data_fmt = dt_obj.strftime("%d/%m - %H:%M") 
+
             card = MDCard(
                 style="elevated",
                 size_hint_y=None,
@@ -174,7 +181,16 @@ class AgendamentoScreen(Screen):
             
             layout = MDBoxLayout(orientation="horizontal")
             layout.add_widget(MDIcon(icon="calendar-check", pos_hint={"center_y": .5}))
-            layout.add_widget(MDLabel(text=data_fmt, font_style="Title", role="medium", pos_hint={"center_y": .5}, padding=[20,0,0,0]))
+            
+            # --- CORREÇÃO AQUI ---
+            # Use 'data_fmt' (que é string), NUNCA use 'dt_obj' ou 'data_texto' direto se não for string
+            layout.add_widget(MDLabel(
+                text=data_fmt,  # <--- ISSO DEVE SER STRING
+                font_style="Title", 
+                role="medium", 
+                pos_hint={"center_y": .5}, 
+                padding=[20,0,0,0]
+            ))
             
             card.add_widget(layout)
             container.add_widget(card)
