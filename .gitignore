@@ -4,12 +4,10 @@ __pycache__/
 *.pyd
 
 # Ambientes virtuais
-# O nome da pasta pode variar (ex: venv, .venv, etc.)
 venv/
 .venv/
 
 # Arquivos de configurações de IDEs
-# Ignora arquivos de IDEs como VS Code, PyCharm, etc.
 .vscode/
 .idea/
 
@@ -23,7 +21,7 @@ build/
 
 # Arquivos de dados confidenciais ou de ambiente
 .env
-"sendgrid.env" 
+sendgrid.env 
 
-.add_code.py
+# Bibliotecas locais (pesadas)
 KivyMD/
