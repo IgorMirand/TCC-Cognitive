@@ -70,7 +70,6 @@ class RegisterScreen(Screen):
     def toggle_password_visibility(self):
         field = self.ids.password
         
-        # Inverte o estado da senha (True vira False, False vira True)
         field.password = not field.password
         
 

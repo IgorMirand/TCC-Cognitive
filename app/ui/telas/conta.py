@@ -60,6 +60,8 @@ class BaseScreen(Screen):
             self.dialog.dismiss()
 
 class ContaScreen(BaseScreen):
+    dialog = None
+    
     def on_enter(self, *args):
         self.carregar_dados()
         self.montar_menu()
@@ -143,7 +145,7 @@ class ContaScreen(BaseScreen):
                 "Meu Psicólogo", 
                 "Ver profissional vinculado", 
                 "doctor", 
-                lambda x: print("Ver psicólogo")
+                self.ver_meu_psicologo
             )
         
         elif tipo == "Psicólogo":
@@ -197,6 +199,38 @@ class ContaScreen(BaseScreen):
             item.add_widget(MDListItemSupportingText(text=subtitulo))
             
         container.add_widget(item)
+    
+    def ver_meu_psicologo(self, *args):
+        """
+        Busca e exibe os dados do profissional vinculado a este paciente.
+        """
+        try:
+            db = self.get_db()
+            paciente_id = self.get_user_id()
+            
+            # 1. Descobre o ID do psicólogo
+            psicologo_id = db.get_psicologo_id_by_paciente(paciente_id)
+            
+            if not psicologo_id:
+                self.show_popup("Meu Psicólogo", "Você ainda não está vinculado a nenhum profissional.")
+                return
+
+            # 2. Busca os dados pessoais desse ID (Nome, Email)
+            # Reutilizamos a função que já existe para buscar dados de usuário
+            dados_psi = db.get_user_details(psicologo_id)
+            
+            if dados_psi:
+                nome = dados_psi.get("username", "Desconhecido")
+                email = dados_psi.get("email", "Não informado")
+                
+                mensagem = f"Profissional: {nome}\nContato: {email}"
+                self.show_popup("Seu Psicólogo", mensagem)
+            else:
+                self.show_popup("Erro", "Vínculo encontrado, mas não foi possível carregar os dados do médico.")
+
+        except Exception as e:
+            print(f"Erro ao buscar psicólogo: {e}")
+            self.show_popup("Erro", "Falha de conexão ao buscar dados.")
 
     def fazer_logout(self, *args):
         app = self.get_app()
@@ -204,6 +238,8 @@ class ContaScreen(BaseScreen):
         app.logged_user_name = None
         app.logged_user_type = None
         app.root.current = "main"
+    
+    
 
 class EditarDadosScreen(BaseScreen):
     dialog = None

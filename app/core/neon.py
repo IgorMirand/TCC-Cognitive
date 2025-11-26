@@ -4,7 +4,7 @@ import json
 class Database:
     def __init__(self):
         # Em desenvolvimento use localhost. Em produção use a URL do Render.
-        # self.base_url = "http://127.0.0.1:8000" 
+        #self.base_url = "http://127.0.0.1:51322" 
         self.base_url = "https://api-tcc-cognitive.onrender.com" 
 
     # --- AUTH ---

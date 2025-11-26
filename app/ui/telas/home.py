@@ -2,16 +2,10 @@ from kivymd.uix.screen import Screen
 
 # (Importações necessárias para o Pop-up KivyMD 2.0.0)
 from kivymd.uix.dialog import (
-    MDDialog,
-    MDDialogHeadlineText,
-    MDDialogSupportingText,
-    MDDialogButtonContainer,
-    MDDialogContentContainer
-)
-from kivymd.uix.textfield import (
-    MDTextField,
-    MDTextFieldLeadingIcon,
-    MDTextFieldHintText,
+    MDDialog, 
+    MDDialogHeadlineText, 
+    MDDialogSupportingText,  
+    MDDialogButtonContainer
 )
 from kivymd.uix.button import MDButton,MDButtonText
 from kivymd.uix.label import MDLabel,MDIcon

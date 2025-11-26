@@ -112,14 +112,6 @@
                             adaptive_height: True
                             theme_text_color: "Secondary"
 
-                        # Card 1: Próxima Consulta
-                        PsychoCard:
-                            icon: "calendar-clock"
-                            title: "Próxima Consulta"
-                            # O ID abaixo permite que o Python atualize o texto
-                            subtitle: "Carregando..."
-                            id: next_appointment_card 
-                            on_release: print("Detalhes da agenda")
                         
                         PsychoCard:
                             icon: "calendar-edit"
@@ -319,6 +311,7 @@
     MDFloatLayout:
         md_bg_color: hex("#F5F7F6")
 
+        # --- Cabeçalho ---
         MDBoxLayout:
             orientation: "horizontal"
             adaptive_height: True
@@ -326,9 +319,14 @@
             spacing: "12dp"
             pos_hint: {"top": 1}
             md_bg_color: hex("#92C7A3")
+            radius: [0, 0, 0, 20]
+            elevation: 2
             
             MDIconButton:
                 icon: "arrow-left"
+                theme_icon_color: "Custom"
+                icon_color: 1, 1, 1, 1
+                pos_hint: {"center_y": .5}
                 on_release: app.root.current = "home_psicologo"
             
             MDLabel:
@@ -339,16 +337,60 @@
                 text_color: 1,1,1,1
                 pos_hint: {"center_y": .5}
 
+        # --- Conteúdo Separado em Duas Seções ---
         MDScrollView:
-            pos_hint: {"top": .88, "bottom": .15}
-            MDList:
-                id: lista_agenda
+            pos_hint: {"top": .88, "bottom": .12} # Ajuste para caber o botão (+)
+            do_scroll_x: False
+            
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
                 padding: "20dp"
                 spacing: "10dp"
 
+                # SEÇÃO 1: Agendados
+                MDLabel:
+                    text: "Consultas Confirmadas"
+                    font_style: "Title"
+                    role: "medium"
+                    theme_text_color: "Primary"
+                    adaptive_height: True
+                    padding: 0, 10, 0, 10
+
+                MDList:
+                    id: lista_agendados
+                    spacing: "8dp"
+                    adaptive_height: True
+                    md_bg_color: hex("#FFF3E0") # Fundo levemente laranja para destacar
+                    radius: [10]
+                    padding: "5dp"
+
+                # Separador
+                MDDivider:
+                    size_hint_y: None
+                    height: "20dp"
+                    color: 0,0,0,0 # Invisível, só para espaço
+
+                # SEÇÃO 2: Livres
+                MDLabel:
+                    text: "Horários Disponíveis (Livres)"
+                    font_style: "Title"
+                    role: "medium"
+                    theme_text_color: "Secondary"
+                    adaptive_height: True
+
+                MDList:
+                    id: lista_livres
+                    spacing: "8dp"
+                    adaptive_height: True
+
+        # Botão Flutuante (+)
         MDFabButton:
             icon: "plus"
             style: "standard"
+            theme_bg_color: "Custom"
             md_bg_color: hex("#92C7A3")
+            theme_icon_color: "Custom"
+            icon_color: 1, 1, 1, 1
             pos_hint: {"right": .95, "bottom": .05}
             on_release: root.adicionar_horario_dialog()

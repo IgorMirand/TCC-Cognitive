@@ -12,8 +12,6 @@ from app.ui.telas.register_activity import RegisterActivityScreen, SentimentoScr
 from app.ui.telas.consulta_anotacao import ConsultaAnotacaoScreen
 from app.ui.telas.conta import ContaScreen, EditarDadosScreen
 
-
-# Carrega styles.kv automaticamente
 kv_path = Path(__file__).parent / "styles.kv"
 if kv_path.exists():
     Builder.load_file(str(kv_path))

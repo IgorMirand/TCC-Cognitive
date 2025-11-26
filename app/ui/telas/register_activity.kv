@@ -82,6 +82,15 @@
             current_step: 1
             id: step_bar
 
+        MDLabel:
+            text: "Como você esta se sentindo"
+            font_style: "Headline"
+            role: "small"
+            halign: "center"
+            adaptive_height: True
+            theme_text_color: "Custom"
+            text_color: color_text
+
         # 2. MEIO: Lista (Expansível)
         MDScrollView:
             do_scroll_x: False
@@ -302,20 +311,32 @@
                             text: "Treino"
                             adaptive_size: True
                             pos_hint: {"center_y": .5}
-        
-        # Botão final fixo no rodapé da tela 3
+
         MDBoxLayout:
-            padding: "20dp"
+            orientation: "horizontal"
             adaptive_height: True
+            spacing: "20dp"
+            padding: "20dp"
             
+            MDButton:
+                style: "text"
+                size_hint_x: .4
+                height: "48dp"
+                on_release: app.root.current= "home"
+                MDButtonText:
+                    text: "Cancelar"
+                    theme_text_color: "Custom"
+                    text_color: color_text
+
+            Widget:
+
             MDButton:
                 style: "filled"
                 theme_bg_color: "Custom"
                 md_bg_color: color_primary
-                size_hint_x: 1
-                height: "56dp"
+                size_hint_x: .4
+                height: "48dp"
                 on_release: root.salvar_nova_anotacao()
-                
                 MDButtonText:
-                    text: "Salvar Diário"
+                    text: "Próximo"
                     text_color: 1, 1, 1, 1

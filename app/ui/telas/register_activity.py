@@ -117,46 +117,100 @@ class RegisterActivityScreen(Screen):
 class AnotacaoDiaScreen(Screen):
     
     def salvar_nova_anotacao(self):
-        # Coleta dados
-        p1 = self.ids.input_humor.text
-        p2 = self.ids.input_desconforto.text
-        p3 = int(self.ids.slider_bem_estar.value)
-        p4 = self.ids.input_desafio.text
-        p5 = self.ids.input_medo.text
-        p6 = self.ids.input_vitoria.text
+        """
+        Coleta respostas, valida campos vazios colocando valores padrão
+        e salva no banco de dados.
+        """
+        # 1. Coleta e Limpa (strip() remove espaços antes/depois)
+        # Se o usuário digitar só espaços, vira string vazia ""
+        raw_humor = self.ids.input_humor.text.strip()
+        raw_desconforto = self.ids.input_desconforto.text.strip()
+        raw_desafio = self.ids.input_desafio.text.strip()
+        raw_medo = self.ids.input_medo.text.strip()
+        raw_vitoria = self.ids.input_vitoria.text.strip()
 
+        # 2. (Opcional) Bloqueio se tudo estiver vazio
+        # Se quiser obrigar a escrever pelo menos o humor, descomente abaixo:
+        if not raw_humor or not raw_desconforto or not raw_desafio or not raw_medo or not raw_vitoria:
+            self.show_alert_dialog("Campo Obrigatório", "Por favor, conte-nos o que influenciou seu humor hoje.")
+            return
+
+        # 3. Define valores padrão (Fallback) para não salvar vazio no banco
+        # A lógica é: valor = texto_digitado OU "Texto Padrão"
+        p1 = raw_humor or "Não respondeu"
+        p2 = raw_desconforto or "Nenhum desconforto citado"
+        p3 = int(self.ids.slider_bem_estar.value)
+        p4 = raw_desafio or "Nenhum desafio citado"
+        p5 = raw_medo or "Não citou medos"
+        p6 = raw_vitoria or "Nenhuma vitória citada"
+
+        # 4. Coleta Autocuidado
         cuidados = []
         if self.ids.check_sono.active: cuidados.append("Sono")
         if self.ids.check_alimentacao.active: cuidados.append("Alimentação")
         if self.ids.check_movimento.active: cuidados.append("Movimento")
-        p_autocuidado = ", ".join(cuidados) if cuidados else "Nenhum"
+        p_autocuidado = ", ".join(cuidados) if cuidados else "Nenhum cuidado específico"
 
+        # 5. Formata o texto final
         texto_final = (
-            f"1. Humor: {p1}\n2. Desconforto: {p2}\n3. Bem-estar: {p3}/10\n"
-            f"4. Desafio: {p4}\n5. Medo: {p5}\n6. Autocuidado: {p_autocuidado}\n7. Vitória: {p6}"
+            f"1. Humor: {p1}\n"
+            f"2. Desconforto: {p2}\n"
+            f"3. Bem-estar: {p3}/10\n"
+            f"4. Desafio: {p4}\n"
+            f"5. Medo: {p5}\n"
+            f"6. Autocuidado: {p_autocuidado}\n"
+            f"7. Vitória: {p6}"
         )
 
+        # 6. Tenta Salvar
         try:
-            user_id = self.manager.app.logged_user_id
-            db = self.manager.app.db
-            temp = self.manager.app.temp_entry_data
+            app = self.manager.app
+            user_id = app.logged_user_id
+            db = app.db
+            temp = app.temp_entry_data
             
+            # Verifica se temos os dados anteriores (Sentimento e Atividades)
+            sentimento_id = temp.get('sentimento_id', 1) # Default 1 (Feliz) se der erro
+            atividades_ids = temp.get('atividades_ids', [])
+
             success, msg = db.add_entrada_completa_diario(
                 user_id, 
                 datetime.now(pytz.utc).isoformat(),
-                temp.get('sentimento_id', 1),
+                sentimento_id,
                 texto_final,
-                temp.get('atividades_ids', [])
+                atividades_ids
             )
             
             if success:
+                print("Sucesso: Diário salvo.")
                 self.limpar_campos()
                 self.manager.current = 'home'
             else:
-                print(f"Erro ao salvar: {msg}")
+                self.show_alert_dialog("Erro ao Salvar", msg)
 
         except Exception as e:
-            print(f"Erro: {e}")
+            print(f"Erro crítico ao salvar: {e}")
+            self.show_alert_dialog("Erro", "Ocorreu um erro interno ao processar seus dados.")
+
+    def show_alert_dialog(self, title, text):
+        """Helper para mostrar erros na tela (KivyMD 2.0)"""
+        # Fecha diálogo anterior se existir
+        if hasattr(self, 'dialog') and self.dialog:
+            self.dialog.dismiss()
+            
+        self.dialog = MDDialog(
+            MDDialogHeadlineText(text=title),
+            MDDialogSupportingText(text=text),
+            MDDialogButtonContainer(
+                MDButton(
+                    MDButtonText(text="OK"),
+                    style="text",
+                    on_release=lambda x: self.dialog.dismiss()
+                ),
+                spacing="8dp",
+            ),
+        )
+        self.dialog.open()
 
     def limpar_campos(self):
         self.ids.input_humor.text = ""

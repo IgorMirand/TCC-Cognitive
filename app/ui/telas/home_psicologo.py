@@ -55,7 +55,6 @@ class PsychoHomeScreen(MDScreen):
     def load_dashboard_data(self):
         """Inicia thread para atualizar cards."""
         # Define textos de "carregando..." na propriedade 'subtitle' dos cards
-        self.ids.next_appointment_card.subtitle = "Buscando agenda..."
         self.ids.patient_summary_card.subtitle = "Contando pacientes..."
         
         try:
@@ -71,40 +70,50 @@ class PsychoHomeScreen(MDScreen):
     def _thread_load_dashboard(self, psicologo_id):
         try:
             db = self.manager.app.db
+            
+            # Busca contagem e próxima consulta (A API já filtra apenas os AGENDADOS)
             success_count, count = db.get_patient_count(psicologo_id)
             success_appt, next_appt = db.get_next_appointment(psicologo_id)
 
             data_ui = {
-                'count_text': f"{count} pacientes vinculados" if success_count else "Erro ao buscar",
+                'count_text': f"{count} pacientes vinculados" if success_count else "0 pacientes",
                 'appt_text': "Nenhuma consulta agendada"
             }
 
+            # Se a API retornou uma consulta (significa que tem alguém agendado)
             if success_appt and next_appt:
                 data_iso, paciente_nome = next_appt
+                
+                # Tenta formatar a data bonito
                 try:
-                    # Tenta converter string ISO para objeto e formatar bonito
-                    dt = datetime.fromisoformat(str(data_iso).replace('Z', '')) # .replace previne erro de timezone simples
-                    data_formatada = dt.strftime("%d/%m às %H:%M")
-                    data_ui['appt_text'] = f"{data_formatada} - {paciente_nome}"
-                except ValueError:
-                    # Se falhar, tenta outro formato comum
+                    # Remove o 'Z' do final se houver, para evitar erro de timezone simples
+                    data_limpa = str(data_iso).replace('Z', '')
+                    
                     try:
-                         dt = datetime.strptime(str(data_iso), "%Y-%m-%d %H:%M:%S")
-                         data_formatada = dt.strftime("%d/%m às %H:%M")
-                         data_ui['appt_text'] = f"{data_formatada} - {paciente_nome}"
-                    except:
-                        # Se tudo falhar, mostra o texto cru
-                        data_ui['appt_text'] = f"{data_iso} - {paciente_nome}"
+                        # Tenta formato ISO padrão (2023-10-25T14:30:00)
+                        dt = datetime.fromisoformat(data_limpa)
+                    except ValueError:
+                        # Tenta formato com espaço (2023-10-25 14:30:00)
+                        dt = datetime.strptime(data_limpa, "%Y-%m-%d %H:%M:%S")
+                        
+                    data_formatada = dt.strftime("%d/%m às %H:%M")
+                    
+                    # Define o texto final: "25/10 às 14:30 - João"
+                    data_ui['appt_text'] = f"{data_formatada} - {paciente_nome}"
+                    
+                except Exception as e:
+                    print(f"Erro formatar data dashboard: {e}")
+                    # Se der erro na formatação, mostra como veio para não ficar vazio
+                    data_ui['appt_text'] = f"{data_iso} - {paciente_nome}"
             
             Clock.schedule_once(lambda dt: self._update_dashboard_ui(data_ui))
             
         except Exception as e:
-            print(f"Erro na thread: {e}")
+            print(f"Erro na thread dashboard: {e}")
 
     def _update_dashboard_ui(self, data_ui):
         """Atualiza a propriedade subtitle dos Cards customizados."""
         self.ids.patient_summary_card.subtitle = data_ui['count_text']
-        self.ids.next_appointment_card.subtitle = data_ui['appt_text']
 
     def navigate_to(self, screen_name):
         self.manager.current = screen_name
@@ -348,42 +357,31 @@ class ActivityListItem(MDListItem):
 
 class ListAtividadeScreen(MDScreen):
     dialog = None
-    
     def on_enter(self):
-        """Carrega a lista ao entrar na tela."""
         self.carregar_atividades()
 
     def carregar_atividades(self):
-        """Busca do banco e preenche a lista."""
         list_widget = self.ids.lista_selecao_atividades
         list_widget.clear_widgets()
-        
         db = self.manager.app.db
-        success, atividades = db.get_atividades_template() # Sua função existente no neon.py
+        success, atividades = db.get_atividades_template()
         
         if success and atividades:
             for ativ_id, nome in atividades:
-                # Cria o item usando a classe customizada
                 item = ActivityListItem()
                 item.text = nome
                 item.atividade_id = ativ_id
-                item.parent_screen = self # Passa a referência da tela para o item
+                item.parent_screen = self
                 list_widget.add_widget(item)
 
-    # --- ADICIONAR (SALVAR) ---
     def show_add_dialog(self):
-        self.input_field = MDTextField(
-            MDTextFieldHintText(text="Nome da nova atividade"),
-            mode="outlined"
-        )
-        
+        self.input_field = MDTextField(MDTextFieldHintText(text="Nome da atividade"), mode="outlined")
         self.dialog = MDDialog(
             MDDialogHeadlineText(text="Nova Atividade"),
             MDDialogContentContainer(self.input_field),
             MDDialogButtonContainer(
-                MDButton(MDButtonText(text="Cancelar"), style="text", on_release=self.close_dialog),
-                MDButton(MDButtonText(text="Salvar"), style="text", on_release=self.salvar_nova),
-                spacing="8dp"
+                MDButton(MDButtonText(text="Cancelar"), on_release=lambda x: self.dialog.dismiss()),
+                MDButton(MDButtonText(text="Salvar"), on_release=self.salvar_nova)
             )
         )
         self.dialog.open()
@@ -393,10 +391,9 @@ class ListAtividadeScreen(MDScreen):
         if texto:
             db = self.manager.app.db
             psicologo_id = self.manager.app.logged_user_id
-            # Usa a função que criamos anteriormente
             db.adicionar_atividade_template(texto, psicologo_id)
-            self.carregar_atividades() # Recarrega a lista
-        self.close_dialog()
+            self.carregar_atividades()
+        self.dialog.dismiss()
 
     # --- EDITAR ---
     def show_edit_dialog(self, ativ_id, texto_atual):
@@ -472,105 +469,118 @@ class DisponibilidadeScreen(MDScreen):
         self.carregar_agenda()
 
     def carregar_agenda(self):
-        list_widget = self.ids.lista_agenda
-        list_widget.clear_widgets()
+        # Limpa as duas listas
+        container_agendados = self.ids.lista_agendados
+        container_livres = self.ids.lista_livres
+        
+        container_agendados.clear_widgets()
+        container_livres.clear_widgets()
         
         db = self.manager.app.db
         psicologo_id = self.manager.app.logged_user_id
         
-        agenda = db.get_agenda_psicologo(psicologo_id)
+        # Busca tudo do banco
+        todos_horarios = db.get_agenda_psicologo(psicologo_id)
 
-        if not agenda:
-            list_widget.add_widget(MDLabel(text="Nenhum horário cadastrado.", halign="center"))
+        if not todos_horarios:
+            container_livres.add_widget(MDLabel(text="Nenhum horário cadastrado.", halign="center"))
             return
 
-        for ag_id, data_hora_texto, pac_id in agenda:
-            # 1. Tratamento da Data (como fizemos antes)
-            try:
-                dt_obj = datetime.fromisoformat(data_hora_texto)
-            except ValueError:
-                dt_obj = datetime.strptime(data_hora_texto, "%Y-%m-%d %H:%M:%S")
+        # Separa em duas listas python
+        # Estrutura: (id, data, paciente_id)
+        lista_agendados = [h for h in todos_horarios if h[2] is not None]
+        lista_livres = [h for h in todos_horarios if h[2] is None]
 
-            data_str = dt_obj.strftime("%d/%m/%Y")
-            hora_str = dt_obj.strftime("%H:%M")
+        # --- PREENCHE AGENDADOS ---
+        if not lista_agendados:
+            container_agendados.add_widget(MDLabel(text="Nenhuma consulta marcada.", theme_text_color="Secondary", font_style="Label", role="medium"))
+        
+        for ag_id, data_hora_texto, pac_id in lista_agendados:
+            data_fmt, hora_fmt = self._formatar_data(data_hora_texto)
             
-            status_txt = "Livre" if pac_id is None else "AGENDADO"
-            status_color = [0, 0.7, 0, 1] if pac_id is None else [1, 0, 0, 1]
-
-            # 2. Cria o Item
             item = MDListItem(
-                MDListItemHeadlineText(text=f"{data_str} às {hora_str}"),
-                MDListItemSupportingText(text=status_txt, theme_text_color="Custom", text_color=status_color),
-                pos_hint={"center_x": .5},
-                # REMOVIDO: item.on_release aqui (para não deletar ao clicar no texto)
+                MDListItemLeadingIcon(icon="calendar-check", theme_icon_color="Custom", icon_color=[0, 0.5, 0, 1]), # Ícone verde check
+                MDListItemHeadlineText(text=f"{data_fmt} às {hora_fmt}"),
+                MDListItemSupportingText(text=f"Paciente ID: {pac_id}", theme_text_color="Error"),
+                theme_bg_color="Custom",
+                md_bg_color=[1, 1, 1, 1],
+                radius=[10],
             )
+            # Botão Cancelar (Lixeira)
+            btn_delete = MDIconButton(
+                icon="close-circle-outline",
+                style="standard",
+                theme_icon_color="Custom",
+                icon_color=[1, 0, 0, 1],
+                pos_hint={"center_y": .5},
+                on_release=lambda x, i=ag_id: self.excluir_horario(i)
+            )
+            item.add_widget(btn_delete)
+            container_agendados.add_widget(item)
+
+        # --- PREENCHE LIVRES ---
+        for ag_id, data_hora_texto, pac_id in lista_livres:
+            data_fmt, hora_fmt = self._formatar_data(data_hora_texto)
             
-            # 3. Cria o Botão de Lixeira
+            item = MDListItem(
+                MDListItemLeadingIcon(icon="clock-outline"),
+                MDListItemHeadlineText(text=f"{data_fmt} às {hora_fmt}"),
+                MDListItemSupportingText(text="Disponível"),
+                theme_bg_color="Custom",
+                md_bg_color=[1, 1, 1, 1],
+                radius=[10],
+            )
+            # Botão Excluir
             btn_delete = MDIconButton(
                 icon="trash-can-outline",
                 style="standard",
-                pos_hint={"center_y": .5},
                 theme_icon_color="Custom",
-                icon_color=[1, 0, 0, 1], 
-                
-                # --- CORREÇÃO AQUI ---
-                # Usamos lambda x, i=ag_id para garantir que estamos enviando 
-                # o NÚMERO (i) e não o BOTÃO (x)
+                icon_color=[0.5, 0.5, 0.5, 1], # Cinza para horários livres
+                pos_hint={"center_y": .5},
                 on_release=lambda x, i=ag_id: self.excluir_horario(i)
             )
-            
             item.add_widget(btn_delete)
-            list_widget.add_widget(item)
+            container_livres.add_widget(item)
+
+    def _formatar_data(self, data_texto):
+        """Helper para formatar a data sem repetir código"""
+        try:
+            dt_obj = datetime.fromisoformat(data_texto)
+        except ValueError:
+            try:
+                dt_obj = datetime.strptime(data_texto, "%Y-%m-%d %H:%M:%S")
+            except:
+                return data_texto, ""
+        
+        return dt_obj.strftime("%d/%m/%Y"), dt_obj.strftime("%H:%M")
 
     def adicionar_horario_dialog(self):
-        # Simplificação: Inputs de Texto para Data e Hora (DD/MM/AAAA e HH:MM)
         self.data_input = MDTextField(MDTextFieldHintText(text="Data (DD/MM/AAAA)"), mode="outlined")
         self.hora_input = MDTextField(MDTextFieldHintText(text="Hora (HH:MM)"), mode="outlined")
         
         self.dialog = MDDialog(
             MDDialogHeadlineText(text="Novo Horário"),
-            MDDialogContentContainer(
-                self.data_input,
-                self.hora_input,
-                orientation="vertical",
-                spacing="10dp"
-            ),
+            MDDialogContentContainer(self.data_input, self.hora_input, orientation="vertical", spacing="10dp"),
             MDDialogButtonContainer(
-                MDButton(MDButtonText(text="Cancelar"), style="text", on_release=lambda x: self.dialog.dismiss()),
-                MDButton(MDButtonText(text="Salvar"), style="text", on_release=self.salvar_horario),
-                spacing="8dp"
+                MDButton(MDButtonText(text="Cancelar"), on_release=lambda x: self.dialog.dismiss()),
+                MDButton(MDButtonText(text="Salvar"), on_release=self.salvar_horario)
             )
         )
         self.dialog.open()
 
     def salvar_horario(self, *args):
-        data_txt = self.data_input.text
-        hora_txt = self.hora_input.text
-        
         try:
-            # Converte para formato ISO para o banco
-            dt_obj = datetime.strptime(f"{data_txt} {hora_txt}", "%d/%m/%Y %H:%M")
-            
+            dt_obj = datetime.strptime(f"{self.data_input.text} {self.hora_input.text}", "%d/%m/%Y %H:%M")
             db = self.manager.app.db
             psicologo_id = self.manager.app.logged_user_id
             
-            success, msg = db.adicionar_disponibilidade(psicologo_id, dt_obj)
-            
-            if success:
+            if db.adicionar_disponibilidade(psicologo_id, dt_obj):
                 self.carregar_agenda()
                 self.dialog.dismiss()
-            else:
-                print(msg) # Exibir erro em dialog idealmente
-                
         except ValueError:
-            print("Formato de data/hora inválido")
+            print("Data inválida")
 
     def excluir_horario(self, agenda_id):
         db = self.manager.app.db
-        # Chama a nova função do neon.py
-        success, msg = db.excluir_horario(agenda_id)
-        
-        if success:
-            self.carregar_agenda() # Recarrega a lista
-        else:
-            print(msg) # O ideal seria um self.show_popup("Erro", msg)
+        if db.excluir_horario(agenda_id):
+            self.carregar_agenda()
