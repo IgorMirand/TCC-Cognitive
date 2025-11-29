@@ -4,9 +4,9 @@ import json
 class Database:
     def __init__(self):
         # Em desenvolvimento use localhost. Em produção use a URL do Render.
-        #self.base_url = "http://127.0.0.1:51322" 
-        #self.base_url = "https://api-tcc-cognitive.onrender.com"
-        self.base_url = "https://api-tcc-cognitive.vercel.app/" 
+        #self.base_url = "http://127.0.0.1:8000" # Conexão local
+        #self.base_url = "https://api-tcc-cognitive.onrender.com"   # Conexão com Render
+        self.base_url = "https://api-tcc-cognitive.vercel.app/"    # Conexão com a Vercel
 
     # --- AUTH ---
     def register_user(self, username, password, user_type, email, data_nascimento_str):
@@ -491,3 +491,28 @@ class Database:
         except Exception as e:
             print(f"[ERRO API] salvar_anotacao_psicologo: {e}")
             return False, "Erro de conexão com o servidor."
+
+    def enviar_convite(self, psicologo_id, email_paciente):
+            """
+            Pede para a API gerar um código e enviar por e-mail (Resend).
+            """
+            try:
+                url = f"{self.base_url}/email/enviar_convite"
+                payload = {
+                    "psicologo_id": psicologo_id,
+                    "email_paciente": email_paciente
+                }
+                
+                # Envia a requisição para a API
+                res = requests.post(url, json=payload)
+                
+                if res.status_code == 200:
+                    return True, "Convite enviado com sucesso!"
+                
+                # Pega a mensagem de erro detalhada da API
+                erro_msg = res.json().get("detail", "Erro ao enviar convite.")
+                return False, erro_msg
+
+            except Exception as e:
+                print(f"[ERRO API] enviar_convite: {e}")
+                return False, "Erro de conexão com o servidor."

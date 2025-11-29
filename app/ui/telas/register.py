@@ -69,7 +69,6 @@ class RegisterScreen(Screen):
 
     def toggle_password_visibility(self):
         field = self.ids.password
-        
         field.password = not field.password
         
 
@@ -129,6 +128,12 @@ class RegisterScreen(Screen):
 
         # Validações
         required_fields = [username, password, email, nascimento, tipo]
+        # VALIDAÇÃO: Nome não pode ter números
+        # O método isdigit() verifica se o caractere é um número (0-9)
+        if any(char.isdigit() for char in username):
+            self.show_popup("Nome Inválido", "O nome de usuário não pode conter números.")
+            return
+
         if not all(required_fields):
             self.show_popup("Atenção", "Preencha todos os campos obrigatórios.")
             return

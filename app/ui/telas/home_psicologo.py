@@ -1,8 +1,6 @@
 from kivymd.uix.screen import MDScreen
 from kivy.clock import Clock
 import threading
-import os
-import resend
 from datetime import datetime
 
 from kivymd.uix.dialog import (
@@ -150,69 +148,24 @@ class PsychoHomeScreen(MDScreen):
             return
         
         psicologo_id = self.manager.app.logged_user_id
-        self.close_dialog() # Fecha o input
-        self.show_loading_dialog("Enviando convite...")
+        self.close_dialog()
+        self.show_loading_dialog("Enviando...")
         
-        threading.Thread(
-            target=self._thread_enviar_email_resend,
-            args=(paciente_email, psicologo_id),
-            daemon=True
-        ).start()
+        # Roda em thread para não travar a tela
+        threading.Thread(target=self._processar_envio, args=(psicologo_id, paciente_email)).start()
 
-    def _thread_enviar_email_resend(self, paciente_email, psicologo_id):
-        try:
-            # Configura API
-            resend.api_key = os.environ.get("RESEND_API_KEY")
-            if not resend.api_key:
-                raise Exception("RESEND_API_KEY não encontrada nas variáveis de ambiente.")
+    def _processar_envio(self, uid, email):
+        db = self.manager.app.db
+        # Chama a API
+        success, msg = db.enviar_convite(uid, email)
+        
+        # Volta para a UI
+        Clock.schedule_once(lambda dt: self._pos_envio(msg))
 
-            db = self.manager.app.db
-
-            # Gera código único do paciente
-            codigo = db.gerar_codigo_paciente(psicologo_id)
-
-            # Link para cadastro
-            link_convite = f"https://seuapp.com/cadastro?codigo={codigo}"
-
-            # HTML bonito do e-mail
-            html_body = f"""
-            <div style="font-family: Arial; padding: 20px;">
-                <h2>Convite para acessar sua área no aplicativo</h2>
-                <p>Olá! Você foi convidado pelo seu psicólogo para acessar o aplicativo.</p>
-                <p>Clique no botão abaixo para criar sua conta:</p>
-
-                <a href="{link_convite}" 
-                style="display:inline-block; padding:12px 20px; background:#4CAF50; color:white;
-                        text-decoration:none; border-radius:6px; margin-top:10px;">
-                    Criar minha conta
-                </a>
-
-                <p style="margin-top:20px;">Ou copie e cole este link no navegador:</p>
-                <p>{link_convite}</p>
-            </div>
-            """
-
-            # Envio usando Resend
-            response = resend.Emails.send({
-                "from": "Seu App <no-reply@seuapp.com>",
-                "to": paciente_email,
-                "subject": "Convite para acesso ao aplicativo",
-                "html": html_body,
-            })
-
-            # Retorno de sucesso
-            resultado = ("Sucesso", f"Convite enviado para {paciente_email}")
-
-        except Exception as e:
-            resultado = ("Erro", str(e))
-
-        # Atualiza UI no thread principal
-        Clock.schedule_once(lambda dt: self._envio_email_callback(resultado))
-
-
-    def _envio_email_callback(self, resultado):
+    def _pos_envio(self, msg):
         self.dismiss_loading_dialog()
-        self.show_ok_dialog(*resultado)
+        self.show_ok_dialog("Aviso", msg)
+
 
     def show_add_activity_dialog(self):
         # Campo de texto para o nome da atividade
