@@ -85,7 +85,7 @@
                 icon: "bell-outline"
                 theme_icon_color: "Custom"
                 icon_color: 1, 1, 1, 1
-                #on_release: app.root.current = 'notifications'
+                on_release: app.root.current = 'notifications'
                 pos_hint: {"center_y": .5}
 
         # --- Conteúdo com Scroll ---
@@ -240,3 +240,41 @@
                 id: container_horarios
                 padding: "20dp"
                 spacing: "15dp"
+
+<NotificationScreen>:
+    name: "notifications"
+    MDFloatLayout:
+        md_bg_color: hex("#F5F7F6")
+
+        # Cabeçalho
+        MDBoxLayout:
+            orientation: "horizontal"
+            adaptive_height: True
+            padding: "16dp"
+            spacing: "12dp"
+            pos_hint: {"top": 1}
+            md_bg_color: hex("#92C7A3")
+            radius: [0, 0, 0, 20]
+            elevation: 2
+            
+            MDIconButton:
+                icon: "arrow-left"
+                theme_icon_color: "Custom"
+                icon_color: 1, 1, 1, 1
+                on_release: app.root.current = "home"
+            
+            MDLabel:
+                text: "Notificações"
+                font_style: "Title"
+                role: "large"
+                theme_text_color: "Custom"
+                text_color: 1,1,1,1
+                pos_hint: {"center_y": .5}
+
+        # Lista
+        MDScrollView:
+            pos_hint: {"top": .88}
+            MDList:
+                id: container_notificacoes
+                padding: "20dp"
+                spacing: "10dp"

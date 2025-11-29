@@ -2,7 +2,7 @@ from kivy.uix.screenmanager import ScreenManager, SlideTransition
 from kivy.lang import Builder
 from pathlib import Path
 #--- IMPORTA TODAS AS CLASSES QUE VAI GERIR ---
-from app.ui.telas.home import HomeScreen, AgendamentoScreen
+from app.ui.telas.home import HomeScreen, AgendamentoScreen, NotificationScreen
 from app.ui.telas.home_psicologo import PsychoHomeScreen, PatientListScreen, ListAtividadeScreen, DisponibilidadeScreen
 from app.ui.telas.login import LoginScreen
 from app.ui.telas.main import MainScreen
@@ -39,7 +39,7 @@ class ScreenController(ScreenManager):
         self.add_widget(ContaScreen(name="conta"))
         self.add_widget(AgendamentoScreen(name="agendamento"))
         self.add_widget(EditarDadosScreen(name="editar_dados"))
-
+        self.add_widget(NotificationScreen(name="notifications"))
 
         # Mudei a tela inicial para "main", que parece ser sua tela
         # de boas-vindas. Se for "login", apenas mude aqui.

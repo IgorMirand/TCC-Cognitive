@@ -4,9 +4,9 @@ import json
 class Database:
     def __init__(self):
         # Em desenvolvimento use localhost. Em produção use a URL do Render.
-        #self.base_url = "http://127.0.0.1:8000" # Conexão local
+        self.base_url = "http://127.0.0.1:8000" # Conexão local
         #self.base_url = "https://api-tcc-cognitive.onrender.com"   # Conexão com Render
-        self.base_url = "https://api-tcc-cognitive.vercel.app/"    # Conexão com a Vercel
+        #self.base_url = "https://api-tcc-cognitive.vercel.app/"    # Conexão com a Vercel
 
     # --- AUTH ---
     def register_user(self, username, password, user_type, email, data_nascimento_str):
@@ -516,3 +516,21 @@ class Database:
             except Exception as e:
                 print(f"[ERRO API] enviar_convite: {e}")
                 return False, "Erro de conexão com o servidor."
+            
+    def get_minhas_notificacoes(self, user_id):
+        try:
+            res = requests.get(f"{self.base_url}/notificacoes/{user_id}")
+            return res.json().get("notificacoes", []) if res.status_code == 200 else []
+        except: return []
+
+    def deletar_notificacao(self, notif_id):
+        try:
+            requests.delete(f"{self.base_url}/notificacoes/{notif_id}")
+            return True
+        except: return False
+    
+    def marcar_notificacoes_lidas(self, user_id):
+        try:
+            requests.put(f"{self.base_url}/notificacoes/marcar_lida/{user_id}")
+            return True
+        except: return False
