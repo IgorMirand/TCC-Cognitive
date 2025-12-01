@@ -125,9 +125,7 @@
             Widget: # Espaço vazio no meio
 
             MDButton:
-                style: "filled"
-                theme_bg_color: "Custom"
-                md_bg_color: color_primary
+                style: "text"
                 on_release: root.ir_para_atividades()
                 size_hint_x: .4
                 height: "48dp"
@@ -190,9 +188,7 @@
             Widget:
 
             MDButton:
-                style: "filled"
-                theme_bg_color: "Custom"
-                md_bg_color: color_primary
+                style: "text"
                 size_hint_x: .4
                 height: "48dp"
                 on_release: root.do_register_activities()
@@ -245,18 +241,31 @@
                         text: "Houve algum desconforto?"
 
                 MDLabel:
-                    text: "Nota do dia (Bem-estar)"
-                    role: "medium"
-                    theme_text_color: "Secondary"
-                
+                    text: f"Nota do dia (Bem-estar): {int(slider_bem_estar.value)}"
+                    font_style: "Label"
+                    role: "large"
+                    theme_text_color: "Primary"
+                    adaptive_height: True
+
                 MDSlider:
                     id: slider_bem_estar
                     min: 0
                     max: 10
                     value: 5
                     step: 1
+                    size_hint_y: None
+                    height: "40dp"
+                    # cor da barra ativa (verde)
+                    color_active: 0.29, 0.62, 0.22, 1 
+                    
+                    # --- O QUE FALTAVA: OS COMPONENTES INTERNOS ---
                     MDSliderHandle:
+                        theme_bg_color: "Custom"
+                        md_bg_color: 0.29, 0.62, 0.22, 1 # Bolinha verde
+                    
                     MDSliderValueLabel:
+                        theme_text_color: "Custom"
+                        text_color: 1, 1, 1, 1 # Texto branco no balãozinho
 
                 MDTextField:
                     id: input_desafio
@@ -333,12 +342,10 @@
             Widget:
 
             MDButton:
-                style: "filled"
-                theme_bg_color: "Custom"
-                md_bg_color: color_primary
+                style: "text"
                 size_hint_x: .4
                 height: "48dp"
                 on_release: root.salvar_nova_anotacao()
                 MDButtonText:
-                    text: "Próximo"
+                    text: "Cadastrar no Diário"
                     text_color: 1, 1, 1, 1

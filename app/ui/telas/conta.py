@@ -5,10 +5,13 @@ from kivymd.uix.dialog import (
     MDDialog,
     MDDialogHeadlineText,
     MDDialogSupportingText,
+    MDDialogContentContainer,
     MDDialogButtonContainer
 )
 from kivymd.uix.button import MDButton, MDButtonText
 from kivy.uix.widget import Widget
+from kivymd.uix.textfield import MDTextField, MDTextFieldHintText
+from kivymd.uix.boxlayout import MDBoxLayout
 from datetime import datetime
 
 class BaseScreen(Screen):
@@ -163,6 +166,14 @@ class ContaScreen(BaseScreen):
                 "playlist-edit", 
                 lambda x: setattr(self.manager, 'current', 'lista_atividade')
             )
+        
+        self.adicionar_item(
+            menu_list,
+            "Alterar Senha",
+            "Definir nova senha de acesso",
+            "lock-reset",
+            self.mostrar_dialogo_senha # Chama a função abaixo
+        )
 
         # Logout
         self.adicionar_item(
@@ -231,6 +242,64 @@ class ContaScreen(BaseScreen):
         except Exception as e:
             print(f"Erro ao buscar psicólogo: {e}")
             self.show_popup("Erro", "Falha de conexão ao buscar dados.")
+    
+    # Importe MDTextField no topo do arquivo se não tiver:
+    # from kivymd.uix.textfield import MDTextField, MDTextFieldHintText
+
+    def mostrar_dialogo_senha(self, *args):
+        # Campos de texto
+        self.field_old_pass = MDTextField(
+            MDTextFieldHintText(text="Senha Atual"),
+            mode="outlined",
+        )
+        # No KivyMD 2.0 para senha oculta, usamos password=True (se suportado) ou input_type
+        self.field_old_pass.password = True 
+
+        self.field_new_pass = MDTextField(
+            MDTextFieldHintText(text="Nova Senha"),
+            mode="outlined",
+        )
+        self.field_new_pass.password = True
+
+        # Container vertical para os campos
+        content = MDBoxLayout(
+            self.field_old_pass,
+            self.field_new_pass,
+            orientation="vertical",
+            spacing="15dp",
+            adaptive_height=True,
+            size_hint_y=None,
+            height="160dp" # Ajuste conforme necessário
+        )
+
+        self.dialog_senha = MDDialog(
+            MDDialogHeadlineText(text="Trocar Senha"),
+            MDDialogContentContainer(content),
+            MDDialogButtonContainer(
+                MDButton(MDButtonText(text="Cancelar"), style="text", on_release=lambda x: self.dialog_senha.dismiss()),
+                MDButton(MDButtonText(text="Confirmar"), style="text", on_release=self.confirmar_troca_senha),
+                spacing="8dp"
+            )
+        )
+        self.dialog_senha.open()
+
+    def confirmar_troca_senha(self, *args):
+        old = self.field_old_pass.text.strip()
+        new = self.field_new_pass.text.strip()
+
+        if not old or not new:
+            # Você pode usar um toast ou print se não quiser fechar o dialog
+            print("Preencha os campos") 
+            return
+
+        # Chama o banco
+        db = self.get_db()
+        user_id = self.get_user_id()
+        
+        success, msg = db.change_password(user_id, old, new)
+        
+        self.dialog_senha.dismiss()
+        self.show_popup("Aviso", msg) # Usa seu show_popup existente para o resultado
 
     def fazer_logout(self, *args):
         app = self.get_app()

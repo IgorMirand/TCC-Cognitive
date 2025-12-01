@@ -1,6 +1,10 @@
+import threading
+import webbrowser
+import base64
+from io import BytesIO
+from kivy.core.image import Image as CoreImage
 from kivymd.uix.screen import MDScreen
 from kivy.clock import Clock
-import threading
 from datetime import datetime
 
 from kivymd.uix.dialog import (
@@ -289,10 +293,116 @@ class PatientListScreen(MDScreen):
         except Exception as e:
             print(f"Erro: {e}")
             list_widget.add_widget(MDLabel(text="Erro ao carregar lista.", halign="center"))
-
+    
     def view_patient_details(self, paciente_id, nome_paciente):
-        print(f"Abrir detalhes: {nome_paciente}")
-        # self.manager.current = "detalhes"
+        """
+        Ao clicar no paciente, salva o ID na App e vai para a tela de relatório.
+        """
+        print(f"Abrindo relatório para: {nome_paciente}")
+        
+        # 1. Salva o ID no app para a outra tela usar
+        self.manager.app.paciente_em_analise_id = paciente_id
+        self.manager.app.paciente_em_analise_nome = nome_paciente
+        
+        # 2. Navega para a tela de relatório (que criamos abaixo)
+        self.manager.current = "relatorio_paciente"
+
+class RelatorioPacienteScreen(MDScreen):
+    def on_enter(self):
+        # Pega o ID salvo
+        if hasattr(self.manager.app, 'paciente_em_analise_id'):
+            paciente_id = self.manager.app.paciente_em_analise_id
+            nome = getattr(self.manager.app, 'paciente_em_analise_nome', 'Paciente')
+            self.ids.titulo_header.text = f"Relatório: {nome}"
+            
+            self.limpar_tela()
+            self.carregar_dados(paciente_id)
+
+    def limpar_tela(self):
+        self.ids.img_evolucao.texture = None
+        self.ids.img_distribuicao.texture = None
+        self.ids.lbl_resumo.text = "Carregando análise..."
+
+    def carregar_dados(self, paciente_id):
+        # Thread para não travar o app enquanto baixa as imagens
+        threading.Thread(target=self._fetch_data_thread, args=(paciente_id,), daemon=True).start()
+
+    def _fetch_data_thread(self, pid):
+        try:
+            import requests
+            
+            # --- CORREÇÃO FINAL DA CONEXÃO ---
+            # Aqui é o pulo do gato: Em vez de tentar adivinhar a URL, 
+            # pegamos EXATAMENTE a mesma URL que o arquivo 'neon.py' está usando.
+            # Se neon.py estiver localhost, usa localhost. Se estiver Render, usa Render.
+            
+            base_url = "http://127.0.0.1:8000" # Fallback
+            
+            if hasattr(self.manager.app, 'db') and hasattr(self.manager.app.db, 'base_url'):
+                 base_url = self.manager.app.db.base_url
+            
+            # Garante a barra no final
+            if not base_url.endswith('/'):
+                base_url += '/'
+            
+            # Monta URL completa
+            full_url = f"{base_url}relatorios/analise/{pid}"
+            
+            resp = requests.get(full_url)
+            
+            if resp.status_code == 200:
+                data = resp.json()
+                Clock.schedule_once(lambda dt: self._update_ui(data))
+            else:
+                msg_erro = f"Erro {resp.status_code}: {resp.text}"
+                Clock.schedule_once(lambda dt: self._show_error(msg_erro))
+                
+        except Exception as e:
+            err_msg = str(e)
+            Clock.schedule_once(lambda dt: self._show_error(err_msg))
+
+    def _update_ui(self, data):
+        # 1. Atualiza Texto
+        self.ids.lbl_resumo.text = data['resumo_texto']
+
+        # 2. Atualiza Gráficos
+        if data.get('grafico_evolucao_base64'):
+            self.aplicar_grafico(self.ids.img_evolucao, data['grafico_evolucao_base64'])
+            
+        if data.get('grafico_distribuicao_base64'):
+            self.aplicar_grafico(self.ids.img_distribuicao, data['grafico_distribuicao_base64'])
+
+    def _show_error(self, msg):
+        self.ids.lbl_resumo.text = f"Não foi possível gerar o relatório.\n{msg}"
+
+    def aplicar_grafico(self, image_widget, base64_string):
+        try:
+            # Decodifica string Base64 para binário
+            data = base64.b64decode(base64_string)
+            data_io = BytesIO(data)
+            
+            # Cria textura Kivy
+            im = CoreImage(data_io, ext='png')
+            
+            # Aplica no widget
+            image_widget.texture = im.texture
+        except Exception as e:
+            print(f"Erro ao renderizar imagem: {e}")
+            
+    def view_patient_details_powerBI(self):
+        """
+        Abre o navegador padrão com o Dashboard do Power BI.
+        """
+        
+        # 1. Coloque aqui o seu Link Público ou Privado do Power BI
+        url_base = "https://app.powerbi.com/reportEmbed?reportId=f82b9657-2ccd-43e4-a8b3-d79b5349d2e3&autoAuth=true&ctid=38ae2f02-5710-4e12-80bb-83600c3fdf1e"
+        
+        # (OPCIONAL) Filtrar pelo paciente específico
+        # Se o seu relatório tiver uma tabela 'Pacientes' com coluna 'ID', você pode filtrar na URL:
+        # url_final = f"{url_base}&filter=Pacientes/ID eq {paciente_id}"
+        
+        # Por enquanto, vamos abrir o link direto:
+        webbrowser.open(url_base)
 
 # Classe customizada para o item da lista (suporta eventos de editar/excluir)
 class ActivityListItem(MDListItem):

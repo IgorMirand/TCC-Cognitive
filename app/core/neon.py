@@ -4,9 +4,9 @@ import json
 class Database:
     def __init__(self):
         # Em desenvolvimento use localhost. Em produção use a URL do Render.
-        self.base_url = "http://127.0.0.1:8000" # Conexão local
+        #self.base_url = "http://127.0.0.1:8000" # Conexão local
         #self.base_url = "https://api-tcc-cognitive.onrender.com"   # Conexão com Render
-        #self.base_url = "https://api-tcc-cognitive.vercel.app/"    # Conexão com a Vercel
+        self.base_url = "https://api-tcc-cognitive.vercel.app/"    # Conexão com a Vercel
 
     # --- AUTH ---
     def register_user(self, username, password, user_type, email, data_nascimento_str):
@@ -35,6 +35,29 @@ class Database:
             return False, res.json().get("detail", "Erro"), None, None
         except:
             return False, "Erro de conexão", None, None
+    
+    def change_password(self, user_id, old_pass, new_pass):
+        """
+        Envia solicitação para trocar a senha.
+        """
+        try:
+            url = f"{self.base_url}/users/{user_id}/password"
+            payload = {
+                "old_password": old_pass, 
+                "new_password": new_pass
+            }
+            
+            res = requests.put(url, json=payload)
+            
+            if res.status_code == 200:
+                return True, "Senha alterada com sucesso!"
+            
+            # Pega o erro da API (ex: "Senha atual incorreta")
+            msg = res.json().get("detail", "Erro ao alterar senha.")
+            return False, msg
+            
+        except Exception as e:
+            return False, "Erro de conexão."
 
     # --- PSICÓLOGO ---
     def get_patient_count(self, psicologo_id):

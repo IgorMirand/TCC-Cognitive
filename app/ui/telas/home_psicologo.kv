@@ -394,3 +394,126 @@
             icon_color: 1, 1, 1, 1
             pos_hint: {"right": .95, "bottom": .05}
             on_release: root.adicionar_horario_dialog()
+
+# ... existing code ...
+
+# --- NOVA TELA: RELATÓRIO ---
+<RelatorioPacienteScreen>:
+    name: "relatorio_paciente"
+    
+    MDFloatLayout:
+        md_bg_color: hex("#F5F7F6")
+
+        # Cabeçalho
+        MDBoxLayout:
+            orientation: "horizontal"
+            adaptive_height: True
+            padding: "16dp"
+            spacing: "12dp"
+            pos_hint: {"top": 1}
+            md_bg_color: hex("#92C7A3")
+            radius: [0, 0, 0, 20]
+            elevation: 2
+            
+            MDIconButton:
+                icon: "arrow-left"
+                theme_icon_color: "Custom"
+                icon_color: 1, 1, 1, 1
+                pos_hint: {"center_y": .5}
+                # Volta para a lista de pacientes
+                on_release: app.root.current = "pacientes"
+
+            MDLabel:
+                id: titulo_header
+                text: "Relatório Clínico"
+                font_style: "Title"
+                role: "large"
+                theme_text_color: "Custom"
+                text_color: 1, 1, 1, 1
+                pos_hint: {"center_y": .5}
+
+        # Conteúdo Rolável
+        MDScrollView:
+            pos_hint: {"top": .88}
+            do_scroll_x: False
+            
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                padding: "20dp"
+                spacing: "20dp"
+
+                # Card de Resumo (Texto)
+                MDCard:
+                    style: "elevated"
+                    orientation: "vertical"
+                    padding: "16dp"
+                    size_hint_y: None
+                    height: "120dp" # Altura fixa ou adaptive
+                    radius: [15]
+                    md_bg_color: 1, 1, 1, 1
+                    
+                    MDLabel:
+                        text: "Resumo da Análise"
+                        font_style: "Title"
+                        role: "small"
+                        theme_text_color: "Primary"
+                        adaptive_height: True
+                        
+                    MDLabel:
+                        id: lbl_resumo
+                        text: "Carregando dados..."
+                        font_style: "Body"
+                        role: "medium"
+                        theme_text_color: "Secondary"
+                        adaptive_height: True
+
+                # Gráfico 1: Evolução
+                MDCard:
+                    orientation: "vertical"
+                    size_hint_y: None
+                    height: "250dp"
+                    radius: [15]
+                    padding: "10dp"
+                    md_bg_color: 1, 1, 1, 1
+                    elevation: 1
+
+                    Image:
+                        id: img_evolucao
+                        source: "" 
+                        allow_stretch: True
+                        keep_ratio: True
+
+                # Gráfico 2: Distribuição
+                MDCard:
+                    orientation: "vertical"
+                    size_hint_y: None
+                    height: "250dp"
+                    radius: [15]
+                    padding: "10dp"
+                    md_bg_color: 1, 1, 1, 1
+                    elevation: 1
+
+                    Image:
+                        id: img_distribuicao
+                        source: ""
+                        allow_stretch: True
+                        keep_ratio: True
+
+        MDBoxLayout:
+            orientation: "horizontal"
+            adaptive_height: True
+            spacing: "20dp"
+            padding: "20dp"
+            
+
+            Widget:
+
+            MDButton:
+                style: "text"
+                size_hint_x: .4
+                height: "48dp"
+                on_release: root.view_patient_details_powerBI()
+                MDButtonText:
+                    text: "Relatório Power BI"
+                    text_color: 1, 1, 1, 1

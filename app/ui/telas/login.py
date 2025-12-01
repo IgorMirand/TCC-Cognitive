@@ -1,4 +1,5 @@
 import re
+import requests
 from kivy.clock import Clock
 from kivy.uix.screenmanager import Screen
 from kivy.uix.widget import Widget
