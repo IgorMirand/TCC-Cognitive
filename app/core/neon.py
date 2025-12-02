@@ -7,7 +7,7 @@ class Database:
         #self.base_url = "http://127.0.0.1:8000" # Conexão local
         #self.base_url = "https://api-tcc-cognitive.onrender.com"   # Conexão com Render
         self.base_url = "https://api-tcc-cognitive.vercel.app/"    # Conexão com a Vercel
-
+    
     # --- AUTH ---
     def register_user(self, username, password, user_type, email, data_nascimento_str):
         url = f"{self.base_url}/register"
@@ -65,8 +65,12 @@ class Database:
             res = requests.get(f"{self.base_url}/psicologo/{psicologo_id}/stats")
             if res.status_code == 200:
                 return True, res.json()['pacientes_count']
+            # --- DEBUG ---
+            print(f"Erro API Stats: {res.status_code} - {res.text}") 
             return False, 0
-        except: return False, 0
+        except Exception as e: 
+            print(f"Erro Conexão Stats: {e}")
+            return False, 0
 
     def get_next_appointment(self, psicologo_id):
         try:

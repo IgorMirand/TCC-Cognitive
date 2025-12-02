@@ -73,49 +73,50 @@ class PsychoHomeScreen(MDScreen):
         try:
             db = self.manager.app.db
             
-            # Busca contagem e próxima consulta (A API já filtra apenas os AGENDADOS)
+            # 1. Busca contagem
             success_count, count = db.get_patient_count(psicologo_id)
+            print(f"[DEBUG] Success: {success_count}, Count: {count}") # <--- DEBUG
+
+            # 2. Busca próxima consulta
             success_appt, next_appt = db.get_next_appointment(psicologo_id)
 
+            # Prepara os textos
+            if success_count:
+                texto_pacientes = f"{count} pacientes vinculados"
+            else:
+                texto_pacientes = "Erro ao contar"
+
             data_ui = {
-                'count_text': f"{count} pacientes vinculados" if success_count else "0 pacientes",
+                'count_text': texto_pacientes,
                 'appt_text': "Nenhuma consulta agendada"
             }
 
-            # Se a API retornou uma consulta (significa que tem alguém agendado)
+            # Lógica da próxima consulta (Mantém igual)
             if success_appt and next_appt:
                 data_iso, paciente_nome = next_appt
-                
-                # Tenta formatar a data bonito
                 try:
-                    # Remove o 'Z' do final se houver, para evitar erro de timezone simples
                     data_limpa = str(data_iso).replace('Z', '')
-                    
-                    try:
-                        # Tenta formato ISO padrão (2023-10-25T14:30:00)
+                    if 'T' in data_limpa:
                         dt = datetime.fromisoformat(data_limpa)
-                    except ValueError:
-                        # Tenta formato com espaço (2023-10-25 14:30:00)
+                    else:
                         dt = datetime.strptime(data_limpa, "%Y-%m-%d %H:%M:%S")
-                        
                     data_formatada = dt.strftime("%d/%m às %H:%M")
-                    
-                    # Define o texto final: "25/10 às 14:30 - João"
                     data_ui['appt_text'] = f"{data_formatada} - {paciente_nome}"
-                    
                 except Exception as e:
-                    print(f"Erro formatar data dashboard: {e}")
-                    # Se der erro na formatação, mostra como veio para não ficar vazio
                     data_ui['appt_text'] = f"{data_iso} - {paciente_nome}"
             
+            # Atualiza a UI
             Clock.schedule_once(lambda dt: self._update_dashboard_ui(data_ui))
             
         except Exception as e:
             print(f"Erro na thread dashboard: {e}")
 
     def _update_dashboard_ui(self, data_ui):
-        """Atualiza a propriedade subtitle dos Cards customizados."""
-        self.ids.patient_summary_card.subtitle = data_ui['count_text']
+        # Garante que os IDs existem antes de tentar atualizar
+        if hasattr(self.ids, 'patient_summary_card'):
+            self.ids.patient_summary_card.subtitle = data_ui['count_text']
+        if hasattr(self.ids, 'next_appointment_card'):
+            self.ids.next_appointment_card.subtitle = data_ui['appt_text']
 
     def navigate_to(self, screen_name):
         self.manager.current = screen_name
@@ -272,28 +273,43 @@ class PatientListScreen(MDScreen):
             pacientes = db.get_pacientes_do_psicologo(psicologo_id)
 
             if not pacientes:
-                lbl = MDLabel(text="Nenhum paciente vinculado.", halign="center", theme_text_color="Secondary")
+                # Cria um label simples se não tiver pacientes
+                lbl = MDLabel(
+                    text="Nenhum paciente vinculado.", 
+                    halign="center", 
+                    theme_text_color="Secondary"
+                )
                 list_widget.add_widget(lbl)
                 return
 
             for paciente_id, nome_paciente in pacientes:
+                # --- AQUI ESTAVA O PROBLEMA ---
+                # Criamos o item da lista de forma limpa
                 item = MDListItem(
-                    MDListItemLeadingIcon(icon="account-circle"),
+                    MDListItemLeadingIcon(
+                        icon="account-circle",
+                        theme_icon_color="Custom",
+                        icon_color=[0.57, 0.78, 0.64, 1] # Verde do tema
+                    ),
                     MDListItemHeadlineText(text=nome_paciente),
                     MDListItemSupportingText(text=f"ID: {paciente_id}"),
-                    # style="elevated",  <-- REMOVA ESTA LINHA (CAUSA O ERRO)
-                    radius=[15],
+                    
+                    # Propriedades visuais seguras
+                    # radius=[15], # Comente se der erro de lista/float
                     theme_bg_color="Custom",
                     md_bg_color=[1, 1, 1, 1], # Branco
-                    # elevation=1 <-- E REMOVA ESTA LINHA (CAUSA O ERRO)
+                    ripple_effect=True, # Efeito de clique
+                    
+                    # Evento de clique (Lambda correto)
+                    on_release=lambda x, pid=paciente_id, pname=nome_paciente: self.view_patient_details(pid, pname)
                 )
-                item.on_release = lambda pid=paciente_id, pname=nome_paciente: self.view_patient_details(pid, pname)
+                
                 list_widget.add_widget(item)
 
         except Exception as e:
-            print(f"Erro: {e}")
+            print(f"Erro lista pacientes: {e}")
             list_widget.add_widget(MDLabel(text="Erro ao carregar lista.", halign="center"))
-    
+
     def view_patient_details(self, paciente_id, nome_paciente):
         """
         Ao clicar no paciente, salva o ID na App e vai para a tela de relatório.
@@ -301,6 +317,7 @@ class PatientListScreen(MDScreen):
         print(f"Abrindo relatório para: {nome_paciente}")
         
         # 1. Salva o ID no app para a outra tela usar
+        # Criamos variáveis novas no app para não misturar com o diário
         self.manager.app.paciente_em_analise_id = paciente_id
         self.manager.app.paciente_em_analise_nome = nome_paciente
         
@@ -395,7 +412,7 @@ class RelatorioPacienteScreen(MDScreen):
         """
         
         # 1. Coloque aqui o seu Link Público ou Privado do Power BI
-        url_base = "https://app.powerbi.com/view?r=eyJrIjoiODI2ZDBjYTAtYWYzMS00YTljLWE4MWQtYjM2MDE4MTc4YjEwIiwidCI6ImRlZjQ0ZjhmLWFlM2EtNDA4MS1iY2EzLWYwODBhZDkzYTUxYyJ9"
+        url_base = "https://app.powerbi.com/view?r=eyJrIjoiYzZkOTBiZWYtMzNkOC00OTczLWE5YzQtMTI5NGY2ODU5MzQ4IiwidCI6ImRlZjQ0ZjhmLWFlM2EtNDA4MS1iY2EzLWYwODBhZDkzYTUxYyJ9"
         
         # (OPCIONAL) Filtrar pelo paciente específico
         # Se o seu relatório tiver uma tabela 'Pacientes' com coluna 'ID', você pode filtrar na URL:

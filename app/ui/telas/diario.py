@@ -50,19 +50,42 @@ class DiarioScreen(MDScreen):
             self.show_message("Seu histórico está vazio. \nRegistre como foi seu dia!")
             return
         
+        # Ordena a lista pela data (Decrescente)
+        lista_notas.sort(key=lambda x: x[1], reverse=True)
+        
         for (reg_id, data_iso, sentimento_id, anotacao, atividades_txt) in lista_notas:
             sentimento_txt = EMOCOES_MAP.get(sentimento_id, "Desconhecido")
             
+            # --- CORREÇÃO DA DATA AQUI ---
             try:
-                dt = datetime.fromisoformat(data_iso)
-                dt_local = dt.astimezone(pytz.timezone('America/Sao_Paulo'))
-                data_formatada = dt_local.strftime("%d/%m • %H:%M")
-            except Exception:
+                dt = None
+                # 1. Tenta o padrão ISO estrito (YYYY-MM-DDTHH:MM:SS)
+                try:
+                    dt = datetime.fromisoformat(data_iso)
+                except ValueError:
+                    # 2. Se falhar (ex: 2025-9-5...), tenta parse manual flexível
+                    # O strptime aceita digitos unicos
+                    dt = datetime.strptime(data_iso, "%Y-%m-%dT%H:%M:%S")
+
+                # 3. Garante Fuso Horário
+                if dt:
+                    # Se a data não tiver info de fuso, assume UTC para converter corretamente
+                    if dt.tzinfo is None:
+                        dt = pytz.utc.localize(dt)
+                    
+                    dt_local = dt.astimezone(pytz.timezone('America/Sao_Paulo'))
+                    data_formatada = dt_local.strftime("%d/%m • %H:%M")
+                else:
+                    data_formatada = data_iso # Fallback
+                    
+            except Exception as e:
+                # Se tudo falhar, mostra a data crua
+                print(f"Erro data: {e}") 
                 data_formatada = data_iso 
+            # -----------------------------
 
             icon_name, icon_color = self.get_icon_for_sentiment(sentimento_txt)
 
-            # Instancia o card definido no KV
             card = Factory.DiarioCard()
             
             card.ids.lbl_sentimento.text = sentimento_txt
@@ -79,13 +102,12 @@ class DiarioScreen(MDScreen):
         container = self.ids.tabela_container
         box = MDBoxLayout(orientation="vertical", size_hint_y=None, height="200dp", padding="20dp")
         
-        # --- CORREÇÃO AQUI (KivyMD 2.0.0) ---
         label = MDLabel(
             text=text, 
             halign="center", 
             theme_text_color="Hint",
-            font_style="Title", # Substitui 'H6'
-            role="medium"       # Define o tamanho
+            font_style="Title",
+            role="medium"
         )
         
         box.add_widget(label)
