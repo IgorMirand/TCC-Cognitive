@@ -3,8 +3,7 @@ from kivymd.uix.dialog import (
     MDDialog, 
     MDDialogHeadlineText, 
     MDDialogSupportingText,  
-    MDDialogButtonContainer,
-    MDDialogContentContainer
+    MDDialogButtonContainer
 )
 from kivymd.uix.list import MDListItem, MDListItemHeadlineText, MDListItemSupportingText, MDListItemLeadingIcon
 from kivymd.uix.button import MDButton,MDButtonText, MDIconButton
@@ -13,8 +12,10 @@ from kivy.uix.widget import Widget
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.card import MDCard
 from datetime import datetime
-import re
 from kivy.core.clipboard import Clipboard
+from kivymd.app import MDApp
+import re
+
 
 class HomeScreen(Screen):
 
@@ -248,24 +249,30 @@ class NotificationScreen(Screen):
         container = self.ids.container_notificacoes
         container.clear_widgets()
 
-        db = self.manager.app.db
-        user_id = self.manager.app.logged_user_id
+        # ACESSO CORRETO AO BANCO DE DADOS
+        app = MDApp.get_running_app() # Forma segura de pegar o app
+        db = app.db
+        user_id = app.logged_user_id
         
         # 1. Busca e marca como lidas
         notificacoes = db.get_minhas_notificacoes(user_id)
-        db.marcar_notificacoes_lidas(user_id)
+        
+        # Marca como lida apenas se tiver alguma não lida
+        tem_nao_lida = any(not n['lida'] for n in notificacoes)
+        if tem_nao_lida:
+            db.marcar_notificacoes_lidas(user_id)
 
         if not notificacoes:
             container.add_widget(MDLabel(text="Nenhuma notificação.", halign="center", pos_hint={"center_y": .5}))
             return
 
         for n in notificacoes:
+            # ... (O resto do seu código de criar MDListItem está perfeito) ...
+            # Mantenha exatamente como você fez:
             n_id = n['id']
-            # Ícone muda se já foi lida ou não
             icon_name = "email-open" if n['lida'] else "email-alert"
             icon_color = [0.5, 0.5, 0.5, 1] if n['lida'] else [0.29, 0.62, 0.22, 1]
             
-            # --- CRIA O ITEM DA LISTA ---
             item = MDListItem(
                 MDListItemLeadingIcon(
                     icon=icon_name, 
@@ -273,16 +280,14 @@ class NotificationScreen(Screen):
                     icon_color=icon_color
                 ),
                 MDListItemHeadlineText(text=n['titulo']),
-                MDListItemSupportingText(text=n['mensagem']), # Texto cortado aparece aqui
+                MDListItemSupportingText(text=n['mensagem']),
                 radius=[15],
                 theme_bg_color="Custom",
                 md_bg_color=[1, 1, 1, 1],
                 ripple_effect=True,
-                # AO CLICAR: Abre os detalhes para ver tudo e copiar
                 on_release=lambda x, t=n['titulo'], m=n['mensagem']: self.ver_detalhes(t, m)
             )
             
-            # Botão de Excluir (Lixeira)
             btn_del = MDIconButton(
                 icon="close",
                 pos_hint={"center_y": .5},

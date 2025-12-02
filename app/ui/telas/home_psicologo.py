@@ -395,7 +395,7 @@ class RelatorioPacienteScreen(MDScreen):
         """
         
         # 1. Coloque aqui o seu Link Público ou Privado do Power BI
-        url_base = "https://app.powerbi.com/reportEmbed?reportId=f82b9657-2ccd-43e4-a8b3-d79b5349d2e3&autoAuth=true&ctid=38ae2f02-5710-4e12-80bb-83600c3fdf1e"
+        url_base = "https://app.powerbi.com/view?r=eyJrIjoiODI2ZDBjYTAtYWYzMS00YTljLWE4MWQtYjM2MDE4MTc4YjEwIiwidCI6ImRlZjQ0ZjhmLWFlM2EtNDA4MS1iY2EzLWYwODBhZDkzYTUxYyJ9"
         
         # (OPCIONAL) Filtrar pelo paciente específico
         # Se o seu relatório tiver uma tabela 'Pacientes' com coluna 'ID', você pode filtrar na URL:
