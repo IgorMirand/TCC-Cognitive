@@ -338,6 +338,7 @@ class RelatorioPacienteScreen(MDScreen):
     def limpar_tela(self):
         self.ids.img_evolucao.texture = None
         self.ids.img_distribuicao.texture = None
+        self.ids.img_atividades.texture = None
         self.ids.lbl_resumo.text = "Carregando análise..."
 
     def carregar_dados(self, paciente_id):
@@ -353,26 +354,29 @@ class RelatorioPacienteScreen(MDScreen):
             # pegamos EXATAMENTE a mesma URL que o arquivo 'neon.py' está usando.
             # Se neon.py estiver localhost, usa localhost. Se estiver Render, usa Render.
             
-            base_url = "http://127.0.0.1:8000" # Fallback
+            base_url = "https://api-tcc-cognitive.vercel.app/"  #"http://127.0.0.1:8000" # Fallback
             
             if hasattr(self.manager.app, 'db') and hasattr(self.manager.app.db, 'base_url'):
                  base_url = self.manager.app.db.base_url
+            if not base_url.endswith('/'): base_url += '/'
             
-            # Garante a barra no final
-            if not base_url.endswith('/'):
-                base_url += '/'
+            # 1. Busca Análise Principal (Texto + Gráficos Antigos)
+            url_analise = f"{base_url}relatorios/analise/{pid}"
+            resp_analise = requests.get(url_analise)
+            data_analise = resp_analise.json() if resp_analise.status_code == 200 else {}
+
+            # 2. Busca Gráfico de Atividades (NOVO)
+            url_atividades = f"{base_url}relatorios/grafico_atividades/{pid}"
+            resp_ativ = requests.get(url_atividades)
+            data_ativ = resp_ativ.json() if resp_ativ.status_code == 200 else {}
+
+            # Junta tudo num dicionário só para atualizar a tela
+            dados_finais = {
+                **data_analise, 
+                'grafico_atividades': data_ativ.get('base64')
+            }
             
-            # Monta URL completa
-            full_url = f"{base_url}relatorios/analise/{pid}"
-            
-            resp = requests.get(full_url)
-            
-            if resp.status_code == 200:
-                data = resp.json()
-                Clock.schedule_once(lambda dt: self._update_ui(data))
-            else:
-                msg_erro = f"Erro {resp.status_code}: {resp.text}"
-                Clock.schedule_once(lambda dt: self._show_error(msg_erro))
+            Clock.schedule_once(lambda dt: self._update_ui(dados_finais))
                 
         except Exception as e:
             err_msg = str(e)
@@ -380,14 +384,21 @@ class RelatorioPacienteScreen(MDScreen):
 
     def _update_ui(self, data):
         # 1. Atualiza Texto
-        self.ids.lbl_resumo.text = data['resumo_texto']
+        self.ids.lbl_resumo.text = data.get('resumo_texto', 'Sem dados de resumo.')
 
-        # 2. Atualiza Gráficos
+        # 2. Atualiza Gráficos Antigos
         if data.get('grafico_evolucao_base64'):
             self.aplicar_grafico(self.ids.img_evolucao, data['grafico_evolucao_base64'])
             
         if data.get('grafico_distribuicao_base64'):
             self.aplicar_grafico(self.ids.img_distribuicao, data['grafico_distribuicao_base64'])
+
+        # 3. Atualiza NOVO Gráfico de Atividades
+        if data.get('grafico_atividades'):
+            self.aplicar_grafico(self.ids.img_atividades, data['grafico_atividades'])
+        else:
+            # Se não tiver dados, pode limpar ou por uma imagem padrão
+            self.ids.img_atividades.texture = None
 
     def _show_error(self, msg):
         self.ids.lbl_resumo.text = f"Não foi possível gerar o relatório.\n{msg}"
@@ -407,19 +418,11 @@ class RelatorioPacienteScreen(MDScreen):
             print(f"Erro ao renderizar imagem: {e}")
             
     def view_patient_details_powerBI(self):
-        """
-        Abre o navegador padrão com o Dashboard do Power BI.
-        """
-        
-        # 1. Coloque aqui o seu Link Público ou Privado do Power BI
-        url_base = "https://app.powerbi.com/view?r=eyJrIjoiYzZkOTBiZWYtMzNkOC00OTczLWE5YzQtMTI5NGY2ODU5MzQ4IiwidCI6ImRlZjQ0ZjhmLWFlM2EtNDA4MS1iY2EzLWYwODBhZDkzYTUxYyJ9"
-        
-        # (OPCIONAL) Filtrar pelo paciente específico
-        # Se o seu relatório tiver uma tabela 'Pacientes' com coluna 'ID', você pode filtrar na URL:
-        # url_final = f"{url_base}&filter=Pacientes/ID eq {paciente_id}"
-        
-        # Por enquanto, vamos abrir o link direto:
-        webbrowser.open(url_base)
+        # Busca o link na nuvem
+        db = self.manager.app.db
+        link = db.get_powerbi_url() 
+        if link:
+            webbrowser.open(link)
 
 # Classe customizada para o item da lista (suporta eventos de editar/excluir)
 class ActivityListItem(MDListItem):

@@ -44,6 +44,8 @@ Builder.load_file(resource_path("app/ui/telas/consulta_anotacao.kv"))
 
 class CognitiveApp(MDApp):
     def build(self):
+        self.icon = resource_path("app/assets/img.png") # Pode ser PNG aqui
+        self.title = "Cognitive"
         self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = "Green"
 

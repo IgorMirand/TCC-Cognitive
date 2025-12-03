@@ -201,6 +201,7 @@
                 id: patient_list_container
                 padding: "20dp"
                 spacing: "12dp"
+            
 
 #:import hex kivy.utils.get_color_from_hex
 
@@ -431,6 +432,16 @@
                 theme_text_color: "Custom"
                 text_color: 1, 1, 1, 1
                 pos_hint: {"center_y": .5}
+            
+            MDButton:
+                style: "text"
+                size_hint_x: .4
+                height: "48dp"
+                on_release: root.view_patient_details_powerBI()
+                MDButtonText:
+                    text: "Relatório Power BI"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
 
         # Conteúdo Rolável
         MDScrollView:
@@ -500,20 +511,53 @@
                         allow_stretch: True
                         keep_ratio: True
 
-        MDBoxLayout:
-            orientation: "horizontal"
-            adaptive_height: True
-            spacing: "20dp"
-            padding: "20dp"
-            
+                # --- NOVO: Gráfico 3 (Atividades) ---
+                MDCard:
+                    orientation: "vertical"
+                    size_hint_y: None
+                    height: "420dp" # Altura boa para caber tudo
+                    radius: [20]
+                    padding: "20dp"
+                    spacing: "10dp"
+                    # Cor de fundo levemente bege/cinza igual da imagem
+                    md_bg_color: hex("#EBEBEB") 
+                    elevation: 0 # Remove sombra para ficar "flat" como na imagem
+                    
+                    # Título Principal
+                    MDLabel:
+                        text: "Frequência de Atividades"
+                        halign: "center"
+                        font_style: "Title"
+                        role: "medium"
+                        adaptive_height: True
+                        theme_text_color: "Custom"
+                        text_color: 0.3, 0.3, 0.3, 1
+                    
+                    # Subtítulo
+                    MDLabel:
+                        text: "O que o paciente mais tem feito"
+                        halign: "center"
+                        font_style: "Body"
+                        role: "medium"
+                        adaptive_height: True
+                        theme_text_color: "Custom"
+                        text_color: 0.4, 0.4, 0.4, 1
 
-            Widget:
+                    # Linha Divisória Fina
+                    MDDivider:
+                        color: 0.7, 0.7, 0.7, 0.5
+                        size_hint_x: 0.8
+                        pos_hint: {"center_x": .5}
+                        padding_y: "10dp"
 
-            MDButton:
-                style: "text"
-                size_hint_x: .4
-                height: "48dp"
-                on_release: root.view_patient_details_powerBI()
-                MDButtonText:
-                    text: "Relatório Power BI"
-                    text_color: 1, 1, 1, 1
+                    # Imagem do Gráfico
+                    # Como o gráfico vem transparente da API, ele assume a cor do Card (#EBEBEB)
+                    Image:
+                        id: img_atividades
+                        source: ""
+                        allow_stretch: True
+                        keep_ratio: True
+
+                Widget:
+                    size_hint_y: None
+                    height: "100dp"

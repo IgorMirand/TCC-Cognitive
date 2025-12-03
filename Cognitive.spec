@@ -57,18 +57,20 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='Cognitive',            # Nome do arquivo final
+    name='Cognitive',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=False,               # False = Sem tela preta | True = Com tela preta (para testes)
+    console=False, 
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    # icon='app/assets/icone.ico', # Se tiver ícone .ico, tire o # da frente e ajuste o caminho
+    
+    # --- ADICIONE ISTO AQUI ---
+    icon='app/assets/img.ico', 
 )
 
 coll = COLLECT(

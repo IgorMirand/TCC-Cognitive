@@ -4,9 +4,9 @@ import json
 class Database:
     def __init__(self):
         # Em desenvolvimento use localhost. Em produção use a URL do Render.
-        #self.base_url = "http://127.0.0.1:8000" # Conexão local
+        self.base_url = "http://127.0.0.1:8000" # Conexão local
         #self.base_url = "https://api-tcc-cognitive.onrender.com"   # Conexão com Render
-        self.base_url = "https://api-tcc-cognitive.vercel.app/"    # Conexão com a Vercel
+        #self.base_url = "https://api-tcc-cognitive.vercel.app/"    # Conexão com a Vercel
     
     # --- AUTH ---
     def register_user(self, username, password, user_type, email, data_nascimento_str):
@@ -400,30 +400,29 @@ class Database:
             print(f"[ERRO API] excluir_horario: {e}")
             return False, "Erro de conexão."
         
-    def get_horarios_disponiveis(self, psicologo_id):
+    def get_horarios_paciente(self, psicologo_id, meu_id):
         """
-        Busca a agenda do psicólogo e retorna apenas os horários livres (sem paciente).
-        Retorna lista de tuplas: [(id, data_hora_iso, None), ...]
+        Busca a agenda e retorna:
+        1. Horários Livres (x[2] is None)
+        2. Horários Agendados por MIM (x[2] == meu_id)
         """
         try:
-            # Reutiliza a rota existente da API
             url = f"{self.base_url}/agenda/psicologo/{psicologo_id}"
             res = requests.get(url)
             
             if res.status_code == 200:
                 data = res.json()
-                todos_horarios = data.get('agenda', [])
+                todos = data.get('agenda', [])
                 
-                # Filtra: Mantém apenas se o paciente_id (índice 2) for None
-                # A estrutura vinda da API é [id, data_hora, paciente_id]
-                disponiveis = [tuple(x) for x in todos_horarios if x[2] is None]
+                # Filtra: Mostra se estiver LIVRE ou se for MEU
+                # x[2] é o paciente_id na lista [id, data, paciente_id]
+                lista_final = [tuple(x) for x in todos if x[2] is None or x[2] == meu_id]
                 
-                return disponiveis
+                return lista_final
             
             return []
-
         except Exception as e:
-            print(f"[ERRO API] get_horarios_disponiveis: {e}")
+            print(f"[ERRO API] get_horarios_paciente: {e}")
             return []
     
     def reservar_horario(self, agenda_id, paciente_id):
@@ -561,3 +560,21 @@ class Database:
             requests.put(f"{self.base_url}/notificacoes/marcar_lida/{user_id}")
             return True
         except: return False
+
+# --- Adicione dentro da class Database ---
+
+    def get_powerbi_url(self):
+        """
+        Busca o link atualizado do Power BI na API.
+        """
+        try:
+            url = f"{self.base_url}/config/powerbi"
+            res = requests.get(url)
+            
+            if res.status_code == 200:
+                return res.json().get("url")
+            
+            return None
+        except Exception as e:
+            print(f"[ERRO API] get_powerbi_url: {e}")
+            return None

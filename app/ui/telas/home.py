@@ -16,7 +16,6 @@ from kivy.core.clipboard import Clipboard
 from kivymd.app import MDApp
 import re
 
-
 class HomeScreen(Screen):
 
     dialog = None
@@ -157,9 +156,12 @@ class HomeScreen(Screen):
             print(f"Erro ao checar notificações: {e}")
 
 class AgendamentoScreen(Screen):
+    dialog = None # Importante: Inicialize a variável
+
     def on_enter(self):
         self.carregar_horarios()
 
+    # ... (Mantenha sua função carregar_horarios igual ao que fizemos antes) ...
     def carregar_horarios(self):
         container = self.ids.container_horarios
         container.clear_widgets()
@@ -173,46 +175,62 @@ class AgendamentoScreen(Screen):
             container.add_widget(MDLabel(text="Você ainda não tem psicólogo vinculado.", halign="center"))
             return
 
-        horarios = db.get_horarios_disponiveis(psicologo_id)
+        # Chama a função correta passando o MEU ID
+        horarios = db.get_horarios_paciente(psicologo_id, paciente_id)
         
         if not horarios:
-            container.add_widget(MDLabel(text="Sem horários disponíveis no momento.", halign="center"))
+            container.add_widget(MDLabel(text="Nenhum horário disponível.", halign="center"))
             return
 
-        # Loop com o ajuste do Unpack (ag_id, data_texto, _)
-        for ag_id, data_texto, _ in horarios:
-            
-            # 1. Converte Texto da API -> Objeto Data
+        for ag_id, data_texto, id_quem_agendou in horarios:
             try:
                 dt_obj = datetime.fromisoformat(data_texto)
             except ValueError:
                 dt_obj = datetime.strptime(data_texto, "%Y-%m-%d %H:%M:%S")
             
-            # 2. Converte Objeto Data -> Texto Bonito para Exibir (STRING)
             data_fmt = dt_obj.strftime("%d/%m - %H:%M") 
+
+            e_meu_agendamento = (id_quem_agendou == paciente_id)
+
+            if e_meu_agendamento:
+                cor_fundo = [0.57, 0.78, 0.64, 1] # Verde
+                texto_status = f"{data_fmt} (Confirmado)"
+                icone = "calendar-check"
+                # AGORA VAI FUNCIONAR PORQUE ADICIONAMOS A FUNÇÃO ABAIXO
+                acao = lambda x: self.show_popup("Agendado", "Você já garantiu este horário.")
+            else:
+                cor_fundo = [1, 1, 1, 1] # Branco
+                texto_status = data_fmt
+                icone = "calendar-plus"
+                acao = lambda x, i=ag_id, d=data_fmt: self.confirmar_agendamento(i, d)
 
             card = MDCard(
                 style="elevated",
                 size_hint_y=None,
                 height="80dp",
                 padding="15dp",
+                radius=[15],
                 ripple_behavior=True,
-                on_release=lambda x, i=ag_id, d=data_fmt: self.confirmar_agendamento(i, d)
+                theme_bg_color="Custom",
+                md_bg_color=cor_fundo,
+                on_release=acao
             )
             
-            layout = MDBoxLayout(orientation="horizontal")
-            layout.add_widget(MDIcon(icon="calendar-check", pos_hint={"center_y": .5}))
-            
-            # --- CORREÇÃO AQUI ---
-            # Use 'data_fmt' (que é string), NUNCA use 'dt_obj' ou 'data_texto' direto se não for string
+            layout = MDBoxLayout(orientation="horizontal", spacing="15dp")
+            layout.add_widget(MDIcon(
+                icon=icone, 
+                pos_hint={"center_y": .5},
+                theme_text_color="Custom",
+                text_color=[0,0,0,1] if not e_meu_agendamento else [1,1,1,1]
+            ))
             layout.add_widget(MDLabel(
-                text=data_fmt,  # <--- ISSO DEVE SER STRING
+                text=texto_status,
                 font_style="Title", 
                 role="medium", 
-                pos_hint={"center_y": .5}, 
-                padding=[20,0,0,0]
+                pos_hint={"center_y": .5},
+                theme_text_color="Custom",
+                text_color=[0,0,0,0.8] if not e_meu_agendamento else [1,1,1,1]
             ))
-            
             card.add_widget(layout)
             container.add_widget(card)
 
@@ -233,12 +251,40 @@ class AgendamentoScreen(Screen):
         
         success, msg = db.agendar_consulta(agenda_id, paciente_id)
         
-        self.dialog.dismiss()
-        # Feedback visual simples (pode ser um dialog de sucesso)
-        print(msg) 
+        if self.dialog:
+            self.dialog.dismiss()
+            
         if success:
-            self.manager.current = "home" # Volta pra home após agendar
+            self.show_popup("Sucesso", msg)
+            self.carregar_horarios() # Recarrega a lista para ficar verde
+        else:
+            self.show_popup("Erro", msg)
 
+    # --- ADICIONE ESTES MÉTODOS QUE FALTAVAM ---
+    def show_popup(self, title, message):
+        if self.dialog:
+            self.dialog.dismiss()
+        
+        self.dialog = MDDialog(
+            MDDialogHeadlineText(text=title),
+            MDDialogSupportingText(text=message),
+            MDDialogButtonContainer(
+                Widget(),
+                MDButton(
+                    MDButtonText(text="OK"),
+                    style="text",
+                    on_release=self.close_dialog,
+                ),
+                spacing="8dp"
+            ),
+            auto_dismiss=False
+        )
+        self.dialog.open()
+
+    def close_dialog(self, *args):
+        if self.dialog:
+            self.dialog.dismiss()
+            
 class NotificationScreen(Screen):
     dialog = None # Inicializa variável do dialog
 
