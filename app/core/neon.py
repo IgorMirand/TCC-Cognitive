@@ -4,9 +4,9 @@ import json
 class Database:
     def __init__(self):
         # Em desenvolvimento use localhost. Em produção use a URL do Render.
-        self.base_url = "http://127.0.0.1:8000" # Conexão local
+        #self.base_url = "http://127.0.0.1:8000" # Conexão local
         #self.base_url = "https://api-tcc-cognitive.onrender.com"   # Conexão com Render
-        #self.base_url = "https://api-tcc-cognitive.vercel.app/"    # Conexão com a Vercel
+        self.base_url = "https://api-tcc-cognitive.vercel.app/"    # Conexão com a Vercel
     
     # --- AUTH ---
     def register_user(self, username, password, user_type, email, data_nascimento_str):
