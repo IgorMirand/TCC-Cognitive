@@ -44,7 +44,7 @@ O projeto foi desenvolvido utilizando uma arquitetura Full Stack com Python:
 
 | Tela Inicial (Psicólogo) | Relatório de Evolução | Diário do Paciente |
 |:---:|:---:|:---:|
-| <img src="caminho_para_sua_imagem1.png" width="200"> | <img src="caminho_para_sua_imagem2.png" width="200"> | <img src="caminho_para_sua_imagem3.png" width="200"> |![Uploading image.png…]()
+| <img src="screenshots/home_psicologo.png" width="200"> | <img src="screenshots/grafico_atividades.png" width="200"> | <img src="screenshots/diario_paciente.png" width="200">
 
 
 ## ⚙️ Como Executar
