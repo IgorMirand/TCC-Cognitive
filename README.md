@@ -64,18 +64,13 @@ git clone https://github.com/IgorMirand/TCC-Cognitive.git
 ```bash
 pip install -r requirements.txt
 ```
-3. Configure as variáveis de ambiente (.env):
-```bash
-NEON_DB_URL=sua_url_do_banco
-SECRET_KEY=sua_chave_secreta
-```
-4. Execute a API:
+3. Execute a API:
 ```bash
 uvicorn main:app --reload
 ```
-5. Execute o App Mobile:
+4. Execute o App Mobile:
 ```bash
-python main_app.py
+python main.py
 ```
 
 ## 📄 Licença
