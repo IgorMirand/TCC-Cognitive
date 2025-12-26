@@ -44,9 +44,8 @@ O projeto foi desenvolvido utilizando uma arquitetura Full Stack com Python:
 
 | Tela Inicial (Psicólogo) | Relatório de Evolução | Diário do Paciente |
 |:---:|:---:|:---:|
-| <img src="caminho_para_sua_imagem1.png" width="200"> | <img src="caminho_para_sua_imagem2.png" width="200"> | <img src="caminho_para_sua_imagem3.png" width="200"> |
+| <img src="caminho_para_sua_imagem1.png" width="200"> | <img src="caminho_para_sua_imagem2.png" width="200"> | <img src="caminho_para_sua_imagem3.png" width="200"> |![Uploading image.png…]()
 
-*(Dica: Tire prints do app rodando, coloque na pasta do projeto e atualize os links acima)*
 
 ## ⚙️ Como Executar
 
@@ -78,7 +77,7 @@ uvicorn main:app --reload
 python main_app.py
 ```
 
-📄 Licença
+## 📄 Licença
 Este projeto está sob a licença MIT - veja o arquivo LICENSE.md para detalhes.
 
-Desenvolvido por [Seu Nome] [Seu LinkedIn] | [Seu Email]
+Desenvolvido por Igor Miranda Moura | Raiel Ferreira Araujo | Igor Nunes Araujo.
