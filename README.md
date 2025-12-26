@@ -39,7 +39,7 @@ O projeto foi desenvolvido utilizando uma arquitetura Full Stack com Python:
 * **PostgreSQL (Neon DB):** Banco de dados relacional na nuvem.
 * **Pandas & Matplotlib:** Processamento de dados e geração de gráficos server-side.
 * **Bcrypt:** Criptografia de senhas e segurança.
-* **Link da API:** https://github.com/IgorMirand/Api-TCC-Cognitive
+* **Link da API:** https://api-tcc-cognitive.vercel.app/
 
 ## 📱 Screenshots
 
